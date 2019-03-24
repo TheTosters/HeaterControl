@@ -1,0 +1,6 @@
+(fp_lib_table
+  (lib (name Laird)(type KiCad)(uri ${KIPRJMOD}/Laird.pretty)(options "")(descr ""))
+  (lib (name SHT30-DIS-B)(type Legacy)(uri ${KIPRJMOD}/SHT30-DIS-B.mod)(options "")(descr ""))
+  (lib (name BS-3)(type Legacy)(uri ${KIPRJMOD}/BS-3.mod)(options "")(descr ""))
+  (lib (name Tag-Connect)(type Legacy)(uri ${KIPRJMOD}/Tag-Connect.mod)(options "")(descr ""))
+)
