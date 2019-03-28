@@ -13,17 +13,16 @@ extern "C" {
 
 #include "i2c_bridge.h"
 #include "ssd1306.h"
-
-//#include "Adafruit_GFX.h"
-//#include "nrf_drv_twi.h"
-//#include "SSD1306.h"
-
+#include <sstream>
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
 
+extern uint8_t Chewy_Regular_42[];
+
 namespace {
 I2c_Bridge i2cBridge(nullptr);
+FontBridge chewyRegularFont { Chewy_Regular_42 };
 }
 
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
@@ -54,9 +53,6 @@ void powerManagementInit() {
   APP_ERROR_CHECK(err_code);
 }
 
-extern uint8_t Chewy_Regular_42[];
-FontBridge chewyRegularFont { Chewy_Regular_42 };
-
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
@@ -68,21 +64,25 @@ int main( int argc, const char* argv[] ) {
   bleStackInit();
   SSD1306 ssd1306(i2cBridge);
   ssd1306.begin();
-  ssd1306.clear();
-  ssd1306.setFont( &chewyRegularFont );
-  ssd1306.drawString(0, 20, "243");
-  ssd1306.updateDisplay();
-  //ds18b20_setResolution(0x7F);
+  ssd1306.setFont(&chewyRegularFont);
+  ds18b20_setResolution(12);
 
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);
     nrf_delay_ms(1000);
-
-//    float temp = ds18b20_get_temp_method_2();
-//    NRF_LOG_ERROR("TEMP: %d\n", (int)(temp*10));
-    NRF_LOG_FLUSH();
-    NRF_LOG_PROCESS();
+    float tempF = ds18b20_get_temp_method_2();
+    int integral = (int)tempF;
+    int fract = (int)(tempF*100) - integral * 100;
+    std::stringstream s;
+    s.precision(2);
+    s << integral << '.' << fract;
+    ssd1306.clear();
+    ssd1306.drawString(0, 10, s.str());
+    ssd1306.updateDisplay();
+//    NRF_LOG_ERROR("TEMP: %d\n", (int)(tempF*10));
+//    NRF_LOG_FLUSH();
+//    NRF_LOG_PROCESS();
 
     //nrf_pwr_mgmt_run();
   }

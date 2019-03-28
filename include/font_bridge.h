@@ -40,25 +40,25 @@ class FontBridge {
 public:
   FontBridge(const uint8_t* fontBuffer)
     : fontBuffer(fontBuffer),
-      firstChar( *(fontBuffer + FIRST_CHAR_POS) ){
+      fontsDescr( reinterpret_cast<const FontsDesc*>(fontBuffer)) {
   }
 
   unsigned int getFontWidth(uint8_t character) const {
     return charDescr(character)->width;
   }
 
-  unsigned int getFontHeight() const {
-    return *(fontBuffer + HEIGHT_POS);
+  int getFontHeight() const {
+    return fontsDescr->height;
   }
 
   unsigned int getFirstChar() const {
-    return firstChar;
+    return fontsDescr->firstChar;
   }
 
   FontCharacter getCharacter(uint8_t character) const {
     const CharDesc* cd = charDescr(character);
-    unsigned int sizeOfJumpTable = firstChar * JUMPTABLE_BYTES;
-    unsigned int charDataPosition = JUMPTABLE_START + sizeOfJumpTable +
+    unsigned int sizeOfJumpTable = fontsDescr->numberOfChars * sizeof(CharDesc);
+    unsigned int charDataPosition = sizeof(FontsDesc) + sizeOfJumpTable +
                 ((cd->msb << 8) + cd->lsb);
     const uint8_t* ptr = fontBuffer + charDataPosition;
     FontCharacter result(cd, ptr);
@@ -66,23 +66,18 @@ public:
   }
 
 private:
-  enum JumpTable{
-    JUMPTABLE_BYTES = 4,
-    JUMPTABLE_START = 4,
-  };
-
-  enum FontSpec {
-    WIDTH_POS = 0,
-    HEIGHT_POS = 1,
-    FIRST_CHAR_POS = 2,
-    CHAR_NUM_POS = 3,
-  };
+  typedef struct __attribute__((packed)) {
+    uint8_t width;
+    uint8_t height;
+    uint8_t firstChar;
+    uint8_t numberOfChars;
+  } FontsDesc;
 
   const uint8_t* fontBuffer;
-  const unsigned int firstChar;
+  const FontsDesc* fontsDescr;
 
   unsigned int charDescrOffset(uint8_t character) const {
-    return JUMPTABLE_START + (character - firstChar) * JUMPTABLE_BYTES;
+    return sizeof(FontsDesc) + (character - fontsDescr->firstChar) * sizeof(CharDesc);
   }
 
   const CharDesc* charDescr(uint8_t character) const {

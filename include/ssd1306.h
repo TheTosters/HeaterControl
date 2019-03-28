@@ -27,7 +27,7 @@ public:
   unsigned int height() const { return 64;}
 
 private:
-  using ScreenBuffer = std::array<uint8_t, 1 + 128 * 64 / 8>;
+  using ScreenBuffer = std::array<uint8_t, 1 + (128 * 64) / 8>;
 
   I2c_Bridge&   bridge;
   ScreenBuffer screen;

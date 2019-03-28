@@ -99,7 +99,6 @@ void SSD1306::updateDisplay() {
 
   constexpr uint8_t chunkSize = 254;
   ScreenBuffer::iterator offset = std::next(screen.begin());
-
   //TODO: reimplement to use easyDma + PPI
   do {
     uint8_t size = (screen.end() - offset) >= chunkSize ?
@@ -133,7 +132,8 @@ void SSD1306::sendCmdStream(std::vector<uint8_t>& cmds) {
 void SSD1306::drawInternal(int x, int y, const FontCharacter& character) {
 
   // fast ceil(height / 8.0)
-  int rasterHeight = 1 + ((font->getFontHeight() - 1) / 8);
+  //int rasterHeight = 1 + ((font->getFontHeight() - 1) / 8);
+  int rasterHeight = 1 + ((font->getFontHeight() - 1) >> 3);
   int yOffset = y & 7;
   unsigned int bytesInData = character.charByteSize() == 0
       ? character.charWidth() * rasterHeight : character.charByteSize();
@@ -152,7 +152,8 @@ void SSD1306::drawInternal(int x, int y, const FontCharacter& character) {
     uint8_t currentByte = character.getDataByte(i);
 
     int xPos = x + (i / rasterHeight);
-    int yPos = ((y / 8) + (i % rasterHeight)) * this->width();
+//    int yPos = ((y / 8) + (i % rasterHeight)) * this->width();
+    int yPos = ((y >> 3) + (i % rasterHeight)) * this->width();
 
     int dataPos = xPos + yPos;
     const int displayBufferSize = screen.size() - 1;
@@ -180,6 +181,7 @@ void SSD1306::drawInternal(int x, int y, const FontCharacter& character) {
 }
 
 void SSD1306::drawString(int x, int y, const std::string& text) {
+  FontCharacter character2 = font->getCharacter(32);
 
   unsigned int textWidth = getStringWidth(text);
 
