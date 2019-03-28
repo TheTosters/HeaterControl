@@ -1,0 +1,46 @@
+//-----------------
+// This are pins configuration for various code parts
+
+//I2C
+#define CONFIG_SDA_PIN      NRF_GPIO_PIN_MAP(0, 27)
+#define CONFIG_SCL_PIN      NRF_GPIO_PIN_MAP(0, 26)
+#define CONFIG_DS18B20_PIN  NRF_GPIO_PIN_MAP(0,  2)
+
+#define CONFIG_SSD1306_I2C_ADDRESS   ((uint8_t)0x3C)
+
+
+//-----------------
+//This are defines for sdk
+#define NRF_LOG_ENABLED 1
+#define NRF_LOG_USES_TIMESTAMP 0
+#define NRF_LOG_BACKEND_UART_ENABLED 0
+#define NRF_LOG_BACKEND_RTT_ENABLED 1
+#define NRF_LOG_DEFERRED 0
+
+//SEGGER RTT
+#define NRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE 64
+#define NRF_LOG_BACKEND_RTT_TX_RETRY_CNT 3
+#define NRF_LOG_BACKEND_RTT_TX_RETRY_DELAY_MS 2
+
+#define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 512
+#define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 2
+#define SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN 16
+#define SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS 2
+#define SEGGER_RTT_CONFIG_DEFAULT_MODE 0
+
+//SoftDevice
+#define NRF_SDH_BLE_ENABLED 1
+#define NRF_SDH_ENABLED 1
+
+//Power management
+#define NRF_PWR_MGMT_ENABLED 1
+//
+////TWI
+#define TWI_ENABLED 1
+#define TWI0_ENABLED 1
+#define TWI0_USE_EASY_DMA 1
+
+//#define NRFX_TWIM_CONFIG_LOG_ENABLED 1
+//#define TWI_CONFIG_LOG_ENABLED 1
+//#define TWI_CONFIG_LOG_LEVEL 5
+
