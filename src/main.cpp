@@ -10,10 +10,12 @@ extern "C" {
 #include "nrf_sdh_ble.h"
 #include "nrf_pwr_mgmt.h"
 #include "bsp.h"
+#include "app_timer.h"
 }
 
 #include "i2c_bridge.h"
 #include "ssd1306.h"
+#include "buttons.h"
 #include <sstream>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -24,6 +26,7 @@ extern uint8_t Chewy_Regular_42[];
 namespace {
 I2c_Bridge i2cBridge(nullptr);
 FontBridge chewyRegularFont { Chewy_Regular_42 };
+Buttons buttons;
 }
 
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
@@ -61,13 +64,15 @@ int main( int argc, const char* argv[] ) {
   NRF_LOG_FLUSH();
   bsp_board_init(BSP_INIT_LEDS);
   powerManagementInit();
+  uint32_t err_code = app_timer_init();
   i2cBridge.begin(CONFIG_SDA_PIN, CONFIG_SCL_PIN);
   bleStackInit();
   SSD1306 ssd1306(i2cBridge);
   ssd1306.begin();
   ssd1306.setFont(&chewyRegularFont);
   ds18b20_setResolution(12);
-  bsp_init(0,0);
+  buttons.begin();
+
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);
