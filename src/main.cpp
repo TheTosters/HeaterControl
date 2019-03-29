@@ -9,6 +9,7 @@ extern "C" {
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "nrf_pwr_mgmt.h"
+#include "bsp.h"
 }
 
 #include "i2c_bridge.h"
@@ -66,7 +67,7 @@ int main( int argc, const char* argv[] ) {
   ssd1306.begin();
   ssd1306.setFont(&chewyRegularFont);
   ds18b20_setResolution(12);
-
+  bsp_init(0,0);
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);

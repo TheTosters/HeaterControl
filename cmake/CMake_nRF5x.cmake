@@ -52,13 +52,14 @@ macro(nRF5x_setup)
 
         set(NRF5_LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/gcc_nrf52.ld")
         set(CPU_FLAGS "-mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
-        #add_definitions(-DNRF52 -DNRF52832 -DNRF52_PAN_64 -DNRF52_PAN_12 -DNRF52_PAN_58 -DNRF52_PAN_54 -DNRF52_PAN_31 -DNRF52_PAN_51 -DNRF52_PAN_36 -DNRF52_PAN_15 -DNRF52_PAN_20 -DNRF52_PAN_55 -DBOARD_PCA10040)
-        add_definitions(-DNRF52 -DNRF52840 -DBOARD_PCA10056 -DNRF52_SERIES -DNRF52840_XXAA -DCONFIG_APP_IN_CORE -DUSE_APP_CONFIG -DCONFIG_GPIO_AS_PINRESET)
-        #add_definitions(-DSOFTDEVICE_PRESENT -DS132 -DBLE_STACK_SUPPORT_REQD -DNRF_SD_BLE_API_VERSION=3)
-        #include_directories(
-        #        "${NRF5_SDK_PATH}/components/softdevice/s132/headers"
-        #        "${NRF5_SDK_PATH}/components/softdevice/s132/headers/nrf52"
-        #)
+
+        if(DEFINED CUSTOM_BOARD_INC)
+           SET(BOARD_VAR "-DCUSTOM_BOARD_INC=${CUSTOM_BOARD_INC}")
+        else()
+           SET(BOARD_VAR "-DNRF52840 -DBOARD_PCA10056 -DNRF52_SERIES -DNRF52840_XXAA")
+        endif()
+
+        add_definitions(-DNRF52 ${BOARD_VAR} -DCONFIG_APP_IN_CORE -DUSE_APP_CONFIG -DCONFIG_GPIO_AS_PINRESET)
         list(APPEND SDK_SOURCE_FILES
                 "${NRF5_SDK_PATH}/modules/nrfx/mdk/system_nrf52.c"
                 "${NRF5_SDK_PATH}/modules/nrfx/mdk/gcc_startup_nrf52.S"

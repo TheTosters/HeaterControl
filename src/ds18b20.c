@@ -42,6 +42,7 @@
 #include "nrf_delay.h"
 
 #include "ds18b20.h"
+#include "boards.h"
 #include <stdint.h>
 
 // Commands

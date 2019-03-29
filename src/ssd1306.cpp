@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include <algorithm>
 #include "nrf_log.h"
+#include "boards.h"
 
 //partially based on code from:
 //https://github.com/ThingPulse/esp8266-oled-ssd1306/blob/master

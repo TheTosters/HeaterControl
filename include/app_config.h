@@ -1,16 +1,13 @@
-//-----------------
-// This are pins configuration for various code parts
-
-//I2C
-#define CONFIG_SDA_PIN      NRF_GPIO_PIN_MAP(0, 27)
-#define CONFIG_SCL_PIN      NRF_GPIO_PIN_MAP(0, 26)
-#define CONFIG_DS18B20_PIN  NRF_GPIO_PIN_MAP(0,  2)
-
-#define CONFIG_SSD1306_I2C_ADDRESS   ((uint8_t)0x3C)
-
-
-//-----------------
 //This are defines for sdk
+
+//BSP support
+#define BUTTON_ENABLED 1
+#define APP_TIMER_ENABLED 1
+#define APP_GPIOTE_ENABLED 1
+#define NRFX_GPIOTE_ENABLED 1
+#define GPIOTE_ENABLED 1
+
+//Logs
 #define NRF_LOG_ENABLED 1
 #define NRF_LOG_USES_TIMESTAMP 0
 #define NRF_LOG_BACKEND_UART_ENABLED 0

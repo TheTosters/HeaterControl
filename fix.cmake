@@ -3,6 +3,7 @@ SET(SDK_SEARCH_DIRECTORIES
   ${NRF5_SDK_PATH}/modules/nrfx/hal
   ${NRF5_SDK_PATH}/modules/nrfx
   ${NRF5_SDK_PATH}/integration/nrfx
+  ${NRF5_SDK_PATH}/integration/nrfx/legacy
   ${NRF5_SDK_PATH}/modules/nrfx/mdk
   ${NRF5_SDK_PATH}/components/libraries/util
   ${NRF5_SDK_PATH}/components/libraries/delay
@@ -21,8 +22,10 @@ SET(SDK_SEARCH_DIRECTORIES
   ${NRF5_SDK_PATH}/components/softdevice/common
   ${NRF5_SDK_PATH}/components/libraries/pwr_mgmt
   ${NRF5_SDK_PATH}/components/libraries/mutex
-  ${NRF5_SDK_PATH}/integration/nrfx/legacy
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/include
+  ${NRF5_SDK_PATH}/components/libraries/bsp
+  ${NRF5_SDK_PATH}/components/libraries/button
+  ${NRF5_SDK_PATH}/components/libraries/timer
 )
 
 SET(EXTRA_SDK_SOURCE_FILES
@@ -51,5 +54,10 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_twi.c
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_twim.c
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/prs/nrfx_prs.c
+  ${NRF5_SDK_PATH}/components/libraries/bsp/bsp.c
+  ${NRF5_SDK_PATH}/components/libraries/timer/app_timer.c
+  ${NRF5_SDK_PATH}/components/libraries/button/app_button.c
+  ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_gpiote.c
+  ${NRF5_SDK_PATH}/components/libraries/gpiote/app_gpiote.c
 )
 
