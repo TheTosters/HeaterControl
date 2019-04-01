@@ -1,0 +1,104 @@
+PCBNEW-LibModule-V1  
+# encoding utf-8
+Units mm
+$INDEX
+DFN250X250X100-9N
+$EndINDEX
+$MODULE DFN250X250X100-9N
+Po 0 0 0 15 00000000 00000000 ~~
+Li DFN250X250X100-9N
+Cd 
+Sc 00000000
+At SMD
+Op 0 0 0
+.SolderMask 0
+.SolderPaste 0
+T0 -0.581394 -1.90676 0.480494 0.480494 0 0.05 N V 21 "DFN250X250X100-9N"
+T1 -0.275998 1.8952 0.480001 0.480001 0 0.05 N V 21 "VAL**"
+DS -1.25 1.25 1.25 1.25 0.127 21
+DS 1.25 1.25 1.25 -1.25 0.127 27
+DS 1.25 -1.25 -1.25 -1.25 0.127 21
+DS -1.25 -1.25 -1.25 1.25 0.127 27
+DP 0 0 0 0 4 0 19
+Dl -0.450426 -0.8
+Dl 0.45 -0.8
+Dl 0.45 0.800757
+Dl -0.450426 0.800757
+DC -1.5 -1.2 -1.4 -1.2 0 21
+DS -1.75 -1.5 -1.75 1.5 0.127 26
+DS -1.75 1.5 1.75 1.5 0.127 26
+DS 1.75 1.5 1.75 -1.5 0.127 26
+DS 1.75 -1.5 -1.75 -1.5 0.127 26
+DC 0 0 0.75 0 0.127 27
+$PAD
+Sh "1" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po -1.175 -0.75
+$EndPAD
+$PAD
+Sh "2" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po -1.175 -0.25
+$EndPAD
+$PAD
+Sh "3" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po -1.175 0.25
+$EndPAD
+$PAD
+Sh "4" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po -1.175 0.75
+$EndPAD
+$PAD
+Sh "8" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po 1.175 -0.75
+$EndPAD
+$PAD
+Sh "7" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po 1.175 -0.25
+$EndPAD
+$PAD
+Sh "6" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po 1.175 0.25
+$EndPAD
+$PAD
+Sh "5" R 0.55 0.25 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po 1.175 0.75
+$EndPAD
+$PAD
+Sh "9" R 1 1.7 0 0 0
+At SMD N 00888000
+.SolderMask 0
+Ne 0 ""
+Po 0 0
+$EndPAD
+$EndMODULE DFN250X250X100-9N
