@@ -39,7 +39,12 @@ macro(nRF5x_setup)
     set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
 
     include_directories(
-            "${NRF5_SDK_PATH}/components/softdevice/common/softdevice_handler"
+        "${NRF5_SDK_PATH}/components/softdevice/common/softdevice_handler"
+        "${NRF5_SDK_PATH}/modules/nrfx"
+        "${NRF5_SDK_PATH}/modules/nrfx/mdk"
+        "${NRF5_SDK_PATH}/modules/nrfx/hal"
+        "${NRF5_SDK_PATH}/components/toolchain/cmsis/include"
+        "${NRF5_SDK_PATH}/components/toolchain/cmsis/dsp/ARM"
     )
 
     list(APPEND SDK_SOURCE_FILES
@@ -54,25 +59,24 @@ macro(nRF5x_setup)
         set(CPU_FLAGS "-mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
 
         if(DEFINED CUSTOM_BOARD_INC)
-           SET(BOARD_VAR "-DCUSTOM_BOARD_INC=${CUSTOM_BOARD_INC}")
+           SET(BOARD_VAR "-DNRF52840_XXAA" -DNRF52_SERIES -DCUSTOM_BOARD_INC=${CUSTOM_BOARD_INC})
         else()
            SET(BOARD_VAR "-DNRF52840 -DBOARD_PCA10056 -DNRF52_SERIES -DNRF52840_XXAA")
         endif()
 
-        add_definitions(-DNRF52 ${BOARD_VAR} -DCONFIG_APP_IN_CORE -DUSE_APP_CONFIG -DCONFIG_GPIO_AS_PINRESET)
+        add_definitions( ${BOARD_VAR} -DCONFIG_APP_IN_CORE -DUSE_APP_CONFIG -DCONFIG_GPIO_AS_PINRESET)
         list(APPEND SDK_SOURCE_FILES
-                "${NRF5_SDK_PATH}/modules/nrfx/mdk/system_nrf52.c"
-                "${NRF5_SDK_PATH}/modules/nrfx/mdk/gcc_startup_nrf52.S"
+                "${NRF5_SDK_PATH}/modules/nrfx/mdk/system_nrf52840.c"
+                "${NRF5_SDK_PATH}/modules/nrfx/mdk/gcc_startup_nrf52840.S"
                 )
-        set(SOFTDEVICE_PATH "${NRF5_SDK_PATH}/components/softdevice/s132/hex/s132_nrf52_3.0.0_softdevice.hex")
     endif ()
 
-    set(COMMON_FLAGS "-MP -MD -mthumb -mabi=aapcs  -Werror -O0 -g3 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums ${CPU_FLAGS}")
+    set(COMMON_FLAGS "-MP -MD -mthumb -mabi=aapcs  -Werror -O0 -g3 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums ${CPU_FLAGS} ")
 
     # compiler/assambler/linker flags
     set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
     set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
-    set(CMAKE_ASM_FLAGS "-MP -MD -std=c99 -x assembler-with-cpp")
+    set(CMAKE_ASM_FLAGS "-MP -MD -std=c99 -x assembler-with-cpp -DNRF52840_XXAA -DBOARD_PCA10056")
     set(CMAKE_EXE_LINKER_FLAGS "-mthumb -mabi=aapcs -std=gnu++98 -std=c99 -L ${NRF5_SDK_PATH}/components/toolchain/gcc -L ${NRF5_SDK_PATH}/modules/nrfx/mdk -T${NRF5_LINKER_SCRIPT} ${CPU_FLAGS} -Wl,--gc-sections --specs=nano.specs -lc -lnosys -lm")
     # note: we must override the default cmake linker flags so that CMAKE_C_FLAGS are not added implicitly
     set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_COMPILER} <LINK_FLAGS> <OBJECTS> -o <TARGET>")

@@ -1,5 +1,5 @@
 //This are defines for sdk
-
+#define GPIO_COUNT 2
 //BSP support
 #define BUTTON_ENABLED 1
 #define APP_TIMER_ENABLED 1

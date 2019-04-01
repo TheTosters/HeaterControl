@@ -1,9 +1,11 @@
 #include "i2c_bridge.h"
 #include "ssd1306.h"
-#include <inttypes.h>
-#include <algorithm>
+
 #include "nrf_log.h"
 #include "boards.h"
+
+#include <inttypes.h>
+#include <algorithm>
 
 //partially based on code from:
 //https://github.com/ThingPulse/esp8266-oled-ssd1306/blob/master
@@ -56,8 +58,13 @@ enum SSD1306Cmd : uint8_t {
   VERTICAL_AND_LEFT_HORIZONTAL_SCROLL = 0x2A,
 };
 
-SSD1306::SSD1306(I2c_Bridge& bridge):
-bridge(bridge), font(nullptr) {
+SSD1306::SSD1306(I2c_Bridge& bridge)
+ : bridge(bridge),
+   font(nullptr) {
+}
+
+void SSD1306::end() {
+  sendCmd(DISPLAY_OFF);
 }
 
 void SSD1306::begin() {
@@ -182,7 +189,10 @@ void SSD1306::drawInternal(int x, int y, const FontCharacter& character) {
 }
 
 void SSD1306::drawString(int x, int y, const std::string& text) {
-  FontCharacter character2 = font->getCharacter(32);
+  if (font == nullptr) {
+    NRF_LOG_ERROR("Set Font first!");
+    return;
+  }
 
   unsigned int textWidth = getStringWidth(text);
 

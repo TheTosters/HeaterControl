@@ -14,19 +14,17 @@ extern "C" {
 }
 
 #include "i2c_bridge.h"
-#include "ssd1306.h"
 #include "buttons.h"
+#include "display.h"
 #include <sstream>
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
 
-extern uint8_t Chewy_Regular_42[];
-
 namespace {
 I2c_Bridge i2cBridge(nullptr);
-FontBridge chewyRegularFont { Chewy_Regular_42 };
 Buttons buttons;
+Display display(i2cBridge);
 }
 
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
@@ -67,25 +65,23 @@ int main( int argc, const char* argv[] ) {
   uint32_t err_code = app_timer_init();
   i2cBridge.begin(CONFIG_SDA_PIN, CONFIG_SCL_PIN);
   bleStackInit();
-  SSD1306 ssd1306(i2cBridge);
-  ssd1306.begin();
-  ssd1306.setFont(&chewyRegularFont);
   ds18b20_setResolution(12);
   buttons.begin();
+  display.begin();
 
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);
-    nrf_delay_ms(1000);
+    nrf_delay_ms(2000);
     float tempF = ds18b20_get_temp_method_2();
     int integral = (int)tempF;
     int fract = (int)(tempF*100) - integral * 100;
     std::stringstream s;
     s.precision(2);
     s << integral << '.' << fract;
-    ssd1306.clear();
-    ssd1306.drawString(0, 10, s.str());
-    ssd1306.updateDisplay();
+    display.clear();
+    display.drawString(0, 10, s.str());
+    display.update();
 //    NRF_LOG_ERROR("TEMP: %d\n", (int)(tempF*10));
 //    NRF_LOG_FLUSH();
 //    NRF_LOG_PROCESS();

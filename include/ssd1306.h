@@ -15,6 +15,7 @@ public:
   SSD1306(I2c_Bridge& bridge);
 
   void begin();
+  void end();
 
   void clear();
   void updateDisplay();
