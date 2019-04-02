@@ -64,7 +64,7 @@ macro(nRF5x_setup)
            SET(BOARD_VAR "-DNRF52840 -DBOARD_PCA10056 -DNRF52_SERIES -DNRF52840_XXAA")
         endif()
 
-        add_definitions( ${BOARD_VAR} -DCONFIG_APP_IN_CORE -DUSE_APP_CONFIG -DCONFIG_GPIO_AS_PINRESET)
+        add_definitions(${BOARD_VAR} -DCONFIG_APP_IN_CORE -DUSE_APP_CONFIG -DCONFIG_GPIO_AS_PINRESET)
         list(APPEND SDK_SOURCE_FILES
                 "${NRF5_SDK_PATH}/modules/nrfx/mdk/system_nrf52840.c"
                 "${NRF5_SDK_PATH}/modules/nrfx/mdk/gcc_startup_nrf52840.S"

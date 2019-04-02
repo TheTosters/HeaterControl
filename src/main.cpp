@@ -1,7 +1,8 @@
+
+
 extern "C" {
 #include "nrf_delay.h"
 #include "boards.h"
-#include "ds18b20.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log.h"
 #include "nrf_log_default_backends.h"
@@ -16,15 +17,17 @@ extern "C" {
 #include "i2c_bridge.h"
 #include "buttons.h"
 #include "display.h"
+#include "sensors.h"
 #include <sstream>
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
 
 namespace {
-I2c_Bridge i2cBridge(nullptr);
+I2c_Bridge i2cBridge{nullptr};
 Buttons buttons;
-Display display(i2cBridge);
+Display display{i2cBridge};
+Sensors sensors{i2cBridge};
 }
 
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
@@ -65,15 +68,15 @@ int main( int argc, const char* argv[] ) {
   uint32_t err_code = app_timer_init();
   i2cBridge.begin(CONFIG_SDA_PIN, CONFIG_SCL_PIN);
   bleStackInit();
-  ds18b20_setResolution(12);
   buttons.begin();
   display.begin();
+  sensors.begin();
 
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);
-    nrf_delay_ms(2000);
-    float tempF = ds18b20_get_temp_method_2();
+    nrf_delay_ms(1000);
+    float tempF = sensors.temperature;
     int integral = (int)tempF;
     int fract = (int)(tempF*100) - integral * 100;
     std::stringstream s;

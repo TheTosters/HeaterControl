@@ -5,6 +5,7 @@ extern "C" {
 #include "nrf_log.h"
 #include "boards.h"
 #include "nrf_gpio.h"
+#include "nrf_delay.h"
 }
 
 #include "i2c_bridge.h"
@@ -47,8 +48,8 @@ public:
   }
 
 private:
-  const unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(3000);
-  const unsigned int WARMUP_DELAY_MS = 13;
+  static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(3000);
+  static constexpr unsigned int WARMUP_DELAY_MS = 13;
   SSD1306 ssd1306;
   FontBridge chewyRegularFont;
   bool isPowered;
@@ -58,6 +59,7 @@ private:
   void powerUp() {
     if (not isPowered) {
       nrf_gpio_pin_set(CONFIG_OLED_PWR_PIN);
+      //TODO: this is spinlock, change to something more power efficient
       nrf_delay_ms(WARMUP_DELAY_MS);
       ssd1306.begin();
       ssd1306.setFont(&chewyRegularFont);

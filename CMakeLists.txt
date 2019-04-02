@@ -24,7 +24,6 @@ include_directories(${NRF5_SDK_PATH}/arm-none-eabi/include)
 
 list(APPEND SOURCE_FILES 
   "src/main.cpp"
-  "src/ds18b20.c"
   "src/i2c_bridge.cpp"
   "src/ssd1306.cpp"
   "src/chewy_regular42.cpp"
