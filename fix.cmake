@@ -26,6 +26,7 @@ SET(SDK_SEARCH_DIRECTORIES
   ${NRF5_SDK_PATH}/components/libraries/bsp
   ${NRF5_SDK_PATH}/components/libraries/button
   ${NRF5_SDK_PATH}/components/libraries/timer
+  ${NRF5_SDK_PATH}/components/ble/common
 )
 
 SET(EXTRA_SDK_SOURCE_FILES
@@ -59,5 +60,6 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${NRF5_SDK_PATH}/components/libraries/button/app_button.c
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_gpiote.c
   ${NRF5_SDK_PATH}/components/libraries/gpiote/app_gpiote.c
+  ${NRF5_SDK_PATH}/components/ble/common/ble_advdata.c
 )
 

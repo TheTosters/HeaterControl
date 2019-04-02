@@ -18,6 +18,7 @@ extern "C" {
 #include "buttons.h"
 #include "display.h"
 #include "sensors.h"
+#include "btle_transmiter.h"
 #include <sstream>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -28,28 +29,7 @@ I2c_Bridge i2cBridge{nullptr};
 Buttons buttons;
 Display display{i2cBridge};
 Sensors sensors{i2cBridge};
-}
-
-static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
-{
-}
-
-static void bleStackInit(void)
-{
-    ret_code_t err_code;
-
-    err_code = nrf_sdh_enable_request();
-    APP_ERROR_CHECK(err_code);
-
-    uint32_t ram_start = 0;
-    err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = nrf_sdh_ble_enable(&ram_start);
-    APP_ERROR_CHECK(err_code);
-
-    NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO, ble_evt_handler,
-        NULL);
+BtleTransmiter btleTransmiter{sensors};
 }
 
 void powerManagementInit() {
@@ -67,10 +47,10 @@ int main( int argc, const char* argv[] ) {
   powerManagementInit();
   uint32_t err_code = app_timer_init();
   i2cBridge.begin(CONFIG_SDA_PIN, CONFIG_SCL_PIN);
-  bleStackInit();
   buttons.begin();
   display.begin();
   sensors.begin();
+  btleTransmiter.begin();
 
   /* Toggle LEDs. */
   while (true) {
@@ -85,10 +65,6 @@ int main( int argc, const char* argv[] ) {
     display.clear();
     display.drawString(0, 10, s.str());
     display.update();
-//    NRF_LOG_ERROR("TEMP: %d\n", (int)(tempF*10));
-//    NRF_LOG_FLUSH();
-//    NRF_LOG_PROCESS();
-
     //nrf_pwr_mgmt_run();
   }
   return 0;

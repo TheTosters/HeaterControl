@@ -10,6 +10,7 @@ extern "C" {
 #include "nrf_log.h"
 #include "boards.h"
 #include "nrf_gpio.h"
+#include "ble_advdata.h"
 }
 
 
@@ -60,7 +61,6 @@ private:
   Ds18b20 ds18b20{oneWire};
 
   void configureSensors() {
-    //need to be called only once since it's in DS eprom
     ds18b20.begin();
     ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
     //TODO: Add code for SHT30 if needed
