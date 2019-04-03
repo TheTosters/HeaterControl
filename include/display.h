@@ -13,14 +13,21 @@ extern "C" {
 #include <string>
 
 extern uint8_t Chewy_Regular_42[];
+extern uint8_t ArialMT_Plain_10[];
+
+enum class SelectedFont {
+  SMALL, LARGE
+};
 
 class Display : TimerOwner{
 public:
   Display(I2c_Bridge& bridge)
     : TimerOwner(false, Display::timerHandler),
       ssd1306(bridge),
-      chewyRegularFont { Chewy_Regular_42 },
-      isPowered(false) {
+      largeFont { Chewy_Regular_42 },
+      smallFont { ArialMT_Plain_10 },
+      isPowered(false),
+      selectedFont(SelectedFont::SMALL) {
 
     nrf_gpio_cfg_output(CONFIG_OLED_PWR_PIN);
   }
@@ -42,12 +49,29 @@ public:
     restartTimer(TURNOFF_DELAY);
   }
 
+  void selectFont(SelectedFont font) {
+    selectedFont = font;
+    if (isPowered) {
+      applySelectedFont();
+    }
+  }
 private:
   static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(3000);
   static constexpr unsigned int WARMUP_DELAY_MS = 13;
   SSD1306 ssd1306;
-  FontBridge chewyRegularFont;
+  FontBridge largeFont;
+  FontBridge smallFont;
   bool isPowered;
+  SelectedFont selectedFont;
+
+  void applySelectedFont() {
+    if (selectedFont == SelectedFont::SMALL) {
+      ssd1306.setFont(&smallFont);
+
+    } else {
+      ssd1306.setFont(&largeFont);
+    }
+  }
 
   void powerUp() {
     if (not isPowered) {
@@ -55,7 +79,7 @@ private:
       //TODO: this is spinlock, change to something more power efficient
       nrf_delay_ms(WARMUP_DELAY_MS);
       ssd1306.begin();
-      ssd1306.setFont(&chewyRegularFont);
+      applySelectedFont();
       isPowered = true;
     }
   }

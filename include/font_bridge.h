@@ -38,7 +38,7 @@ private:
 
 class FontBridge {
 public:
-  FontBridge(const uint8_t* fontBuffer)
+  explicit FontBridge(const uint8_t* fontBuffer)
     : fontBuffer(fontBuffer),
       fontsDescr( reinterpret_cast<const FontsDesc*>(fontBuffer)) {
   }

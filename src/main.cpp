@@ -20,8 +20,9 @@ extern "C" {
 #include "display.h"
 #include "sensors.h"
 #include "btle_transmiter.h"
-//#include "calendar.h"
+#include "calendar.h"
 #include <sstream>
+#include <iomanip>
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
@@ -52,6 +53,7 @@ int main( int argc, const char* argv[] ) {
   Display display{i2cBridge};
   Sensors sensors{i2cBridge};
   Buttons buttons;
+  Calendar calendar;
   //BtleTransmiter btleTransmiter{sensors};
   //btleTransmiter.begin();
 
@@ -66,7 +68,17 @@ int main( int argc, const char* argv[] ) {
     s.precision(2);
     s << integral << '.' << fract;
     display.clear();
+    display.selectFont(SelectedFont::LARGE);
     display.drawString(0, 10, s.str());
+
+    display.selectFont(SelectedFont::SMALL);
+    std::stringstream s2;
+    s2.clear();
+    std::tm decoded = calendar.getDecodedTime();
+    s2 << decoded.tm_mday << '\\' << (decoded.tm_mon + 1) << "   " <<
+        std::setfill('0') << std::setw(2) <<
+        decoded.tm_hour << ':' << decoded.tm_min << ':' << decoded.tm_sec;
+    display.drawString(0, 0, s2.str());
     display.update();
     //nrf_pwr_mgmt_run();
   }
