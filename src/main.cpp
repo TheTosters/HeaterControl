@@ -21,6 +21,7 @@ extern "C" {
 #include "sensors.h"
 #include "btle_transmiter.h"
 #include "calendar.h"
+#include "xbm_icons.h"
 #include <sstream>
 #include <iomanip>
 
@@ -79,6 +80,9 @@ int main( int argc, const char* argv[] ) {
         std::setfill('0') << std::setw(2) <<
         decoded.tm_hour << ':' << decoded.tm_min << ':' << decoded.tm_sec;
     display.drawString(0, 0, s2.str());
+
+    display.drawXbm(display.width() - FLAME_ICON_W, 0, FLAME_ICON_W,
+        FLAME_ICON_H, flame_icon);
     display.update();
     //nrf_pwr_mgmt_run();
   }

@@ -55,6 +55,21 @@ public:
       applySelectedFont();
     }
   }
+
+  //TODO: encapsulate icon into class
+  void drawXbm(int x, int y, int width, int height, const uint8_t* xbmData) {
+    powerUp();
+    ssd1306.drawXbm(x, y, width, height, xbmData);
+  }
+
+  int width() {
+    return ssd1306.width();
+  }
+
+  int height() {
+    return ssd1306.width();
+  }
+
 private:
   static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(3000);
   static constexpr unsigned int WARMUP_DELAY_MS = 13;

@@ -228,3 +228,32 @@ unsigned int SSD1306::getStringWidth(const std::string& text) const {
 void SSD1306::setFont(FontBridge* font) {
   this->font = font;
 }
+
+void SSD1306::setPixel(int x, int y) {
+  if (x >= 0 && x < this->width() && y >= 0 && y < this->height()) {
+    int dataPos = x + (y / 8) * this->width();
+    screen[1 + dataPos] |=  (1 << (y & 7));
+  }
+}
+
+void SSD1306::drawXbm(int xx, int yy, int width, int height,
+    const uint8_t* xbmData) {
+
+  int widthInXbm = (width + 7) / 8;
+  uint8_t data = 0;
+
+  for(int y = 0; y < height; y++) {
+    for(int x = 0; x < width; x++ ) {
+      if (x & 7) {
+        data >>= 1; // Move a bit
+
+      } else {  // Read new data every 8 bit
+        data = *(xbmData + (x / 8) + y * widthInXbm);
+      }
+      // if there is a bit draw it
+      if (data & 0x01) {
+        setPixel(xx + x, yy + y);
+      }
+    }
+  }
+}

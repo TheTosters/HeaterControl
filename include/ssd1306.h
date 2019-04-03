@@ -27,6 +27,8 @@ public:
   unsigned int width() const { return 128;}
   unsigned int height() const { return 64;}
 
+  void drawXbm(int x, int y, int width, int height, const uint8_t* xbmData);
+  void setPixel(int x, int y);
 private:
   using ScreenBuffer = std::array<uint8_t, 1 + (128 * 64) / 8>;
 
