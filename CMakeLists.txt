@@ -26,7 +26,7 @@ list(APPEND SOURCE_FILES
   "src/main.cpp"
   "src/i2c_bridge.cpp"
   "src/ssd1306.cpp"
-  "src/chewy_regular42.cpp"
+  "src/fonts.cpp"
   "src/buttons.cpp"
   ${EXTRA_SDK_SOURCE_FILES}
 ) 
