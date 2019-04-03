@@ -10,9 +10,7 @@ public:
   using TwiErrorHandler = std::function<void(ret_code_t)>;
   using PinNo = uint32_t;
 
-  I2c_Bridge(TwiErrorHandler errorHandler);
-
-  void begin(PinNo sdaPin, PinNo sclPin);
+  I2c_Bridge(PinNo sdaPin, PinNo sclPin, TwiErrorHandler errorHandler);
   void send(uint8_t i2cAddress, uint8_t b1);
   void send(uint8_t i2cAddress, uint8_t b1, uint8_t b2);
   void send(uint8_t i2cAddress, uint8_t b1, uint8_t b2, uint8_t b3);

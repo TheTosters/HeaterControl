@@ -61,5 +61,7 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_gpiote.c
   ${NRF5_SDK_PATH}/components/libraries/gpiote/app_gpiote.c
   ${NRF5_SDK_PATH}/components/ble/common/ble_advdata.c
+  ${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_clock.c
+  ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_clock.c
 )
 

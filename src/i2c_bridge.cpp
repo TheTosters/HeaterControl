@@ -1,6 +1,7 @@
 #include "i2c_bridge.h"
 extern "C" {
 #include "nrf_delay.h"
+#include "nrf_log.h"
 #include "nrf_drv_twi.h"
 #include "nrf_pwr_mgmt.h"
 }
@@ -23,11 +24,8 @@ void defaultErrorHandler(ret_code_t err) {
 
 }
 
-I2c_Bridge::I2c_Bridge(TwiErrorHandler errorHandler)
+I2c_Bridge::I2c_Bridge(PinNo sdaPin, PinNo sclPin, TwiErrorHandler errorHandler)
 : errorHandler(errorHandler == nullptr ? defaultErrorHandler : errorHandler){
-}
-
-void I2c_Bridge::begin(PinNo sdaPin, PinNo sclPin) {
   const nrf_drv_twi_config_t config = {
      .scl                = sclPin,
      .sda                = sdaPin,

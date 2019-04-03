@@ -1,5 +1,6 @@
 #pragma once
 
+#include "timer_owner.h"
 #include "i2c_bridge.h"
 #include "one_wire.h"
 #include "ds18b20.h"
@@ -13,22 +14,24 @@ extern "C" {
 #include "ble_advdata.h"
 }
 
+//namespace {
 
-class Sensors {
+void SensorsTimerHandler(void* selfPtr) {
+}
+
+
+
+class Sensors : TimerOwner {
 public:
   float temperature;
   int humidity;
 
   Sensors(I2c_Bridge bridge)
-  : timerId(&timer), state(WAIT), temperature(0), humidity(0) {
-    UNUSED_PARAMETER(bridge); //needed for SHT30 in future
-  }
+  : TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
+    temperature(0), humidity(0) {
 
-  void begin() {
+    UNUSED_PARAMETER(bridge); //needed for SHT30 in future
     nrf_gpio_cfg_output(CONFIG_SENSORS_PWR_PIN);
-    ret_code_t ret = app_timer_create(&timerId, APP_TIMER_MODE_SINGLE_SHOT,
-        Sensors::timerHandler);
-    APP_ERROR_CHECK(ret);
     startTimer(STARTUP_INTERVAL);
   }
 
@@ -54,7 +57,7 @@ private:
     CONFIGURING, WAIT, POWERING_UP, MEASURING
   };
 
-  app_timer_t timer;
+  app_timer_t timer{};
   app_timer_id_t timerId;
   State state;
   OneWire oneWire{CONFIG_DS18B20_PIN};
@@ -64,14 +67,6 @@ private:
     ds18b20.begin();
     ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
     //TODO: Add code for SHT30 if needed
-  }
-
-  void startTimer(unsigned int delay) {
-    ret_code_t ret = app_timer_start(timerId, delay, this);
-    if (ret != NRFX_SUCCESS) {
-      NRF_LOG_ERROR("Can't start timer, queue full?");
-    }
-    APP_ERROR_CHECK(ret);
   }
 
   void powerUp() {

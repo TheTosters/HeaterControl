@@ -2,7 +2,6 @@
 #define GPIO_COUNT 2
 //BSP support
 #define BUTTON_ENABLED 1
-#define APP_TIMER_ENABLED 1
 #define APP_GPIOTE_ENABLED 1
 #define NRFX_GPIOTE_ENABLED 1
 #define GPIOTE_ENABLED 1
@@ -11,6 +10,10 @@
 #define APP_FIFO_ENABLED 1
 #define APP_SCHEDULER_ENABLED 1
 
+//Timer support
+#define APP_TIMER_ENABLED 1
+#define NRF_CLOCK_ENABLED 1
+#define CLOCK_CONFIG_LF_SRC 1
 
 //Logs
 #define NRF_LOG_ENABLED 1
@@ -33,11 +36,12 @@
 //SoftDevice
 #define NRF_SDH_BLE_ENABLED 1
 #define NRF_SDH_ENABLED 1
+#define NRF_SDH_SOC_ENABLED 1
 
 //Power management
 #define NRF_PWR_MGMT_ENABLED 1
-//
-////TWI
+
+//TWI
 #define TWI_ENABLED 1
 #define TWI0_ENABLED 1
 #define TWI0_USE_EASY_DMA 1

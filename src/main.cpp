@@ -12,6 +12,7 @@ extern "C" {
 #include "nrf_pwr_mgmt.h"
 #include "bsp.h"
 #include "app_timer.h"
+#include "nrf_drv_clock.h"
 }
 
 #include "i2c_bridge.h"
@@ -19,23 +20,22 @@ extern "C" {
 #include "display.h"
 #include "sensors.h"
 #include "btle_transmiter.h"
+//#include "calendar.h"
 #include <sstream>
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
 
-namespace {
-I2c_Bridge i2cBridge{nullptr};
-Buttons buttons;
-Display display{i2cBridge};
-Sensors sensors{i2cBridge};
-BtleTransmiter btleTransmiter{sensors};
-}
-
 void powerManagementInit() {
   ret_code_t err_code;
   err_code = nrf_pwr_mgmt_init();
   APP_ERROR_CHECK(err_code);
+}
+
+void initLowFreqClock() {
+  ret_code_t err_code = nrf_drv_clock_init();
+  APP_ERROR_CHECK(err_code);
+  nrf_drv_clock_lfclk_request(NULL);
 }
 
 int main( int argc, const char* argv[] ) {
@@ -45,12 +45,15 @@ int main( int argc, const char* argv[] ) {
   NRF_LOG_FLUSH();
   bsp_board_init(BSP_INIT_LEDS);
   powerManagementInit();
+  initLowFreqClock();
+
   uint32_t err_code = app_timer_init();
-  i2cBridge.begin(CONFIG_SDA_PIN, CONFIG_SCL_PIN);
-  buttons.begin();
-  display.begin();
-  sensors.begin();
-  btleTransmiter.begin();
+  I2c_Bridge i2cBridge{CONFIG_SDA_PIN, CONFIG_SCL_PIN, nullptr};
+  Display display{i2cBridge};
+  Sensors sensors{i2cBridge};
+  Buttons buttons;
+  //BtleTransmiter btleTransmiter{sensors};
+  //btleTransmiter.begin();
 
   /* Toggle LEDs. */
   while (true) {

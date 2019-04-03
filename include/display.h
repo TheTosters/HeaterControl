@@ -7,27 +7,22 @@ extern "C" {
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 }
-
+#include "timer_owner.h"
 #include "i2c_bridge.h"
 #include "ssd1306.h"
 #include <string>
 
 extern uint8_t Chewy_Regular_42[];
 
-class Display {
+class Display : TimerOwner{
 public:
   Display(I2c_Bridge& bridge)
-    : ssd1306(bridge),
+    : TimerOwner(false, Display::timerHandler),
+      ssd1306(bridge),
       chewyRegularFont { Chewy_Regular_42 },
-      isPowered(false),
-      timerId(&timer) {
-  }
+      isPowered(false) {
 
-  void begin() {
     nrf_gpio_cfg_output(CONFIG_OLED_PWR_PIN);
-    ret_code_t ret = app_timer_create(&timerId, APP_TIMER_MODE_SINGLE_SHOT,
-        Display::timerHandler);
-    APP_ERROR_CHECK(ret);
   }
 
   void clear() {
@@ -44,7 +39,7 @@ public:
     powerUp();
     ssd1306.updateDisplay();
     //this will restart timer if already running -> prolong execution
-    startTimer();
+    restartTimer(TURNOFF_DELAY);
   }
 
 private:
@@ -53,8 +48,6 @@ private:
   SSD1306 ssd1306;
   FontBridge chewyRegularFont;
   bool isPowered;
-  app_timer_t timer;
-  app_timer_id_t timerId;
 
   void powerUp() {
     if (not isPowered) {
@@ -71,18 +64,6 @@ private:
     isPowered = false;
     ssd1306.end();
     nrf_gpio_pin_clear(CONFIG_OLED_PWR_PIN);
-  }
-
-  void startTimer() {
-    ret_code_t err_code = app_timer_stop(timerId);
-    if (err_code != NRFX_SUCCESS) {
-      NRF_LOG_ERROR("Can't stop timer, this is not too good...");
-    }
-    err_code = app_timer_start(timerId, TURNOFF_DELAY, this);
-    if (err_code != NRFX_SUCCESS) {
-      NRF_LOG_ERROR("Can't start timer, queue full?");
-    }
-    APP_ERROR_CHECK(err_code);
   }
 
   static void timerHandler(void* self) {
