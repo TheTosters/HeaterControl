@@ -39,7 +39,7 @@ private:
   //static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(1 * 60 * 1000);
   static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(3 * 1000);
 
-  static constexpr unsigned int ADV_COUNT = 6;
+  static constexpr unsigned int ADV_COUNT = 12;
 
   const Sensors& sensors;
   app_timer_t timer;
