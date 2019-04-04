@@ -3,20 +3,14 @@
 #include <cstdlib>
 #include <initializer_list>
 
-template<typename T> class GenIconBridge {
+class IconBridge {
 public:
   int width;
   int height;
-  const T* data;
+  const uint8_t* data;
 
-  GenIconBridge(int w, int h, std::initializer_list<T> il);
+  IconBridge(int w, int h, const uint8_t* data)
+  : width(w), height(h), data(data) {
+
+  }
 };
-
-template<typename T>
-GenIconBridge<T>::GenIconBridge(int w, int h, std::initializer_list<T> li)
-: width(w), height(h), data(li.begin())
-{
-
-}
-
-using IconBridge = GenIconBridge<uint8_t>;

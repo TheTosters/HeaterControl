@@ -37,10 +37,12 @@ private:
   const uint8_t* charPtr;
 };
 
-template<typename T>
-class GenFontBridge {
+class FontBridge {
 public:
-  GenFontBridge(std::initializer_list<T> il);
+  FontBridge(const uint8_t* data) :
+    fontBuffer(data),
+    fontsDescr( reinterpret_cast<const FontsDesc*>(data)) {
+  }
 
   unsigned int getFontWidth(uint8_t character) const {
     return charDescr(character)->width;
@@ -83,11 +85,3 @@ private:
     return reinterpret_cast<const CharDesc*>(fontBuffer + charDescrOffset(character));
   }
 };
-
-template<typename T>
-GenFontBridge<T>::GenFontBridge(std::initializer_list<T> data)
-  : fontBuffer(data.begin()),
-    fontsDescr( reinterpret_cast<const FontsDesc*>(data.begin())) {
-}
-
-using FontBridge = GenFontBridge<uint8_t>;
