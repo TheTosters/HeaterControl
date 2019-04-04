@@ -41,6 +41,10 @@ public:
     ssd1306.drawString(x, y, text);
   }
 
+  unsigned int getStringWidth(const std::string& text) const {
+    return ssd1306.getStringWidth(text);
+  }
+
   void update() {
     powerUp();
     ssd1306.updateDisplay();

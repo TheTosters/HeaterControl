@@ -24,6 +24,7 @@ extern "C" {
 #include "resources/xbm_icons.h"
 #include <sstream>
 #include <iomanip>
+#include "screens/default_screen.h"
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
@@ -58,31 +59,17 @@ int main( int argc, const char* argv[] ) {
   //BtleTransmiter btleTransmiter{sensors};
   //btleTransmiter.begin();
 
+  DefaultScreen screen{display};
+
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);
     nrf_delay_ms(1000);
-    float tempF = sensors.temperature;
-    int integral = (int)tempF;
-    int fract = (int)(tempF*100) - integral * 100;
-    std::stringstream s;
-    s.precision(2);
-    s << integral << '.' << fract;
-    display.clear();
-    display.selectFont(SelectedFont::LARGE);
-    display.drawString(0, 10, s.str());
+    screen.setTempAndHum(sensors.temperature, 0);
+    screen.setHeatingIndicator(true);
+    screen.setTime(calendar.getDecodedTime());
+    screen.render();
 
-    display.selectFont(SelectedFont::SMALL);
-    std::stringstream s2;
-    s2.clear();
-    std::tm decoded = calendar.getDecodedTime();
-    s2 << decoded.tm_mday << '\\' << (decoded.tm_mon + 1) << "   " <<
-        std::setfill('0') << std::setw(2) <<
-        decoded.tm_hour << ':' << decoded.tm_min << ':' << decoded.tm_sec;
-    display.drawString(0, 0, s2.str());
-
-    display.drawXbm(display.width() - flameIcon.width, 0, flameIcon);
-    display.update();
     //nrf_pwr_mgmt_run();
   }
   return 0;
