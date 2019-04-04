@@ -10,6 +10,7 @@ extern "C" {
 #include "timer_owner.h"
 #include "i2c_bridge.h"
 #include "ssd1306.h"
+#include "icon_bridge.h"
 #include <string>
 
 extern uint8_t Chewy_Regular_42[];
@@ -56,10 +57,9 @@ public:
     }
   }
 
-  //TODO: encapsulate icon into class
-  void drawXbm(int x, int y, int width, int height, const uint8_t* xbmData) {
+  void drawXbm(int x, int y, const IconBridge& icon) {
     powerUp();
-    ssd1306.drawXbm(x, y, width, height, xbmData);
+    ssd1306.drawXbm(x, y, icon);
   }
 
   int width() {

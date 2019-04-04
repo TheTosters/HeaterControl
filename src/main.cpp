@@ -81,8 +81,7 @@ int main( int argc, const char* argv[] ) {
         decoded.tm_hour << ':' << decoded.tm_min << ':' << decoded.tm_sec;
     display.drawString(0, 0, s2.str());
 
-    display.drawXbm(display.width() - FLAME_ICON_W, 0, FLAME_ICON_W,
-        FLAME_ICON_H, flame_icon);
+    display.drawXbm(display.width() - flameIcon.width, 0, flameIcon);
     display.update();
     //nrf_pwr_mgmt_run();
   }

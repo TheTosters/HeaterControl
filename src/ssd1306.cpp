@@ -1,8 +1,10 @@
 #include "i2c_bridge.h"
 #include "ssd1306.h"
 
+extern "C" {
 #include "nrf_log.h"
 #include "boards.h"
+}
 
 #include <inttypes.h>
 #include <algorithm>
@@ -236,19 +238,18 @@ void SSD1306::setPixel(int x, int y) {
   }
 }
 
-void SSD1306::drawXbm(int xx, int yy, int width, int height,
-    const uint8_t* xbmData) {
+void SSD1306::drawXbm(int xx, int yy, const IconBridge& icon) {
 
-  int widthInXbm = (width + 7) / 8;
+  int widthInXbm = (icon.width + 7) / 8;
   uint8_t data = 0;
 
-  for(int y = 0; y < height; y++) {
-    for(int x = 0; x < width; x++ ) {
+  for(int y = 0; y < icon.height; y++) {
+    for(int x = 0; x < icon.width; x++ ) {
       if (x & 7) {
         data >>= 1; // Move a bit
 
       } else {  // Read new data every 8 bit
-        data = *(xbmData + (x / 8) + y * widthInXbm);
+        data = *(icon.data + (x / 8) + y * widthInXbm);
       }
       // if there is a bit draw it
       if (data & 0x01) {
