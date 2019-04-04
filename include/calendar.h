@@ -5,10 +5,14 @@ extern "C" {
 }
 
 #include "timer_owner.h"
+#include "observable.h"
+#include <functional>
 #include <stdint.h>
 #include <ctime>
 
-class Calendar : TimerOwner {
+using CalendarObserver = std::function<void(std::tm)>;
+
+class Calendar : TimerOwner, public Observable<CalendarObserver> {
 public:
   enum Day {
     SUNDAY = 0,
@@ -47,12 +51,13 @@ public:
 
 private:
   static constexpr unsigned int SEC_PER_TICK = 10;
-  static constexpr unsigned int TICK_DELAY = APP_TIMER_TICKS(SEC_PER_TICK * 3000);
+  static constexpr unsigned int TICK_DELAY = APP_TIMER_TICKS(SEC_PER_TICK * 1000);
 
   uint32_t  rawSeconds;
 
   static void timerHandler(void* selfPtr) {
     Calendar* self = static_cast<Calendar*>(selfPtr);
     self->rawSeconds += SEC_PER_TICK;
+    self->notify( self->getDecodedTime() );
   }
 };

@@ -25,6 +25,7 @@ extern "C" {
 #include <sstream>
 #include <iomanip>
 #include "screens/default_screen.h"
+#include "observable.h"
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
@@ -60,14 +61,14 @@ int main( int argc, const char* argv[] ) {
   //btleTransmiter.begin();
 
   DefaultScreen screen{display};
+  sensors.addObserver([&screen](float t, int h) {screen.setTempAndHum(t,h);});
+  calendar.addObserver([&screen](std::tm t) {screen.setTime(t);});
 
   /* Toggle LEDs. */
   while (true) {
     bsp_board_led_invert(0);
     nrf_delay_ms(1000);
-    screen.setTempAndHum(sensors.temperature, 0);
     screen.setHeatingIndicator(true);
-    screen.setTime(calendar.getDecodedTime());
     screen.render();
 
     //nrf_pwr_mgmt_run();
