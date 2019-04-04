@@ -1,4 +1,4 @@
-#include "i2c_bridge.h"
+#include "bridges/i2c_bridge.h"
 extern "C" {
 #include "nrf_delay.h"
 #include "nrf_log.h"

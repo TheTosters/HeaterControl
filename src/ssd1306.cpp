@@ -1,4 +1,4 @@
-#include "i2c_bridge.h"
+#include "bridges/i2c_bridge.h"
 #include "ssd1306.h"
 
 extern "C" {

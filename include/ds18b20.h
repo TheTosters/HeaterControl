@@ -1,6 +1,6 @@
 #pragma once
 
-#include "one_wire.h"
+#include "bridges/one_wire.h"
 #include <stdint.h>
 #include <algorithm>
 #include <array>

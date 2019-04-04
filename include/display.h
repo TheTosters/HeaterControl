@@ -8,10 +8,10 @@ extern "C" {
 #include "nrf_delay.h"
 }
 #include "timer_owner.h"
-#include "i2c_bridge.h"
+#include "bridges/i2c_bridge.h"
 #include "ssd1306.h"
-#include "icon_bridge.h"
-#include "fonts.h"
+#include "bridges/icon_bridge.h"
+#include "resources/fonts.h"
 #include <string>
 
 enum class SelectedFont {

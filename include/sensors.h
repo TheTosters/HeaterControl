@@ -1,8 +1,8 @@
 #pragma once
 
 #include "timer_owner.h"
-#include "i2c_bridge.h"
-#include "one_wire.h"
+#include "bridges/i2c_bridge.h"
+#include "bridges/one_wire.h"
 #include "ds18b20.h"
 #include <cinttypes>
 

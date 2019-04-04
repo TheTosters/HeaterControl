@@ -4,9 +4,9 @@
 #include <vector>
 #include <array>
 #include <string>
-#include "i2c_bridge.h"
-#include "font_bridge.h"
-#include "icon_bridge.h"
+#include "bridges/i2c_bridge.h"
+#include "bridges/font_bridge.h"
+#include "bridges/icon_bridge.h"
 
 enum SSD1306Cmd : uint8_t;
 

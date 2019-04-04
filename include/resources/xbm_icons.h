@@ -1,6 +1,6 @@
 #pragma once
 
-#include "icon_bridge.h"
+#include "bridges/icon_bridge.h"
 #include <stdint.h>
 
 const IconBridge flameIcon{ 16, 16, {

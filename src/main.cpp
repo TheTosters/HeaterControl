@@ -15,13 +15,13 @@ extern "C" {
 #include "nrf_drv_clock.h"
 }
 
-#include "i2c_bridge.h"
+#include "bridges/i2c_bridge.h"
 #include "buttons.h"
 #include "display.h"
 #include "sensors.h"
 #include "btle_transmiter.h"
 #include "calendar.h"
-#include "xbm_icons.h"
+#include "resources/xbm_icons.h"
 #include <sstream>
 #include <iomanip>
 

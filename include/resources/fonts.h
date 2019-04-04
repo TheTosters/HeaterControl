@@ -2,7 +2,7 @@
 // In case of problems make sure that you are using the font file with the correct version!
 #pragma once
 #include <cinttypes>
-#include <font_bridge.h>
+#include "bridges/font_bridge.h"
 
 const FontBridge Chewy_Regular_42{{
   0x24, // Width: 36
