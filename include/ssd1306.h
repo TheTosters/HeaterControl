@@ -21,7 +21,7 @@ public:
   void clear();
   void updateDisplay();
 
-  void setFont(FontBridge* font);
+  void setFont(const FontBridge* font);
   void drawString(int x, int y, const std::string& strUser);
   unsigned int getStringWidth(const std::string& text) const;
 
@@ -35,7 +35,7 @@ private:
 
   I2c_Bridge&   bridge;
   ScreenBuffer screen;
-  FontBridge* font;
+  const FontBridge* font;
 
   void sendCmd(SSD1306Cmd cmd);
   void sendCmd(SSD1306Cmd cmd, uint8_t param);

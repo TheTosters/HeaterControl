@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <initializer_list>
 
 typedef struct __attribute__((packed)) {
   uint8_t msb;
@@ -36,12 +37,10 @@ private:
   const uint8_t* charPtr;
 };
 
-class FontBridge {
+template<typename T>
+class GenFontBridge {
 public:
-  explicit FontBridge(const uint8_t* fontBuffer)
-    : fontBuffer(fontBuffer),
-      fontsDescr( reinterpret_cast<const FontsDesc*>(fontBuffer)) {
-  }
+  GenFontBridge(std::initializer_list<T> il);
 
   unsigned int getFontWidth(uint8_t character) const {
     return charDescr(character)->width;
@@ -84,3 +83,11 @@ private:
     return reinterpret_cast<const CharDesc*>(fontBuffer + charDescrOffset(character));
   }
 };
+
+template<typename T>
+GenFontBridge<T>::GenFontBridge(std::initializer_list<T> data)
+  : fontBuffer(data.begin()),
+    fontsDescr( reinterpret_cast<const FontsDesc*>(data.begin())) {
+}
+
+using FontBridge = GenFontBridge<uint8_t>;

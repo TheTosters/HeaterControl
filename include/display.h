@@ -11,10 +11,8 @@ extern "C" {
 #include "i2c_bridge.h"
 #include "ssd1306.h"
 #include "icon_bridge.h"
+#include "fonts.h"
 #include <string>
-
-extern uint8_t Chewy_Regular_42[];
-extern uint8_t ArialMT_Plain_10[];
 
 enum class SelectedFont {
   SMALL, LARGE
@@ -74,8 +72,8 @@ private:
   static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(3000);
   static constexpr unsigned int WARMUP_DELAY_MS = 13;
   SSD1306 ssd1306;
-  FontBridge largeFont;
-  FontBridge smallFont;
+  const FontBridge& largeFont;
+  const FontBridge& smallFont;
   bool isPowered;
   SelectedFont selectedFont;
 

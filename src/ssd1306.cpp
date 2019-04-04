@@ -227,7 +227,7 @@ unsigned int SSD1306::getStringWidth(const std::string& text) const {
   return stringWidth;
 }
 
-void SSD1306::setFont(FontBridge* font) {
+void SSD1306::setFont(const FontBridge* font) {
   this->font = font;
 }
 
