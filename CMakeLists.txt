@@ -9,14 +9,6 @@ set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "" FORCE)
 
 include("cmake/Toolchain.cmake")
-include("cmake/FindDependency.cmake")
-include("cmake/FindSDK.cmake")
-
-# We have to return manually from here s.t. the CMake generation
-# doesn't stop and we have the nRF5_SDK target available.
-if (NOT SDK_ROOT)
-    return()
-endif ()
 
 project(home-multi-temp C CXX ASM)
 
