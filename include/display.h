@@ -18,7 +18,7 @@ enum class SelectedFont {
   SMALL, LARGE
 };
 
-class Display : TimerOwner{
+class Display : TimerOwner {
 public:
   Display(I2c_Bridge& bridge)
     : TimerOwner(false, Display::timerHandler),
