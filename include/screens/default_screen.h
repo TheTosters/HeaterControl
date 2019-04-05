@@ -9,14 +9,14 @@
 #include <sstream>
 #include <iomanip>
 
-class DefaultScreen : Screen {
+class DefaultScreen : public Screen {
 public:
   DefaultScreen(Display& display) :
-    Screen(display)
+    Screen(display, SelectedScreen::DEFAULT)
   {
   }
 
-  virtual void render() override {
+  void render() {
     display.clear();
     drawMeasurements();
     drawTime();

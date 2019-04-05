@@ -25,6 +25,7 @@ extern "C" {
 #include <sstream>
 #include <iomanip>
 #include "screens/default_screen.h"
+#include "screens/screens_stack.h"
 #include "observable.h"
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -60,7 +61,8 @@ int main( int argc, const char* argv[] ) {
   //BtleTransmiter btleTransmiter{sensors};
   //btleTransmiter.begin();
 
-  DefaultScreen screen{display};
+  ScreensStack stack;
+  DefaultScreen& screen = stack.add( DefaultScreen{display} );
   sensors.addObserver([&screen](float t, int h) {screen.setTempAndHum(t,h);});
   calendar.addObserver([&screen](std::tm t) {screen.setTime(t);});
 

@@ -1,14 +1,17 @@
 #pragma once
 #include "display.h"
 
+enum class SelectedScreen {
+  DEFAULT
+};
+
 class Screen {
 public:
-  Screen(Display& display) :
-    display(display) {
-  }
-  virtual ~Screen() = default;
+  const SelectedScreen id;
 
-  virtual void render() = 0;
+  Screen(Display& display, const SelectedScreen id) :
+    id(id), display(display) {
+  }
 
 protected:
   Display& display;
