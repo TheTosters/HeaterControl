@@ -7,6 +7,7 @@
 #include "observable.h"
 #include <cinttypes>
 #include <math.h>
+#include "sht30.h"
 
 extern "C" {
 #include "app_timer.h"
@@ -23,14 +24,16 @@ public:
   float temperature;
   int humidity;
 
-  Sensors(I2c_Bridge bridge)
-  : TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
-    temperature(0), humidity(0) {
+  Sensors(I2c_Bridge& bridge)
+  : bridge(bridge), TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
+    temperature(0), humidity(0), sht30(bridge) {
 
-    UNUSED_PARAMETER(bridge); //needed for SHT30 in future
     nrf_gpio_cfg_output(CONFIG_SENSORS_PWR_PIN);
     startTimer(STARTUP_INTERVAL);
   }
+
+  Sensors(const Sensors&) = delete;
+  Sensors& operator=(const Sensors&) = delete;
 
 private:
   //initial configuration and power on delay
@@ -54,6 +57,7 @@ private:
     CONFIGURING, WAIT, POWERING_UP, MEASURING
   };
 
+  I2c_Bridge& bridge;
   app_timer_t timer{};
   app_timer_id_t timerId;
   State state;
@@ -61,11 +65,11 @@ private:
   Ds18b20 ds18b20{oneWire};
   float lastTemp{0};
   int lastHum{0};
+  Sht30 sht30;
 
   void configureSensors() {
     ds18b20.begin();
     ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
-    //TODO: Add code for SHT30 if needed
   }
 
   void powerUp() {
@@ -77,13 +81,14 @@ private:
   }
 
   void measure() {
-    //TODO: add sht30 if/when needed
+    sht30.RequestMeasurements();
     ds18b20.requestTemperatures();
   }
 
   void collectMeasurement() {
-    //TODO: add sht30 if/when needed
-    temperature = ds18b20.getTempC();
+    temperature = static_cast<float>(sht30.GetTemperature());
+    humidity = static_cast<float>(sht30.GetRelHumidity());
+    //temperature = ds18b20.getTempC();
     checkForNotification();
     powerDown();
   }
