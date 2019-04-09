@@ -21,8 +21,8 @@ using SensorsObserver = std::function<void(float, int)>;
 
 class Sensors : TimerOwner, public Observable<SensorsObserver> {
 public:
-  float temperature;
-  int humidity;
+  Sht30::tempC temperature;
+  Sht30::relHum humidity;
 
   Sensors(I2c_Bridge& bridge)
   : bridge(bridge), TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
@@ -63,8 +63,8 @@ private:
   State state;
   OneWire oneWire{CONFIG_DS18B20_PIN};
   Ds18b20 ds18b20{oneWire};
-  float lastTemp{0};
-  int lastHum{0};
+  Sht30::tempC lastTemp{0};
+  Sht30::relHum lastHum{0};
   Sht30 sht30;
 
   void configureSensors() {
@@ -86,21 +86,21 @@ private:
   }
 
   void collectMeasurement() {
-    temperature = static_cast<float>(sht30.GetTemperature());
-    humidity = static_cast<float>(sht30.GetRelHumidity());
+    temperature = sht30.GetTemperature();
+    humidity = sht30.GetRelHumidity();
     //temperature = ds18b20.getTempC();
     checkForNotification();
     powerDown();
   }
 
   void checkForNotification() {
-    int curT = (int)(temperature * 100);
-    int lastT = (int)(lastTemp * 100);
-    if ((abs(curT - lastT) > 20) or
+    Sht30::tempC curT = temperature * 100;
+    Sht30::tempC lastT = lastTemp * 100;
+    if (((curT - lastT).abs() > Sht30::tempC(20)) or
         (lastHum != humidity)) {
       lastTemp = temperature;
       lastHum = humidity;
-      notify(temperature, humidity);
+      notify(static_cast<float>(temperature), static_cast<int>(humidity));
     }
   }
 
