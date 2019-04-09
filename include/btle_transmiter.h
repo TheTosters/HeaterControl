@@ -49,8 +49,8 @@ private:
   bool timerCreated;
 
   void doBuildPackage() {
-    measurementsPackage.temperature = (int16_t)(sensors.temperature * 10);
-    measurementsPackage.humidity = sensors.humidity;
+    measurementsPackage.temperature = static_cast<int16_t>(static_cast<float>(sensors.temperature * 10));
+    measurementsPackage.humidity = static_cast<int16_t>(static_cast<int>(sensors.humidity));
     measurementsPackage.battery = 0;  //TODO: Future
     measurementsPackage.localTime = 0; //TODO: Future
   }

@@ -7,19 +7,83 @@
 class Sht30 {
 public:
 
-    template <typename T, typename Tag>
+//    struct episolon05 {
+//        constexpr static float epsilon = 0.5f;
+//    };
+
+    template<typename T>
+    struct default_trait
+    {
+        constexpr static T epsilon = std::numeric_limits<T>::epsilon();
+    };
+    template <typename T, typename Tag, typename Traits = default_trait<T>>
     class unit {
     private:
+        constexpr static T epsilon = Traits::epsilon;
         T value;
     public:
         explicit unit(T value) : value(value) {};
-        explicit operator T(){
+
+        explicit operator T() {
             return value;
         }
+
+        explicit operator T() const {
+            return value;
+        }
+
+        bool operator ==(const unit& rhs) const noexcept {
+
+            if constexpr (std::is_floating_point<T>::value)
+                return (*this-rhs).abs() < unit(epsilon);
+            else
+                return this->value == rhs.value;
+        }
+
+        bool operator !=(const unit& rhs) const noexcept {
+            return not (*this == rhs) ;
+        }
+
+        bool operator <(const unit& rhs) const noexcept {
+            return this->value < rhs.value;
+        }
+
+        bool operator >=(const unit& rhs) const noexcept {
+            return not (*this < rhs);
+        }
+
+        bool operator <=(const unit& rhs) const noexcept {
+            return *this < rhs || *this == rhs;
+        }
+
+        bool operator >(const unit& rhs) const noexcept {
+            return *this >= rhs && *this != rhs;
+        }
+
+        unit operator +(const unit& rhs) const noexcept {
+            return unit(this->value + rhs.value);
+        }
+
+        unit operator -(const unit& rhs) const noexcept {
+            return unit(this->value - rhs.value);
+        }
+
+        unit operator *(const int& rhs) const noexcept {
+            return unit(this->value * rhs);
+        }
+
+        unit operator *(const float& rhs) const noexcept {
+            return unit(this->value * rhs);
+        }
+
+        unit abs() const noexcept {
+            return unit(std::abs(this->value));
+        }
+
     };
 
     using tempC = unit<float, struct tempC_tag>;
-    using relHum = unit<float, struct relHum_tag>;
+    using relHum = unit<int, struct relHum_tag>;
 
     enum Sht30Mode {
         Sht30Mode_Single_HighRep_ClockStretch,
@@ -149,8 +213,8 @@ public:
         bridge.send(address, measMSB, measLSB);
         auto readings = bridge.read<Readings>(address);
         if (IsCrc8Valid(readings)) {
-            temperature = static_cast<tempC>(static_cast<float>(readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
-            relHumidity = static_cast<relHum>(static_cast<float>(readings.humMSB<<8 + readings.humLSB) * 0.0015259);
+            temperature = static_cast<tempC>((readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
+            relHumidity = static_cast<relHum>((readings.humMSB<<8 + readings.humLSB) * 0.0015259);
         }
     }
 
