@@ -1,102 +1,23 @@
 #pragma once
 
 #include "bridges/i2c_bridge.h"
+#include "unit.h"
 #include <stdint.h>
-#include <cstddef>
 
 class Sht30 {
 public:
-
-//    struct episolon05 {
-//        constexpr static float epsilon = 0.5f;
-//    };
-
-    template<typename T>
-    struct default_trait
-    {
-        constexpr static T epsilon = std::numeric_limits<T>::epsilon();
-    };
-    template <typename T, typename Tag, typename Traits = default_trait<T>>
-    class unit {
-    private:
-        constexpr static T epsilon = Traits::epsilon;
-        T value;
-    public:
-        explicit unit(T value) : value(value) {};
-
-        explicit operator T() {
-            return value;
-        }
-
-        explicit operator T() const {
-            return value;
-        }
-
-        bool operator ==(const unit& rhs) const noexcept {
-
-            if constexpr (std::is_floating_point<T>::value)
-                return (*this-rhs).abs() < unit(epsilon);
-            else
-                return this->value == rhs.value;
-        }
-
-        bool operator !=(const unit& rhs) const noexcept {
-            return not (*this == rhs) ;
-        }
-
-        bool operator <(const unit& rhs) const noexcept {
-            return this->value < rhs.value;
-        }
-
-        bool operator >=(const unit& rhs) const noexcept {
-            return not (*this < rhs);
-        }
-
-        bool operator <=(const unit& rhs) const noexcept {
-            return *this < rhs || *this == rhs;
-        }
-
-        bool operator >(const unit& rhs) const noexcept {
-            return *this >= rhs && *this != rhs;
-        }
-
-        unit operator +(const unit& rhs) const noexcept {
-            return unit(this->value + rhs.value);
-        }
-
-        unit operator -(const unit& rhs) const noexcept {
-            return unit(this->value - rhs.value);
-        }
-
-        unit operator *(const int& rhs) const noexcept {
-            return unit(this->value * rhs);
-        }
-
-        unit operator *(const float& rhs) const noexcept {
-            return unit(this->value * rhs);
-        }
-
-        unit abs() const noexcept {
-            return unit(std::abs(this->value));
-        }
-
+    enum class Sht30Mode {
+        Single_HighRep_ClockStretch,
+        Single_MediumRep_ClockStretch,
+        Single_LowRep_ClockStretch,
+        Single_HighRep_NoClockStretch,
+        Single_MediumRep_NoClockStretch,
+        Single_LowRep_NoClockStretch
     };
 
-    using tempC = unit<float, struct tempC_tag>;
-    using relHum = unit<int, struct relHum_tag>;
-
-    enum Sht30Mode {
-        Sht30Mode_Single_HighRep_ClockStretch,
-        Sht30Mode_Single_MediumRep_ClockStretch,
-        Sht30Mode_Single_LowRep_ClockStretch,
-        Sht30Mode_Single_HighRep_NoClockStretch,
-        Sht30Mode_Single_MediumRep_NoClockStretch,
-        Sht30Mode_Single_LowRep_NoClockStretch
-    };
-
-    enum Sht30Address {
-        Sht30Address_VSS = 0x44,
-        Sht30Address_VDD = 0x45,
+    enum class Sht30Address {
+        VSS = 0x44,
+        VDD = 0x45,
     };
 
 private:
@@ -107,10 +28,10 @@ private:
     Sht30Mode mode;
     uint8_t measLSB;
     uint8_t measMSB;
-    tempC temperature{0};
-    relHum relHumidity{0};
+    TemperatureC temperature{0};
+    RelativeHumidity relHumidity{0};
 
-    struct Readings {
+    struct __attribute__ ((packed)) Readings {
         constexpr static size_t size = 6;
         uint8_t tempMSB;
         uint8_t tempLSB;
@@ -145,17 +66,15 @@ private:
                && CalculateCrc8(CalculateCrc8(0xFF, readings.humMSB), readings.humLSB) == readings.humCRC;
     }
 
-public:
+    void sendCmd(uint8_t MSB, uint8_t LSB) {
+        bridge.send(static_cast<uint8_t>(address), MSB, LSB);
+    }
 
-    Sht30 (I2c_Bridge& bridge, Sht30Mode mode = Sht30Mode_Single_HighRep_ClockStretch, Sht30Address address = Sht30Address_VSS) :
+public:
+    Sht30 (I2c_Bridge& bridge, Sht30Mode mode = Sht30Mode::Single_HighRep_ClockStretch, Sht30Address address = Sht30Address::VSS) :
         bridge(bridge), mode(mode), address(address) {
 
         SetMode(this->mode);
-
-        if (this->address != Sht30Address_VSS || this->address != Sht30Address_VDD)
-        {
-            this->address = Sht30Address_VSS;
-        }
     }
 
     Sht30(const Sht30&) = delete;
@@ -164,37 +83,37 @@ public:
     void SetMode(Sht30Mode mode) {
         switch (mode)
         {
-            case Sht30Mode_Single_HighRep_ClockStretch:
+            case Sht30Mode::Single_HighRep_ClockStretch:
             {
                 measMSB=0x2C;
                 measLSB=0x06;
                 break;
             }
-            case Sht30Mode_Single_MediumRep_ClockStretch:
+            case Sht30Mode::Single_MediumRep_ClockStretch:
             {
                 measMSB=0x2C;
                 measLSB=0x0D;
                 break;
             }
-            case Sht30Mode_Single_LowRep_ClockStretch:
+            case Sht30Mode::Single_LowRep_ClockStretch:
             {
                 measMSB=0x2C;
                 measLSB=0x10;
                 break;
             }
-            case Sht30Mode_Single_HighRep_NoClockStretch:
+            case Sht30Mode::Single_HighRep_NoClockStretch:
             {
                 measMSB=0x24;
                 measLSB=0x00;
                 break;
             }
-            case Sht30Mode_Single_MediumRep_NoClockStretch:
+            case Sht30Mode::Single_MediumRep_NoClockStretch:
             {
                 measMSB=0x24;
                 measLSB=0x0B;
                 break;
             }
-            case Sht30Mode_Single_LowRep_NoClockStretch:
+            case Sht30Mode::Single_LowRep_NoClockStretch:
             {
                 measMSB=0x24;
                 measLSB=0x16;
@@ -210,30 +129,30 @@ public:
     }
 
     void RequestMeasurements() {
-        bridge.send(address, measMSB, measLSB);
-        auto readings = bridge.read<Readings>(address);
+        sendCmd(measMSB, measLSB);
+        auto readings = bridge.read<Readings>(static_cast<uint8_t>(address));
         if (IsCrc8Valid(readings)) {
-            temperature = static_cast<tempC>((readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
-            relHumidity = static_cast<relHum>((readings.humMSB<<8 + readings.humLSB) * 0.0015259);
+            temperature = static_cast<TemperatureC>((readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
+            relHumidity= static_cast<RelativeHumidity>((readings.humMSB<<8 + readings.humLSB) * 0.0015259);
         }
     }
 
-    tempC GetTemperature() {
+    TemperatureC GetTemperature() {
         return temperature;
     }
-    relHum GetRelHumidity() {
+    RelativeHumidity GetRelHumidity() {
         return relHumidity;
     }
 
     void HeaterOn() {
-        bridge.send(address, 0x30, 0x6D);
+        sendCmd(0x30, 0x6D);
     }
 
     void HeaterOff() {
-        bridge.send(address, 0x30, 0x66);
+        sendCmd(0x30, 0x66);
     }
 
     void SoftReset() {
-        bridge.send(address, 0x30, 0xA2);
+        sendCmd(0x30, 0xA2);
     }
 };
