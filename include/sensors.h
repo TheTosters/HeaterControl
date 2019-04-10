@@ -7,6 +7,7 @@
 #include "observable.h"
 #include <cinttypes>
 #include <math.h>
+#include "unit.h"
 #include "sht30.h"
 
 extern "C" {
@@ -21,11 +22,11 @@ using SensorsObserver = std::function<void(float, int)>;
 
 class Sensors : TimerOwner, public Observable<SensorsObserver> {
 public:
-  Sht30::tempC temperature;
-  Sht30::relHum humidity;
+  TemperatureC temperature;
+  RelativeHumidity humidity;
 
   Sensors(I2c_Bridge& bridge)
-  : bridge(bridge), TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
+  : TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
     temperature(0), humidity(0), sht30(bridge) {
 
     nrf_gpio_cfg_output(CONFIG_SENSORS_PWR_PIN);
@@ -57,14 +58,13 @@ private:
     CONFIGURING, WAIT, POWERING_UP, MEASURING
   };
 
-  I2c_Bridge& bridge;
   app_timer_t timer{};
   app_timer_id_t timerId;
   State state;
   OneWire oneWire{CONFIG_DS18B20_PIN};
   Ds18b20 ds18b20{oneWire};
-  Sht30::tempC lastTemp{0};
-  Sht30::relHum lastHum{0};
+  TemperatureC lastTemp{0};
+  RelativeHumidity lastHum{0};
   Sht30 sht30;
 
   void configureSensors() {
@@ -94,10 +94,8 @@ private:
   }
 
   void checkForNotification() {
-    Sht30::tempC curT = temperature * 100;
-    Sht30::tempC lastT = lastTemp * 100;
-    if (((curT - lastT).abs() > Sht30::tempC(20)) or
-        (lastHum != humidity)) {
+    if ( (lastTemp != temperature) or
+         (lastHum != humidity)) {
       lastTemp = temperature;
       lastHum = humidity;
       notify(static_cast<float>(temperature), static_cast<int>(humidity));
