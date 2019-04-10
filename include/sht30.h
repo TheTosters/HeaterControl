@@ -132,8 +132,8 @@ public:
         sendCmd(measMSB, measLSB);
         auto readings = bridge.read<Readings>(static_cast<uint8_t>(address));
         if (IsCrc8Valid(readings)) {
-            temperature = static_cast<TemperatureC>((readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
-            relHumidity= static_cast<RelativeHumidity>((readings.humMSB<<8 + readings.humLSB) * 0.0015259);
+            temperature = TemperatureC((readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
+            relHumidity = RelativeHumidity((readings.humMSB<<8 + readings.humLSB) * 0.0015259);
         }
     }
 
