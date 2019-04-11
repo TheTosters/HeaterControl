@@ -68,8 +68,8 @@ private:
   Sht30 sht30;
 
   void configureSensors() {
-    ds18b20.begin();
-    ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
+    //ds18b20.begin();
+    //ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
   }
 
   void powerUp() {
@@ -82,7 +82,7 @@ private:
 
   void measure() {
     sht30.RequestMeasurements();
-    ds18b20.requestTemperatures();
+    //ds18b20.requestTemperatures();
   }
 
   void collectMeasurement() {
