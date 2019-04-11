@@ -108,7 +108,7 @@ public:
       if (err_code != NRF_SUCCESS){
         errorHandler(err_code);
       }
-
+      twiWaitIfBusy();
       return retVal;
   }
 

@@ -51,8 +51,7 @@ private:
     *   XorOut: 0x00
     *   Check : for 0xBE,0xEF CRC is 0x92
     */
-    uint8_t CalculateCrc8 (uint8_t init, uint8_t byte) {
-        uint8_t crc = 0xFF;
+    uint8_t CalculateCrc8 (uint8_t crc, uint8_t byte) {
         crc ^= byte;
         for (int i = 0; i < 8; i++)
         {
@@ -63,7 +62,7 @@ private:
 
     bool IsCrc8Valid(Readings readings) {
         return    CalculateCrc8(CalculateCrc8(0xFF, readings.tempMSB), readings.tempLSB) == readings.tempCRC
-               && CalculateCrc8(CalculateCrc8(0xFF, readings.humMSB), readings.humLSB) == readings.humCRC;
+              and CalculateCrc8(CalculateCrc8(0xFF, readings.humMSB), readings.humLSB)  == readings.humCRC;
     }
 
     void sendCmd(uint8_t MSB, uint8_t LSB) {
@@ -132,8 +131,8 @@ public:
         sendCmd(measMSB, measLSB);
         auto readings = bridge.read<Readings>(static_cast<uint8_t>(address));
         if (IsCrc8Valid(readings)) {
-            temperature = TemperatureC((readings.tempMSB<<8 + readings.tempLSB) * 0.00267033 - 45.0);
-            relHumidity = RelativeHumidity((readings.humMSB<<8 + readings.humLSB) * 0.0015259);
+            temperature = TemperatureC((readings.tempMSB*256 + readings.tempLSB) * 0.00267033 - 45.0);
+            relHumidity = RelativeHumidity((readings.humMSB*256 + readings.humLSB) * 0.0015259);
         }
     }
 
