@@ -104,8 +104,7 @@ public:
   auto read(uint8_t i2cAddress) {
       T retVal;
       twiWaitIfBusy();
-      ret_code_t err_code = nrf_drv_twi_rx(&twiInstance, i2cAddress,
-          reinterpret_cast<uint8_t*>(std::addressof(retVal)), T::size);
+      ret_code_t err_code = nrf_drv_twi_rx(&twiInstance, i2cAddress, reinterpret_cast<uint8_t*>(std::addressof(retVal)), T::size);
       if (err_code != NRF_SUCCESS){
         errorHandler(err_code);
       }

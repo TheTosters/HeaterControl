@@ -33,10 +33,15 @@ macro(nRF5x_setup)
     set(CMAKE_C_STANDARD 99)
     set(CMAKE_CXX_STANDARD 17)
 
-    # configure cmake to use the arm-none-eabi-gcc
-    set(CMAKE_C_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
-    set(CMAKE_CXX_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-c++")
-    set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
+# configure cmake to use the arm-none-eabi-gcc for unix
+#    set(CMAKE_C_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
+#    set(CMAKE_CXX_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-c++")
+#    set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
+
+# configure cmake to use the arm-none-eabi-gcc for windows
+    set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
+    set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+    set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
 
     include_directories(
         "${NRF5_SDK_PATH}/components/softdevice/common/softdevice_handler"
@@ -87,7 +92,6 @@ macro(nRF5x_setup)
     # adds target for erasing and flashing the board with a softdevice
     add_custom_target(FLASH_SOFTDEVICE 
             COMMAND ${NRFJPROG} --program ${SOFTDEVICE_PATH} -f ${NRF_TARGET} --sectorerase
-            COMMAND sleep 0.5s
             COMMAND ${NRFJPROG} --reset -f ${NRF_TARGET}
             COMMENT "flashing SoftDevice"
             )
@@ -116,7 +120,6 @@ macro(nRF5x_addExecutable EXECUTABLE_NAME SOURCE_FILES)
     # custom target for flashing the board
     add_custom_target("FLASH_${EXECUTABLE_NAME}"
             COMMAND ${NRFJPROG} --program ${EXECUTABLE_NAME}.hex -f ${NRF_TARGET} --sectorerase
-            COMMAND sleep 0.5s
             COMMAND ${NRFJPROG} --reset -f ${NRF_TARGET}
             DEPENDS ${EXECUTABLE_NAME}
             COMMENT "flashing ${EXECUTABLE_NAME}.hex"

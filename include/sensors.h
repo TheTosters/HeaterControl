@@ -1,5 +1,15 @@
 #pragma once
 
+#include "timer_owner.h"
+#include "bridges/i2c_bridge.h"
+#include "bridges/one_wire.h"
+#include "ds18b20.h"
+#include "observable.h"
+#include <cinttypes>
+#include <math.h>
+#include "unit.h"
+#include "sht30.h"
+
 extern "C" {
 #include "app_timer.h"
 #include "nrf_log.h"
