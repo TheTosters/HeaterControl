@@ -32,17 +32,23 @@ macro(nRF5x_setup)
     # language standard/version settings
     set(CMAKE_C_STANDARD 99)
     set(CMAKE_CXX_STANDARD 17)
-
-# configure cmake to use the arm-none-eabi-gcc for unix
-#    set(CMAKE_C_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
-#    set(CMAKE_CXX_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-c++")
-#    set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
-
-# configure cmake to use the arm-none-eabi-gcc for windows
-    set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
-    set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-    set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-
+    if (CMAKE_HOST_UNIX)
+        # configure cmake to use the arm-none-eabi-gcc for unix
+        set(CMAKE_C_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
+        set(CMAKE_CXX_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-c++")
+        set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
+        message(STATUS "Host: Linux (Unix)")
+        
+    elseif(CMAKE_HOST_WIN32)
+        # configure cmake to use the arm-none-eabi-gcc for windows
+        set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
+        set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+        set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
+        message(STATUS "Host: Windows")
+    else()
+        message( FATAL_ERROR "Cross-compilation on your platform is not supported by this cmake toolchain" )
+    endif()
+    
     include_directories(
         "${NRF5_SDK_PATH}/components/softdevice/common/softdevice_handler"
         "${NRF5_SDK_PATH}/modules/nrfx"
