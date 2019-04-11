@@ -126,11 +126,11 @@ private:
   }
 
   static void twi_handler(nrf_drv_twi_evt_t const * p_event, void * p_context) {
-    NRF_LOG_WARNING("TWI EV:%d", p_event->type);
     I2c_Bridge* self = static_cast<I2c_Bridge*>(p_context);
     self->txDone = true;
     switch (p_event->type) {
         case NRF_DRV_TWI_EVT_DATA_NACK:
+        case NRF_DRV_TWI_EVT_ADDRESS_NACK:
           break;
         default:
           break;

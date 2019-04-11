@@ -19,7 +19,7 @@ extern "C" {
 #include "buttons.h"
 #include "display.h"
 #include "sensors.h"
-#include "btle_transmiter.h"
+//#include "btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include <sstream>
@@ -71,7 +71,11 @@ int main( int argc, const char* argv[] ) {
   //thread should be placed here!
   EventsDispatcher<10, ButtonId, app_timer_event_t> dispatcher;
   Display display{i2cBridge};
-  Sensors sensors{i2cBridge};
+  Sensors<Sht30<Sht30Mode::Single_HighRep_ClockStretch, Sht30Address::VDD>, I2c_Bridge> sensors{i2cBridge};
+
+  //OneWire oneWire{CONFIG_DS18B20_PIN};
+  //Sensors<Ds18b20<Res9Bit>, OneWire> sensors1{oneWire};
+
   Buttons buttons;
   Calendar calendar;
   //BtleTransmiter btleTransmiter{sensors};
@@ -89,6 +93,8 @@ int main( int argc, const char* argv[] ) {
   stack.render();
 
   uint32_t myTimeStamp = millis();
+
+  //sensors.addObserver([](float t, int h){NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
 
   while (true) {
     if(compareMillis(myTimeStamp, millis()) > 1000) {
