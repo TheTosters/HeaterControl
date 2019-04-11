@@ -2,6 +2,7 @@
 
 #include "resources/xbm_icons.h"
 #include "screens/screen.h"
+#include "buttons.h"
 #include "display.h"
 #include <ctime>
 #include <string>
@@ -39,6 +40,9 @@ public:
     this->isHeating = isHeating;
   }
 
+  void onButtonEvent(ButtonId event) {
+
+  }
 private:
   int humidity{0};
   float temperature{0};

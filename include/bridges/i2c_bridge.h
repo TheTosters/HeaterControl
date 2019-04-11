@@ -25,11 +25,11 @@ public:
         .sda = sdaPin,
         .frequency = NRF_DRV_TWI_FREQ_100K,
         .interrupt_priority = APP_IRQ_PRIORITY_LOW,
-        .clear_bus_init = false
+        .clear_bus_init = true//false
     };
 
     ret_code_t err = nrf_drv_twi_init(&twiInstance, &config,
-        I2c_Bridge::twi_handler, nullptr);
+        I2c_Bridge::twi_handler, this);
     if (err != NRF_SUCCESS) {
       errorHandler(err);
     }
@@ -37,7 +37,20 @@ public:
     nrf_drv_twi_enable(&twiInstance);
   }
 
+  void restart() {
+//    ret_code_t err = nrf_drv_twi_disable(&twiInstance);
+//    if (err != NRF_SUCCESS) {
+//      errorHandler(err);
+//    }
+//    nrf_delay_ms(1);
+//    err = nrf_drv_twi_enable(&twiInstance);
+//    if (err != NRF_SUCCESS) {
+//      errorHandler(err);
+//    }
+  }
+
   void send(uint8_t i2cAddress, uint8_t b1) {
+    NRF_LOG_WARNING("S1");
     twiWaitIfBusy();
 
     innerTransferBuffer[0] = b1;
@@ -49,6 +62,7 @@ public:
   }
 
   void send(uint8_t i2cAddress, uint8_t b1, uint8_t b2) {
+    NRF_LOG_WARNING("S2");
     twiWaitIfBusy();
 
     innerTransferBuffer[0] = b1;
@@ -61,6 +75,7 @@ public:
   }
 
   void send(uint8_t i2cAddress, uint8_t b1, uint8_t b2, uint8_t b3) {
+    NRF_LOG_WARNING("S3");
     twiWaitIfBusy();
 
     innerTransferBuffer[0] = b1;
@@ -74,7 +89,9 @@ public:
   }
 
   void send(uint8_t i2cAddress, uint8_t* buffer, uint8_t size) {
+    NRF_LOG_WARNING("SB");
     twiWaitIfBusy();
+    txDone = false;
     ret_code_t err_code = nrf_drv_twi_tx(&twiInstance, i2cAddress, buffer,
         size, false);
     if (err_code != NRF_SUCCESS){
@@ -87,14 +104,19 @@ private:
   TwiErrorHandler errorHandler;
   const nrf_drv_twi_t twiInstance = NRF_DRV_TWI_INSTANCE(0);
   uint8_t innerTransferBuffer[3];
+  volatile bool txDone = true;
 
   void twiWaitIfBusy() {
-    while(nrf_drv_twi_is_busy(&twiInstance)) {
-        nrf_pwr_mgmt_run();
+    while(I2c_Bridge::txDone == false /*&& nrf_drv_twi_is_busy(&twiInstance)*/) {
+        //nrf_pwr_mgmt_run();
+        nrf_delay_ms(1);
       }
   }
 
   static void twi_handler(nrf_drv_twi_evt_t const * p_event, void * p_context) {
+    NRF_LOG_WARNING("TWI EV:%d", p_event->type);
+    I2c_Bridge* self = static_cast<I2c_Bridge*>(p_context);
+    self->txDone = true;
     switch (p_event->type) {
         case NRF_DRV_TWI_EVT_DATA_NACK:
           break;

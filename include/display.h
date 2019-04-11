@@ -25,7 +25,7 @@ public:
       ssd1306(bridge),
       largeFont { Chewy_Regular_42 },
       smallFont { ArialMT_Plain_10 },
-      isPowered(false),
+      powerIsOn(false),
       selectedFont(SelectedFont::SMALL) {
 
     nrf_gpio_cfg_output(CONFIG_OLED_PWR_PIN);
@@ -54,7 +54,7 @@ public:
 
   void selectFont(SelectedFont font) {
     selectedFont = font;
-    if (isPowered) {
+    if (powerIsOn) {
       applySelectedFont();
     }
   }
@@ -72,13 +72,16 @@ public:
     return ssd1306.width();
   }
 
+  bool isPowered() {
+    return powerIsOn;
+  }
 private:
-  static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(3000);
+  static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(13000);
   static constexpr unsigned int WARMUP_DELAY_MS = 13;
   SSD1306 ssd1306;
   const FontBridge& largeFont;
   const FontBridge& smallFont;
-  bool isPowered;
+  bool powerIsOn;
   SelectedFont selectedFont;
 
   void applySelectedFont() {
@@ -91,24 +94,34 @@ private:
   }
 
   void powerUp() {
-    if (not isPowered) {
+    if (not powerIsOn) {
+      NRF_LOG_INFO("--> PWR ON");
       nrf_gpio_pin_set(CONFIG_OLED_PWR_PIN);
       //TODO: this is spinlock, change to something more power efficient
       nrf_delay_ms(WARMUP_DELAY_MS);
       ssd1306.begin();
       applySelectedFont();
-      isPowered = true;
+      powerIsOn = true;
     }
   }
 
   void powerOff() {
-    isPowered = false;
+    powerIsOn = false;
     ssd1306.end();
-    nrf_gpio_pin_clear(CONFIG_OLED_PWR_PIN);
+    nrf_delay_ms(WARMUP_DELAY_MS);
+    //NRF_LOG_INFO("--> PWR OFF");
+    //nrf_gpio_pin_clear(CONFIG_OLED_PWR_PIN);
+    startTimer(APP_TIMER_TICKS(10));
   }
 
-  static void timerHandler(void* self) {
-    static_cast<Display*>(self)->powerOff();
+  static void timerHandler(void* selfPtr) {
+    Display* self = static_cast<Display*>(selfPtr);
+    if (self->powerIsOn) {
+      self->powerOff();
+    } else {
+      NRF_LOG_INFO("--> PWR OFF 2");
+      nrf_gpio_pin_clear(CONFIG_OLED_PWR_PIN);
+    }
   }
 
 };

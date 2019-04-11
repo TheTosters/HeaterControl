@@ -1,32 +1,53 @@
 #pragma once
+#include "observable.h"
 #include <cinttypes>
-
+#include <functional>
+#include "events_dispatcher.h"
 extern "C" {
 #include "bsp.h"
 }
 
-class Buttons {
+enum class ButtonId{
+  PREV, NEXT, OK
+};
+
+using ButtonsObserver = std::function<void(ButtonId)>;
+
+class Buttons : public Observable<ButtonsObserver> {
 public:
-  void begin() {
-    ret_code_t err_code = bsp_init(BSP_INIT_BUTTONS, Buttons::eventHandler);
+  Buttons() {
+    Buttons::singletonInstance = this;  //thank you Nordic...
+    ret_code_t err_code = bsp_init(BSP_INIT_BUTTONS, Buttons::buttonsHandler);
     APP_ERROR_CHECK(err_code);
   }
+
 private:
-  static void eventHandler(bsp_event_t event) {
+  static Buttons* singletonInstance;
+
+  static void mainThreadExecutor(void* p_event_data, uint16_t event_size) {
+    ButtonId* btn = extractDispatchedData<ButtonId>(p_event_data, event_size);
+    singletonInstance->notify(*btn);
+  }
+
+  static void buttonsHandler(bsp_event_t event) {
     uint32_t err_code;
     switch (event) {
       //PREV button pressed
       case BSP_EVENT_KEY_0:
-        bsp_board_led_on(1);
+        dispatchOnMainThread<ButtonId>(ButtonId::PREV,
+            Buttons::mainThreadExecutor);
         break;
 
       //NEXT button pressed
       case BSP_EVENT_KEY_1:
-        bsp_board_led_off(1);
+        dispatchOnMainThread<ButtonId>(ButtonId::NEXT,
+            Buttons::mainThreadExecutor);
         break;
 
       //OK button pressed
       case BSP_EVENT_KEY_2:
+        dispatchOnMainThread<ButtonId>(ButtonId::OK,
+            Buttons::mainThreadExecutor);
         break;
 
       default:
@@ -35,3 +56,4 @@ private:
   }
 
 };
+Buttons* Buttons::singletonInstance;

@@ -27,6 +27,7 @@ SET(SDK_SEARCH_DIRECTORIES
   ${NRF5_SDK_PATH}/components/libraries/button
   ${NRF5_SDK_PATH}/components/libraries/timer
   ${NRF5_SDK_PATH}/components/ble/common
+  ${NRF5_SDK_PATH}/components/libraries/scheduler
 )
 
 SET(EXTRA_SDK_SOURCE_FILES
@@ -63,5 +64,7 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${NRF5_SDK_PATH}/components/ble/common/ble_advdata.c
   ${NRF5_SDK_PATH}/integration/nrfx/legacy/nrf_drv_clock.c
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_clock.c
+  ${NRF5_SDK_PATH}/components/libraries/scheduler/app_scheduler.c
+  #${NRF5_SDK_PATH}/components/libraries/scheduler/app_scheduler_serconn.c
 )
 

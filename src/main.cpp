@@ -27,6 +27,7 @@ extern "C" {
 #include "screens/default_screen.h"
 #include "screens/screens_stack.h"
 #include "observable.h"
+#include "events_dispatcher.h"
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
@@ -54,6 +55,9 @@ int main( int argc, const char* argv[] ) {
 
   uint32_t err_code = app_timer_init();
   I2c_Bridge i2cBridge{CONFIG_SDA_PIN, CONFIG_SCL_PIN, nullptr};
+  //All data types which are used by classes which uses dispatching into main
+  //thread should be placed here!
+  EventsDispatcher<10, ButtonId> dispatcher;
   Display display{i2cBridge};
   Sensors sensors{i2cBridge};
   Buttons buttons;
@@ -61,18 +65,21 @@ int main( int argc, const char* argv[] ) {
   //BtleTransmiter btleTransmiter{sensors};
   //btleTransmiter.begin();
 
-  ScreensStack stack;
+  ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );
   sensors.addObserver([&screen](float t, int h) {screen.setTempAndHum(t,h);});
   calendar.addObserver([&screen](std::tm t) {screen.setTime(t);});
 
+  stack.selectScreen(SelectedScreen::DEFAULT);
+  buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
+
   /* Toggle LEDs. */
+  stack.render();
+
   while (true) {
     bsp_board_led_invert(0);
+    dispatcher.process();
     nrf_delay_ms(1000);
-    screen.setHeatingIndicator(true);
-    screen.render();
-
     //nrf_pwr_mgmt_run();
   }
   return 0;
