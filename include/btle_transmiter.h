@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sensors.h"
+#include "sensors/sensor_factory.h"
 #include "btle_adv.h"
 #include "timer_owner.h"
 #include "events_dispatcher.h"
@@ -12,7 +12,7 @@
 
 class BtleTransmiter : TimerOwner{
 public:
-  BtleTransmiter(const Sensors& sensors)
+  BtleTransmiter(const OnBoardSensor& sensors)
     : TimerOwner(false, BtleTransmiter::timerHandler),
       sensors(sensors)
   {
@@ -36,7 +36,7 @@ private:
   //small values might lead to not visible broadcast
   static constexpr unsigned int ADV_COUNT = 32;
 
-  const Sensors& sensors;
+  const OnBoardSensor& sensors;
   AdvMeasurements_t measurementsPackage;
   std::unique_ptr<BleAdvertiser> advertiser;
 

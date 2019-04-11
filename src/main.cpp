@@ -18,8 +18,8 @@ extern "C" {
 #include "bridges/i2c_bridge.h"
 #include "buttons.h"
 #include "display.h"
-#include "sensors.h"
-//#include "btle_transmiter.h"
+#include "sensors/sensor_factory.h"
+#include "btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
@@ -74,10 +74,7 @@ int main( int argc, const char* argv[] ) {
   EventsDispatcher<10,
     ButtonId, app_timer_event_t, BtleTransmiter*> dispatcher;
   Display display{i2cBridge};
-  Sensors<Sht30<Sht30Mode::Single_HighRep_ClockStretch, Sht30Address::VDD>, I2c_Bridge> sensors{i2cBridge};
-
-  //OneWire oneWire{CONFIG_DS18B20_PIN};
-  //Sensors<Ds18b20<Res9Bit>, OneWire> sensors1{oneWire};
+  OnBoardSensor sensors = instantiateSensor(i2cBridge);
 
   Buttons buttons;
   Calendar calendar;
