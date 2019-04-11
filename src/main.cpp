@@ -85,9 +85,7 @@ int main( int argc, const char* argv[] ) {
   stack.selectScreen(SelectedScreen::DEFAULT);
   buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
 
-  /* Toggle LEDs. */
   stack.render();
-
   uint32_t myTimeStamp = millis();
 
   while (true) {
@@ -97,7 +95,6 @@ int main( int argc, const char* argv[] ) {
     }
 
     dispatcher.process();
-//    nrf_delay_ms(1000);
     //nrf_pwr_mgmt_run();
   }
   return 0;

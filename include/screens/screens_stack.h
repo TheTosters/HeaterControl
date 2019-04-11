@@ -16,6 +16,7 @@ public:
   }
 
   void render() {
+    ensureMainThread();
     std::visit([](auto&& screen) {
       screen.render();
     }, *currentScr);

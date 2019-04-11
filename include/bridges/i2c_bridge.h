@@ -8,7 +8,7 @@ extern "C" {
 #include "sdk_errors.h"
 }
 
-#include <cinttypes>
+#include <stdint.h>
 #include <functional>
 
 class I2c_Bridge {
@@ -37,20 +37,7 @@ public:
     nrf_drv_twi_enable(&twiInstance);
   }
 
-  void restart() {
-//    ret_code_t err = nrf_drv_twi_disable(&twiInstance);
-//    if (err != NRF_SUCCESS) {
-//      errorHandler(err);
-//    }
-//    nrf_delay_ms(1);
-//    err = nrf_drv_twi_enable(&twiInstance);
-//    if (err != NRF_SUCCESS) {
-//      errorHandler(err);
-//    }
-  }
-
   void send(uint8_t i2cAddress, uint8_t b1) {
-    NRF_LOG_WARNING("S1");
     twiWaitIfBusy();
 
     innerTransferBuffer[0] = b1;
@@ -62,7 +49,6 @@ public:
   }
 
   void send(uint8_t i2cAddress, uint8_t b1, uint8_t b2) {
-    NRF_LOG_WARNING("S2");
     twiWaitIfBusy();
 
     innerTransferBuffer[0] = b1;
@@ -75,7 +61,6 @@ public:
   }
 
   void send(uint8_t i2cAddress, uint8_t b1, uint8_t b2, uint8_t b3) {
-    NRF_LOG_WARNING("S3");
     twiWaitIfBusy();
 
     innerTransferBuffer[0] = b1;
@@ -89,7 +74,6 @@ public:
   }
 
   void send(uint8_t i2cAddress, uint8_t* buffer, uint8_t size) {
-    NRF_LOG_WARNING("SB");
     twiWaitIfBusy();
     txDone = false;
     ret_code_t err_code = nrf_drv_twi_tx(&twiInstance, i2cAddress, buffer,
@@ -120,21 +104,14 @@ private:
 
   void twiWaitIfBusy() {
     while(I2c_Bridge::txDone == false || nrf_drv_twi_is_busy(&twiInstance)) {
-        //nrf_pwr_mgmt_run();
-        nrf_delay_ms(1);
+        nrf_pwr_mgmt_run();
+        //nrf_delay_ms(1);
       }
   }
 
   static void twi_handler(nrf_drv_twi_evt_t const * p_event, void * p_context) {
-    NRF_LOG_WARNING("TWI EV:%d", p_event->type);
     I2c_Bridge* self = static_cast<I2c_Bridge*>(p_context);
     self->txDone = true;
-    switch (p_event->type) {
-        case NRF_DRV_TWI_EVT_DATA_NACK:
-          break;
-        default:
-          break;
-    }
   }
 
   static void defaultErrorHandler(ret_code_t err) {

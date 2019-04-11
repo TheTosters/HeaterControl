@@ -7,14 +7,14 @@ extern "C" {
 #include "nrf_log.h"
 }
 #include <stdint.h>
+#include <math.h>
 
 template<int queueSize, typename... DataTypes>
 class EventsDispatcher {
 public:
   EventsDispatcher() {
-//    constexpr size_t maxItemSize = sizeof...(DataTypes);
-//    APP_SCHED_INIT(maxItemSize, queueSize);
-    APP_SCHED_INIT(80, 10);
+    constexpr size_t maxItemSize = std::max({sizeof(DataTypes)...});
+    APP_SCHED_INIT(maxItemSize, queueSize);
   }
 
   void process() {

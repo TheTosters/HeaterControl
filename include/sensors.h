@@ -1,15 +1,5 @@
 #pragma once
 
-#include "timer_owner.h"
-#include "bridges/i2c_bridge.h"
-#include "bridges/one_wire.h"
-#include "ds18b20.h"
-#include "observable.h"
-#include <cinttypes>
-#include <math.h>
-#include "unit.h"
-#include "sht30.h"
-
 extern "C" {
 #include "app_timer.h"
 #include "nrf_log.h"
@@ -79,8 +69,8 @@ private:
   Sht30 sht30;
 
   void configureSensors() {
-    //ds18b20.begin();
-    //ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
+    ds18b20.begin();
+    ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
   }
 
   void powerUp() {
@@ -92,19 +82,20 @@ private:
   }
 
   void measure() {
-    sht30.RequestMeasurements();
-    //ds18b20.requestTemperatures();
+    //sht30.RequestMeasurements();
+    ds18b20.requestTemperatures();
   }
 
   void collectMeasurement() {
-    temperature = sht30.GetTemperature();
-    humidity = sht30.GetRelHumidity();
-    //temperature = ds18b20.getTempC();
+    //temperature = sht30.GetTemperature();
+    //humidity = sht30.GetRelHumidity();
+    temperature = ds18b20.getTempC();
     checkForNotification();
     powerDown();
   }
 
   void checkForNotification() {
+    ensureMainThread();
     if ( (lastTemp != temperature) or
          (lastHum != humidity)) {
       lastTemp = temperature;
