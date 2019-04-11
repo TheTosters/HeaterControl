@@ -21,6 +21,11 @@
 template<Sht30Mode Mode = Sht30Mode::Single_HighRep_ClockStretch, Sht30Address Address = Sht30Address::VSS>
 class Sht30 {
 public:
+    //should be maximum of power up for DS18B20 and/or SHT30
+    static constexpr unsigned int POWER_UP_DELAY_MS = 1;
+
+    //should be maximum time of measure for DS18B20 and/or SHT30
+    static constexpr unsigned int MEASURING_DELAY_MS = 15;
 
 private:
     constexpr static uint8_t readLength = 6;
