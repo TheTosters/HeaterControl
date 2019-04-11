@@ -14,16 +14,17 @@ extern "C" {
 
 //#define DS_DEBUG 1
 
+enum Ds18b20_Resolution {
+  Res9Bit =  0x1F,
+  Res10Bit = 0x3F,
+  Res11Bit = 0x5F,
+  Res12Bit = 0x7F
+};
+
 //based on https://github.com/RobTillaart/Arduino/blob/master/libraries/DS18B20/DS18B20.cpp
+template<Ds18b20_Resolution Resolution = Res9Bit>
 class Ds18b20 {
 public:
-  enum Resolution {
-    Res9Bit =  0x1F,
-    Res10Bit = 0x3F,
-    Res11Bit = 0x5F,
-    Res12Bit = 0x7F
-  };
-
   static constexpr float DEVICE_DISCONNECTED = -127.0f;
 
   Ds18b20(OneWire& onwWire) : wire(onwWire) {}
@@ -40,7 +41,7 @@ public:
     return wire.crc8(deviceAddress.data(), 7) != deviceAddress[7];
   }
 
-  void setResolution(Resolution res) {
+  void setResolution(Ds18b20_Resolution res) {
     wire.reset();
     wire.select(deviceAddress);
     wire.write(WRITESCRATCH);
@@ -51,13 +52,18 @@ public:
     wire.reset();
   }
 
-  void requestTemperatures() {
+  void configure() {
+      begin();
+      setResolution(Resolution);
+  }
+
+  void requestMeasurements() {
     wire.reset();
     wire.skip();
     wire.write(STARTCONVO, false);
   }
 
-  TemperatureC getTempC() {
+  TemperatureC getTemperature() {
     while(not isConversionComplete()) {
       nrf_delay_us(5);
     }
@@ -70,6 +76,10 @@ public:
 
     TemperatureC temp(0.0625f * rawTemperature);
     return temp < TemperatureC(-55) ? TemperatureC(DEVICE_DISCONNECTED) : temp;
+  }
+
+  RelativeHumidity getRelHumidity() {
+      return RelativeHumidity(0);
   }
 
   bool isConversionComplete() {

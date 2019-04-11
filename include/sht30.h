@@ -4,8 +4,6 @@
 #include "unit.h"
 #include <stdint.h>
 
-class Sht30 {
-public:
     enum class Sht30Mode {
         Single_HighRep_ClockStretch,
         Single_MediumRep_ClockStretch,
@@ -20,14 +18,18 @@ public:
         VDD = 0x45,
     };
 
+template<Sht30Mode Mode = Sht30Mode::Single_HighRep_ClockStretch, Sht30Address Address = Sht30Address::VSS>
+class Sht30 {
+public:
+
 private:
     constexpr static uint8_t readLength = 6;
 
     I2c_Bridge& bridge;
     Sht30Address address;
     Sht30Mode mode;
-    uint8_t measLSB;
-    uint8_t measMSB;
+    uint8_t measLSB{0};
+    uint8_t measMSB{0};
     TemperatureC temperature{0};
     RelativeHumidity relHumidity{0};
 
@@ -51,7 +53,7 @@ private:
     *   XorOut: 0x00
     *   Check : for 0xBE,0xEF CRC is 0x92
     */
-    uint8_t CalculateCrc8 (uint8_t crc, uint8_t byte) {
+    uint8_t calculateCrc8 (uint8_t crc, uint8_t byte) {
         crc ^= byte;
         for (int i = 0; i < 8; i++)
         {
@@ -60,26 +62,38 @@ private:
         return crc;
     }
 
-    bool IsCrc8Valid(Readings readings) {
-        return    CalculateCrc8(CalculateCrc8(0xFF, readings.tempMSB), readings.tempLSB) == readings.tempCRC
-              and CalculateCrc8(CalculateCrc8(0xFF, readings.humMSB), readings.humLSB)  == readings.humCRC;
+    bool isCrc8Valid(Readings readings) {
+        return    calculateCrc8(calculateCrc8(0xFF, readings.tempMSB), readings.tempLSB) == readings.tempCRC
+              and calculateCrc8(calculateCrc8(0xFF, readings.humMSB), readings.humLSB)  == readings.humCRC;
     }
 
     void sendCmd(uint8_t MSB, uint8_t LSB) {
         bridge.send(static_cast<uint8_t>(address), MSB, LSB);
     }
 
-public:
-    Sht30 (I2c_Bridge& bridge, Sht30Mode mode = Sht30Mode::Single_HighRep_ClockStretch, Sht30Address address = Sht30Address::VSS) :
-        bridge(bridge), mode(mode), address(address) {
+    void heaterOn() {
+        sendCmd(0x30, 0x6D);
+    }
 
-        SetMode(this->mode);
+    void heaterOff() {
+        sendCmd(0x30, 0x66);
+    }
+
+    void softReset() {
+        sendCmd(0x30, 0xA2);
+    }
+
+public:
+    Sht30 (I2c_Bridge& bridge) :
+        bridge(bridge), mode(Mode), address(Address) {
+
+        setMode(this->mode);
     }
 
     Sht30(const Sht30&) = delete;
     Sht30& operator=(const Sht30&) = delete;
 
-    void SetMode(Sht30Mode mode) {
+    void setMode(Sht30Mode mode) {
         switch (mode)
         {
             case Sht30Mode::Single_HighRep_ClockStretch:
@@ -127,31 +141,22 @@ public:
         }
     }
 
-    void RequestMeasurements() {
+    void requestMeasurements() {
         sendCmd(measMSB, measLSB);
         auto readings = bridge.read<Readings>(static_cast<uint8_t>(address));
-        if (IsCrc8Valid(readings)) {
+        if (isCrc8Valid(readings)) {
             temperature = TemperatureC((readings.tempMSB*256 + readings.tempLSB) * 0.00267033 - 45.0);
             relHumidity = RelativeHumidity((readings.humMSB*256 + readings.humLSB) * 0.0015259);
         }
     }
 
-    TemperatureC GetTemperature() {
+    TemperatureC getTemperature() {
         return temperature;
     }
-    RelativeHumidity GetRelHumidity() {
+    RelativeHumidity getRelHumidity() {
         return relHumidity;
     }
 
-    void HeaterOn() {
-        sendCmd(0x30, 0x6D);
-    }
-
-    void HeaterOff() {
-        sendCmd(0x30, 0x66);
-    }
-
-    void SoftReset() {
-        sendCmd(0x30, 0xA2);
+    void configure() {
     }
 };
