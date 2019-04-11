@@ -22,12 +22,11 @@ extern "C" {
 #include "btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
-#include <sstream>
-#include <iomanip>
 #include "screens/default_screen.h"
 #include "screens/screens_stack.h"
 #include "observable.h"
 #include "events_dispatcher.h"
+#include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
@@ -52,8 +51,11 @@ uint32_t millis(void)
 
 uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
 {
-  if(currentMillis < previousMillis) return(currentMillis + OVERFLOW_1 + 1 - previousMillis);
-  return(currentMillis - previousMillis);
+  if(currentMillis < previousMillis) {
+    return currentMillis + OVERFLOW_1 + 1 - previousMillis;
+  } else {
+    return currentMillis - previousMillis;
+  }
 }
 
 int main( int argc, const char* argv[] ) {
@@ -69,13 +71,14 @@ int main( int argc, const char* argv[] ) {
   I2c_Bridge i2cBridge{CONFIG_SDA_PIN, CONFIG_SCL_PIN, nullptr};
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
-  EventsDispatcher<10, ButtonId, app_timer_event_t> dispatcher;
+  EventsDispatcher<10,
+    ButtonId, app_timer_event_t, BtleTransmiter*> dispatcher;
   Display display{i2cBridge};
   Sensors sensors{i2cBridge};
   Buttons buttons;
   Calendar calendar;
-  //BtleTransmiter btleTransmiter{sensors};
-  //btleTransmiter.begin();
+  BtleTransmiter btleTransmiter{sensors};
+  btleTransmiter.enable();
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );

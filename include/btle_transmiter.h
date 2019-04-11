@@ -2,72 +2,72 @@
 
 #include "sensors.h"
 #include "btle_adv.h"
+#include "timer_owner.h"
+#include "events_dispatcher.h"
 #include <memory>
 
-class BtleTransmiter {
+
+//NOTE: Pass true to timeOwner constructor to have periodic broadcast, or
+//set to false if broadcast should be only on sensors change
+
+class BtleTransmiter : TimerOwner{
 public:
   BtleTransmiter(const Sensors& sensors)
-    : sensors(sensors), timerId(&timer), timerCreated(false)
+    : TimerOwner(false, BtleTransmiter::timerHandler),
+      sensors(sensors)
   {
   }
 
-  void begin() {
+  void enable() {
     ret_code_t ret;
-    if (not timerCreated) {
-      timerCreated = true;
-      ret = app_timer_create(&timerId, APP_TIMER_MODE_REPEATED,
-          BtleTransmiter::timerHandler);
-      APP_ERROR_CHECK(ret);
-    }
-    ret = app_timer_start(timerId, ADV_INTERVAL, this);
-    if (ret != NRFX_SUCCESS) {
-      NRF_LOG_ERROR("Can't start timer, queue full?");
-    }
-    APP_ERROR_CHECK(ret);
+    startTimer(ADV_INTERVAL);
     doBuildPackage();
     doTransmit();
   }
 
-  void end() {
-    ret_code_t ret = app_timer_stop(timerId);
-    if (ret != NRFX_SUCCESS) {
-      NRF_LOG_ERROR("Can't start timer, queue full?");
-    }
+  void disable() {
+    stopTimer();
   }
 
 private:
   //static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(1 * 60 * 1000);
-  static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(3 * 1000);
+  static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(9 * 1000);
 
-  static constexpr unsigned int ADV_COUNT = 12;
+  //small values might lead to not visible broadcast
+  static constexpr unsigned int ADV_COUNT = 32;
 
   const Sensors& sensors;
-  app_timer_t timer;
-  app_timer_id_t timerId;
   AdvMeasurements_t measurementsPackage;
   std::unique_ptr<BleAdvertiser> advertiser;
-  bool timerCreated;
 
   void doBuildPackage() {
-    measurementsPackage.temperature = static_cast<int16_t>(static_cast<float>(sensors.temperature * 10));
-    measurementsPackage.humidity = static_cast<int16_t>(static_cast<int>(sensors.humidity));
+    measurementsPackage.temperature =
+        static_cast<int16_t>(static_cast<float>(sensors.temperature * 10));
+    measurementsPackage.humidity =
+        static_cast<int16_t>(static_cast<int>(sensors.humidity));
     measurementsPackage.battery = 0;  //TODO: Future
     measurementsPackage.localTime = 0; //TODO: Future
   }
 
   void doTransmit() {
-    //TODO: Bad madafaka keep crashing, this is temporary solution
     if (advertiser) {
       NRF_LOG_ERROR("Illegal state of transport!");
-      //APP_ERROR_CHECK(NRF_ERROR_INVALID_STATE);
+      APP_ERROR_CHECK(NRF_ERROR_INVALID_STATE);
     } else {
       advertiser = std::make_unique<BleAdvertiser>(ADV_COUNT, measurementsPackage,
           [this](){
-            NRF_LOG_ERROR("Transmit done");
-            //this->advertiser.reset(nullptr);
+            //NRF_LOG_ERROR("Transmit done");
+            dispatchOnMainThread(this, BtleTransmiter::mainThreadExecutor);
       });
     }
     advertiser->start();
+  }
+
+  static void mainThreadExecutor(void* p_event_data, uint16_t event_size) {
+    //NRF_LOG_ERROR("Destroying advertiser");
+    BtleTransmiter** self =
+        extractDispatchedData<BtleTransmiter*>(p_event_data, event_size);
+    (*self)->advertiser.reset(nullptr);
   }
 
   static void timerHandler(void* selfPtr) {
