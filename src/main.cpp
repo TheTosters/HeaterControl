@@ -19,7 +19,7 @@ extern "C" {
 #include "buttons.h"
 #include "display.h"
 #include "sensors/sensor_factory.h"
-#include "btle_transmiter.h"
+//#include "btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
@@ -76,6 +76,9 @@ int main( int argc, const char* argv[] ) {
   Display display{i2cBridge};
   OnBoardSensor sensors = instantiateSensor(i2cBridge);
 
+  //OneWire oneWire{CONFIG_DS18B20_PIN};
+  //Sensors<Ds18b20<Res9Bit>, OneWire> sensors1{oneWire};
+
   Buttons buttons;
   Calendar calendar;
   BtleTransmiter btleTransmiter{sensors};
@@ -91,6 +94,8 @@ int main( int argc, const char* argv[] ) {
 
   stack.render();
   uint32_t myTimeStamp = millis();
+
+  //sensors.addObserver([](float t, int h){NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
 
   //sensors.addObserver([](float t, int h){NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
 

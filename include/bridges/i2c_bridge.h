@@ -112,6 +112,7 @@ private:
   static void twi_handler(nrf_drv_twi_evt_t const * p_event, void * p_context) {
     I2c_Bridge* self = static_cast<I2c_Bridge*>(p_context);
     self->txDone = true;
+        case NRF_DRV_TWI_EVT_ADDRESS_NACK:
   }
 
   static void defaultErrorHandler(ret_code_t err) {
