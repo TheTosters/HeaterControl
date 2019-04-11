@@ -19,7 +19,7 @@ extern "C" {
 #include "buttons.h"
 #include "display.h"
 #include "sensors/sensor_factory.h"
-//#include "btle_transmiter.h"
+#include "btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
