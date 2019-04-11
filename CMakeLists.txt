@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
-project(home-multi-temp C CXX ASM)
+
+set(CMAKE_SYSTEM_NAME "Generic")
+
+project(home-multi-temp LANGUAGES NONE)
 
 set(NRF_TARGET "nrf52")
 
@@ -16,6 +19,8 @@ include("fix.cmake")
 
 nRF5x_setup()
 nRF5x_setup_softdevice(s140)
+
+enable_language(C CXX ASM)
 
 include_directories(${NRF5_SDK_PATH}/config/nrf52840/config)
 include_directories("include")

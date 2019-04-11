@@ -100,6 +100,18 @@ public:
     twiWaitIfBusy();
   }
 
+  template<typename T>
+  auto read(uint8_t i2cAddress) {
+      T retVal;
+      twiWaitIfBusy();
+      ret_code_t err_code = nrf_drv_twi_rx(&twiInstance, i2cAddress, reinterpret_cast<uint8_t*>(std::addressof(retVal)), T::size);
+      if (err_code != NRF_SUCCESS){
+        errorHandler(err_code);
+      }
+      twiWaitIfBusy();
+      return retVal;
+  }
+
 private:
   TwiErrorHandler errorHandler;
   const nrf_drv_twi_t twiInstance = NRF_DRV_TWI_INSTANCE(0);
@@ -107,7 +119,7 @@ private:
   volatile bool txDone = true;
 
   void twiWaitIfBusy() {
-    while(I2c_Bridge::txDone == false /*&& nrf_drv_twi_is_busy(&twiInstance)*/) {
+    while(I2c_Bridge::txDone == false || nrf_drv_twi_is_busy(&twiInstance)) {
         //nrf_pwr_mgmt_run();
         nrf_delay_ms(1);
       }

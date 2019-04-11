@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bridges/one_wire.h"
+#include "unit.h"
 #include <stdint.h>
 #include <algorithm>
 #include <array>
@@ -56,7 +57,7 @@ public:
     wire.write(STARTCONVO, false);
   }
 
-  float getTempC() {
+  TemperatureC getTempC() {
     while(not isConversionComplete()) {
       nrf_delay_us(5);
     }
@@ -67,8 +68,8 @@ public:
     rawTemperature <<= 8;
     rawTemperature |= scratchPad[TEMP_LSB];
 
-    float temp = 0.0625f * rawTemperature;
-    return temp < -55 ? DEVICE_DISCONNECTED : temp;
+    TemperatureC temp(0.0625f * rawTemperature);
+    return temp < TemperatureC(-55) ? TemperatureC(DEVICE_DISCONNECTED) : temp;
   }
 
   bool isConversionComplete() {
