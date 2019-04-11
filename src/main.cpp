@@ -44,6 +44,18 @@ void initLowFreqClock() {
   nrf_drv_clock_lfclk_request(NULL);
 }
 
+uint32_t millis(void)
+{
+  return(app_timer_cnt_get() / 32.768);
+}
+#define OVERFLOW_1 ((uint32_t)(0xFFFFFFFF/32.768))
+
+uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
+{
+  if(currentMillis < previousMillis) return(currentMillis + OVERFLOW_1 + 1 - previousMillis);
+  return(currentMillis - previousMillis);
+}
+
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
@@ -57,7 +69,7 @@ int main( int argc, const char* argv[] ) {
   I2c_Bridge i2cBridge{CONFIG_SDA_PIN, CONFIG_SCL_PIN, nullptr};
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
-  EventsDispatcher<10, ButtonId> dispatcher;
+  EventsDispatcher<10, ButtonId, app_timer_event_t> dispatcher;
   Display display{i2cBridge};
   Sensors sensors{i2cBridge};
   Buttons buttons;
@@ -76,10 +88,16 @@ int main( int argc, const char* argv[] ) {
   /* Toggle LEDs. */
   stack.render();
 
+  uint32_t myTimeStamp = millis();
+
   while (true) {
-    bsp_board_led_invert(0);
+    if(compareMillis(myTimeStamp, millis()) > 1000) {
+      myTimeStamp = millis();
+      bsp_board_led_invert(0);
+    }
+
     dispatcher.process();
-    nrf_delay_ms(1000);
+//    nrf_delay_ms(1000);
     //nrf_pwr_mgmt_run();
   }
   return 0;

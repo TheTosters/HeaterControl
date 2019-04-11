@@ -1,15 +1,5 @@
 #pragma once
 
-#include "timer_owner.h"
-#include "bridges/i2c_bridge.h"
-#include "bridges/one_wire.h"
-#include "ds18b20.h"
-#include "observable.h"
-#include <cinttypes>
-#include <math.h>
-#include "unit.h"
-#include "sht30.h"
-
 extern "C" {
 #include "app_timer.h"
 #include "nrf_log.h"
@@ -17,6 +7,17 @@ extern "C" {
 #include "nrf_gpio.h"
 #include "ble_advdata.h"
 }
+
+#include "timer_owner.h"
+#include "bridges/i2c_bridge.h"
+#include "bridges/one_wire.h"
+#include "ds18b20.h"
+#include "observable.h"
+#include "unit.h"
+#include "sht30.h"
+
+#include <stdint.h>
+#include <math.h>
 
 using SensorsObserver = std::function<void(float, int)>;
 
@@ -103,6 +104,7 @@ private:
   }
 
   static void timerHandler(void* selfPtr) {
+    ensureMainThread();
     Sensors* self = static_cast<Sensors*>(selfPtr);
     switch(self->state){
       case WAIT:

@@ -12,6 +12,7 @@
 
 //Timer support
 #define APP_TIMER_ENABLED 1
+#define APP_TIMER_CONFIG_USE_SCHEDULER 1  //we want timer to use app scheduler
 #define NRF_CLOCK_ENABLED 1
 #define CLOCK_CONFIG_LF_SRC 1
 
@@ -51,6 +52,6 @@
 #define TWI0_ENABLED 1
 #define TWI0_USE_EASY_DMA 1
 
-#define NRFX_TWIM_CONFIG_LOG_ENABLED 1
-#define TWI_CONFIG_LOG_ENABLED 1
-#define TWI_CONFIG_LOG_LEVEL 4
+//#define NRFX_TWIM_CONFIG_LOG_ENABLED 1
+//#define TWI_CONFIG_LOG_ENABLED 1
+//#define TWI_CONFIG_LOG_LEVEL 4
