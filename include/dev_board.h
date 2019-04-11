@@ -11,5 +11,4 @@
 
 #define CONFIG_DS18B20_PIN  NRF_GPIO_PIN_MAP(0,  2)
 
-//#define SHT30_ON_BOARD
-#define DS18B20_ON_BOARD
+#define BOARD_SENSOR  BoardSensor::SHT30
