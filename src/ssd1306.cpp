@@ -99,7 +99,6 @@ void SSD1306::clear() {
 }
 
 void SSD1306::updateDisplay() {
-  NRF_LOG_WARNING("Update start");
   std::vector<uint8_t> cmdStream({
     0,
     // Column start address (0 = reset), Column end address (127 = reset)
@@ -114,7 +113,6 @@ void SSD1306::updateDisplay() {
   do {
     uint8_t size = (screen.end() - offset) >= chunkSize ?
         chunkSize : screen.end() - offset;
-    NRF_LOG_WARNING("Update: size=%d", size);
 
     offset = std::prev(offset);
 
@@ -126,7 +124,6 @@ void SSD1306::updateDisplay() {
 
     offset = std::next(offset, size + 1);
   } while (offset < screen.end());
-  NRF_LOG_WARNING("Update done");
 }
 
 void SSD1306::sendCmd(SSD1306Cmd cmd) {

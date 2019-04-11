@@ -21,14 +21,15 @@ extern "C" {
 
 using SensorsObserver = std::function<void(float, int)>;
 
+template<typename MainSensor, typename Bridge>
 class Sensors : TimerOwner, public Observable<SensorsObserver> {
 public:
   TemperatureC temperature;
   RelativeHumidity humidity;
 
-  Sensors(I2c_Bridge& bridge)
-  : TimerOwner(false, Sensors::timerHandler), timerId(&timer), state(WAIT),
-    temperature(0), humidity(0), sht30(bridge) {
+  Sensors(Bridge& bridge)
+  : TimerOwner(false, Sensors::timerHandler), state(WAIT),
+    temperature(0), humidity(0), mainSensor(bridge) {
 
     nrf_gpio_cfg_output(CONFIG_SENSORS_PWR_PIN);
     startTimer(STARTUP_INTERVAL);
@@ -46,31 +47,22 @@ private:
   static constexpr unsigned int MEASUREMENT_INTERVAL = APP_TIMER_TICKS(3 * 1000);
 
   //should be maximum of power up for DS18B20 and/or SHT30
-  //for SHT30 -> 1ms (according to datasheet)
-  //for DS18B20 -> 30ms (assumed due to various reading on net)
-  static constexpr unsigned int POWER_UP_DELAY = APP_TIMER_TICKS(30);
+  static constexpr unsigned int POWER_UP_DELAY = APP_TIMER_TICKS(MainSensor::POWER_UP_DELAY_MS);
 
   //should be maximum time of measure for DS18B20 and/or SHT30
-  //DS18B20 at 9bits -> 94ms
-  //SHT30 at High repeatability -> 15 ms
-  static constexpr unsigned int MEASURING_DELAY = APP_TIMER_TICKS(95);
+  static constexpr unsigned int MEASURING_DELAY = APP_TIMER_TICKS(MainSensor::MEASURING_DELAY_MS);
 
   enum State {
     CONFIGURING, WAIT, POWERING_UP, MEASURING
   };
 
-  app_timer_t timer{};
-  app_timer_id_t timerId;
   State state;
-  OneWire oneWire{CONFIG_DS18B20_PIN};
-  Ds18b20 ds18b20{oneWire};
   TemperatureC lastTemp{0};
   RelativeHumidity lastHum{0};
-  Sht30 sht30;
+  MainSensor mainSensor;
 
   void configureSensors() {
-    ds18b20.begin();
-    ds18b20.setResolution(Ds18b20::Res9Bit); //0.5 deg resolution is ok
+    mainSensor.configure(); //0.5 deg resolution is ok
   }
 
   void powerUp() {
@@ -82,14 +74,12 @@ private:
   }
 
   void measure() {
-    //sht30.RequestMeasurements();
-    ds18b20.requestTemperatures();
+    mainSensor.requestMeasurements();
   }
 
   void collectMeasurement() {
-    //temperature = sht30.GetTemperature();
-    //humidity = sht30.GetRelHumidity();
-    temperature = ds18b20.getTempC();
+    temperature = mainSensor.getTemperature();
+    humidity = mainSensor.getRelHumidity();
     checkForNotification();
     powerDown();
   }
