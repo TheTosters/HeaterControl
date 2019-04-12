@@ -65,11 +65,11 @@ SSD1306::SSD1306(I2c_Bridge& bridge)
    font(nullptr) {
 }
 
-void SSD1306::end() {
+void SSD1306::disable() {
   sendCmd(DISPLAY_OFF);
 }
 
-void SSD1306::begin() {
+void SSD1306::enable() {
   std::vector<uint8_t> cmdStream({
     0,
     DISPLAY_OFF,

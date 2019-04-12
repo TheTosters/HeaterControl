@@ -92,8 +92,8 @@ int main( int argc, const char* argv[] ) {
   stack.render();
   uint32_t myTimeStamp = millis();
 
-  //sensors.addObserver([](float t, int h){
-  //  NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
+  sensors.addObserver([](float t, int h){
+  NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
 
   while (true) {
     if(compareMillis(myTimeStamp, millis()) > 1000) {
@@ -102,7 +102,7 @@ int main( int argc, const char* argv[] ) {
     }
 
     dispatcher.process();
-    //nrf_pwr_mgmt_run();
+    nrf_pwr_mgmt_run();
   }
   return 0;
 }

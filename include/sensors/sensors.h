@@ -31,7 +31,7 @@ public:
   : TimerOwner(false, Sensors::timerHandler), state(WAIT),
     temperature(0), humidity(0), mainSensor(bridge) {
 
-    nrf_gpio_cfg_output(CONFIG_SENSORS_PWR_PIN);
+    //TODO: Power off nrf_gpio_cfg_output(CONFIG_SENSORS_PWR_PIN);
     startTimer(STARTUP_INTERVAL);
   }
 
@@ -66,11 +66,11 @@ private:
   }
 
   void powerUp() {
-    nrf_gpio_pin_set(CONFIG_SENSORS_PWR_PIN);
+    //TODO: power up nrf_gpio_pin_set(CONFIG_SENSORS_PWR_PIN);
   }
 
   void powerDown() {
-    nrf_gpio_pin_clear(CONFIG_SENSORS_PWR_PIN);
+    //TODO: Power off nrf_gpio_pin_clear(CONFIG_SENSORS_PWR_PIN);
   }
 
   void measure() {

@@ -105,7 +105,6 @@ private:
   void twiWaitIfBusy() {
     while(I2c_Bridge::txDone == false || nrf_drv_twi_is_busy(&twiInstance)) {
         nrf_pwr_mgmt_run();
-        //nrf_delay_ms(1);
       }
   }
 
