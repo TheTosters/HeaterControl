@@ -61,7 +61,7 @@ uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
-  NRF_LOG_INFO("Start-3\n");
+  NRF_LOG_INFO("Start\n");
   NRF_LOG_FLUSH();
   bsp_board_init(BSP_INIT_LEDS);
   powerManagementInit();

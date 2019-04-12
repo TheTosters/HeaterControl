@@ -58,8 +58,8 @@ private:
 
   void drawMeasurements() {
     std::stringstream s;
-    int integral = (int)temperature;
-    int fract = (int)(temperature * 100) - integral * 100;
+    int integral = static_cast<int>(temperature);
+    int fract = static_cast<int>((temperature * 100) - integral * 100);
     fract = fract < 0 ? -fract : fract;
 
     s.precision(2);
@@ -68,7 +68,14 @@ private:
     display.selectFont(SelectedFont::LARGE);
     auto strWidth = display.getStringWidth(s.str());
     auto posX = (display.width() - strWidth) / 2;
-    display.drawString(posX, 10, s.str());
+    display.drawString(posX, 8, s.str());
+
+    if (humidity > 0) {
+      display.selectFont(SelectedFont::SMALL);
+      std::stringstream s2;
+      s2 << static_cast<int>(humidity) << ' ' << '%';
+      display.drawString(0, 50, s2.str());
+    }
   }
 
   void drawTime() {
