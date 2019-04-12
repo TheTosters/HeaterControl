@@ -24,27 +24,29 @@ public:
     if (isHeating) {
       display.drawXbm(display.width() - flameIcon.width, 0, flameIcon);
     }
-    notify(id, false);
+    ScreenRedraw::notify(id, false);
   }
 
   void setTempAndHum(float temperature, int humidity) {
     this->temperature = temperature;
     this->humidity = humidity;
-    notify(id, true);
+    ScreenRedraw::notify(id, true);
   }
 
   void setTime(const std::tm time) {
     this->time = time;
-    notify(id, true);
+    ScreenRedraw::notify(id, true);
   }
 
   void setHeatingIndicator(bool isHeating) {
     this->isHeating = isHeating;
-    notify(id, true);
+    ScreenRedraw::notify(id, true);
   }
 
   void onButtonEvent(ButtonId event) {
-
+    if (event == ButtonId::OK) {
+      ScreenSelect::notify(SelectedScreen::STATUS);
+    }
   }
 private:
   int humidity{0};
@@ -90,5 +92,4 @@ private:
         time.tm_sec;
     display.drawString(0, 0, s.str());
   }
-
 };

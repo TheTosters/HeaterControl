@@ -11,9 +11,7 @@ enum class ButtonId{
   PREV, NEXT, OK
 };
 
-using ButtonsObserver = std::function<void(ButtonId)>;
-
-class Buttons : public Observable<ButtonsObserver> {
+class Buttons : public Observable<ButtonId> {
 public:
   Buttons() {
     Buttons::singletonInstance = this;  //thank you Nordic...

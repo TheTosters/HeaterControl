@@ -35,7 +35,7 @@ public:
 
   Ds18b20(OneWire& onwWire) : wire(onwWire) {}
 
-  bool begin() {
+  bool enable() {
     wire.resetSearch();
     wire.search(deviceAddress, true);
 #ifdef DS_DEBUG
@@ -59,8 +59,12 @@ public:
   }
 
   void configure() {
-      begin();
+      enable();
       setResolution(Resolution);
+  }
+
+  static std::string getName() {
+    return "DS18B20";
   }
 
   void requestMeasurements() {

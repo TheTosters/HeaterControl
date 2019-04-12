@@ -18,11 +18,10 @@ extern "C" {
 
 #include <stdint.h>
 #include <math.h>
-
-using SensorsObserver = std::function<void(float, int)>;
+#include <string>
 
 template<typename MainSensor, typename Bridge>
-class Sensors : TimerOwner, public Observable<SensorsObserver> {
+class Sensors : TimerOwner, public Observable<float, int> {
 public:
   TemperatureC temperature;
   RelativeHumidity humidity;
@@ -37,6 +36,9 @@ public:
   Sensors(const Sensors&) = delete;
   Sensors& operator=(const Sensors&) = delete;
 
+  static std::string getName() {
+    return MainSensor::getName();
+  }
 private:
   //how often measurements should take place
   //constexpr unsigned int MEASUREMENT_INTERVAL = APP_TIMER_TICKS(3 * 60 * 1000);

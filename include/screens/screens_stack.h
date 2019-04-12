@@ -2,12 +2,14 @@
 
 #include "screens/screen.h"
 #include "screens/default_screen.h"
+#include "screens/status_screen.h"
 #include "buttons.h"
 #include <variant>
 #include <forward_list>
 #include <algorithm>
 #include "events_dispatcher.h"
-using AnyScreen = std::variant<DefaultScreen>;
+
+using AnyScreen = std::variant<DefaultScreen, StatusScreen>;
 
 class ScreensStack {
 public:
@@ -39,12 +41,26 @@ public:
   T& add(T&& screen) {
     T& result = std::get<T>(screens.emplace_front(std::forward<T>(screen)));
     attachRefreshLogic<T>(result);
+    attachSwapScreenLogic<T>(result);
     return result;
   }
 
   template<typename T>
+  void attachSwapScreenLogic(T& screen) {
+    screen.ScreenSelect::addObserver(
+      [this](const SelectedScreen id) {
+        selectScreen(id);
+        if (display.isPowered()){
+          render();
+          display.update();
+        }
+    });
+  }
+
+  template<typename T>
   void attachRefreshLogic(T& screen) {
-    screen.addObserver([this](const SelectedScreen id, const bool redraw) {
+    screen.ScreenRedraw::addObserver(
+      [this](const SelectedScreen id, const bool redraw) {
       if (display.isPowered() and currentScreenId() == id){
         if (redraw) {
           render();

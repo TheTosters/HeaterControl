@@ -24,7 +24,7 @@ public:
     : TimerOwner(false, Display::timerHandler),
       ssd1306(bridge),
       largeFont { Chewy_Regular_42 },
-      smallFont { ArialMT_Plain_10 },
+      smallFont { DejaVuSans13 },
       powerIsOn(false)
   {
   }

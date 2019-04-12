@@ -18,7 +18,8 @@
         VDD = 0x45,
     };
 
-template<Sht30Mode Mode = Sht30Mode::Single_HighRep_ClockStretch, Sht30Address Address = Sht30Address::VSS>
+template<Sht30Mode Mode = Sht30Mode::Single_HighRep_ClockStretch,
+         Sht30Address Address = Sht30Address::VSS>
 class Sht30 {
 public:
     //should be maximum of power up for DS18B20 and/or SHT30
@@ -97,6 +98,10 @@ public:
 
     Sht30(const Sht30&) = delete;
     Sht30& operator=(const Sht30&) = delete;
+
+    static std::string getName() {
+      return "SHT30";
+    }
 
     void setMode(Sht30Mode mode) {
         switch (mode)

@@ -3,20 +3,27 @@
 #include <functional>
 #include <vector>
 
-template<typename Observer>
+template<typename ... TempArg>
 class Observable {
 public:
-  template <typename... Args>
-  void notify(Args&&... args) {
-    for(Observer& obs : observers) {
-      obs( std::forward<Args>(args)... );
+  using ObsFun = std::function<void(TempArg...)>;
+
+//  void notify(const TempArg&... args) {
+//    for(ObsFun& obs : observers) {
+//      obs( args... );
+//    }
+//  }
+
+  void notify(TempArg... args) {
+    for(ObsFun& obs : observers) {
+      obs( args... );
     }
   }
 
-  void addObserver(Observer obs) {
-    observers.push_back(obs);
+  void addObserver( ObsFun&& obs) {
+    observers.push_back( std::forward<ObsFun>(obs));
   }
 
 private:
-  std::vector<Observer> observers;
+  std::vector<ObsFun> observers;
 };

@@ -10,9 +10,7 @@ extern "C" {
 #include <stdint.h>
 #include <ctime>
 
-using CalendarObserver = std::function<void(std::tm)>;
-
-class Calendar : TimerOwner, public Observable<CalendarObserver> {
+class Calendar : TimerOwner, public Observable<std::tm> {
 public:
   enum Day {
     SUNDAY = 0,
