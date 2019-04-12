@@ -26,7 +26,7 @@ template<Ds18b20_Resolution Resolution = Res9Bit>
 class Ds18b20 {
 public:
   //should be maximum of power up for DS18B20 and/or SHT30
-  static constexpr unsigned int POWER_UP_DELAY_MS = 30;
+  static constexpr unsigned int CONFIGURE_DELAY_MS = 30;
 
   //should be maximum time of measure for DS18B20 and/or SHT30
   static constexpr unsigned int MEASURING_DELAY_MS = 95;
