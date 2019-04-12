@@ -1,11 +1,16 @@
 #pragma once
 #include "display.h"
+#include "observable.h"
+#include <functional>
 
 enum class SelectedScreen {
   DEFAULT
 };
 
-class Screen {
+using ScreenRedrawObserver = std::function<void(const SelectedScreen,
+                                                const bool redraw)>;
+
+class Screen : public Observable<ScreenRedrawObserver>{
 public:
   const SelectedScreen id;
 

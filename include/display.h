@@ -25,17 +25,15 @@ public:
       ssd1306(bridge),
       largeFont { Chewy_Regular_42 },
       smallFont { ArialMT_Plain_10 },
-      powerIsOn(false),
-      selectedFont(SelectedFont::SMALL) {
+      powerIsOn(false)
+  {
   }
 
   void clear() {
-    powerUp();
     ssd1306.clear();
   }
 
   void drawString(int x, int y, const std::string& text) {
-    powerUp();
     ssd1306.drawString(x, y, text);
   }
 
@@ -44,21 +42,29 @@ public:
   }
 
   void update() {
-    powerUp();
-    ssd1306.updateDisplay();
-    //this will restart timer if already running -> prolong execution
+    if (powerIsOn) {
+      ssd1306.updateDisplay();
+    }
+  }
+
+  void sustainOn() {
+    if (not powerIsOn) {
+      powerUp();
+      ssd1306.updateDisplay();
+    }
     restartTimer(TURNOFF_DELAY);
   }
 
   void selectFont(SelectedFont font) {
-    selectedFont = font;
-    if (powerIsOn) {
-      applySelectedFont();
+    if (font == SelectedFont::SMALL) {
+      ssd1306.setFont(&smallFont);
+
+    } else {
+      ssd1306.setFont(&largeFont);
     }
   }
 
   void drawXbm(int x, int y, const IconBridge& icon) {
-    powerUp();
     ssd1306.drawXbm(x, y, icon);
   }
 
@@ -75,34 +81,21 @@ public:
   }
 private:
   static constexpr unsigned int TURNOFF_DELAY = APP_TIMER_TICKS(13000);
-  static constexpr unsigned int WARMUP_DELAY_MS = 13;
   SSD1306 ssd1306;
   const FontBridge& largeFont;
   const FontBridge& smallFont;
   bool powerIsOn;
-  SelectedFont selectedFont;
-
-  void applySelectedFont() {
-    if (selectedFont == SelectedFont::SMALL) {
-      ssd1306.setFont(&smallFont);
-
-    } else {
-      ssd1306.setFont(&largeFont);
-    }
-  }
 
   void powerUp() {
     if (not powerIsOn) {
-      NRF_LOG_INFO("--> PWR ON");
-      //TODO: this is spinlock, change to something more power efficient
-      nrf_delay_ms(WARMUP_DELAY_MS);
+      NRF_LOG_INFO("Display PWR ON");
       ssd1306.enable();
-      applySelectedFont();
       powerIsOn = true;
     }
   }
 
   void powerOff() {
+    NRF_LOG_INFO("Display PWR OFF");
     powerIsOn = false;
     ssd1306.disable();
   }

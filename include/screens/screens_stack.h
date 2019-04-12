@@ -37,19 +37,36 @@ public:
 
   template<typename T>
   T& add(T&& screen) {
-    return std::get<T>(screens.emplace_front(std::forward<T>(screen)));
+    T& result = std::get<T>(screens.emplace_front(std::forward<T>(screen)));
+    attachRefreshLogic<T>(result);
+    return result;
+  }
+
+  template<typename T>
+  void attachRefreshLogic(T& screen) {
+    screen.addObserver([this](const SelectedScreen id, const bool redraw) {
+      if (display.isPowered() and currentScreenId() == id){
+        if (redraw) {
+          render();
+        }
+        display.update();
+      }
+    });
   }
 
   void onButtonEvent(ButtonId event) {
     if (not display.isPowered()) {
+      display.sustainOn();
       render();
 
     } else {
       //forward event to current
       std::visit([=](auto&& screen) {screen.onButtonEvent(event);}, *currentScr);
+      display.sustainOn();
       render();
     }
   }
+
 private:
   using ScreensVector = std::forward_list<AnyScreen>;
   ScreensVector::iterator currentScr;

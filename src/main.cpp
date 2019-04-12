@@ -89,7 +89,9 @@ int main( int argc, const char* argv[] ) {
   stack.selectScreen(SelectedScreen::DEFAULT);
   buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
 
+  display.sustainOn();
   stack.render();
+
   uint32_t myTimeStamp = millis();
 
   sensors.addObserver([](float t, int h){

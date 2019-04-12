@@ -24,20 +24,23 @@ public:
     if (isHeating) {
       display.drawXbm(display.width() - flameIcon.width, 0, flameIcon);
     }
-    display.update();
+    notify(id, false);
   }
 
   void setTempAndHum(float temperature, int humidity) {
     this->temperature = temperature;
     this->humidity = humidity;
+    notify(id, true);
   }
 
   void setTime(const std::tm time) {
     this->time = time;
+    notify(id, true);
   }
 
   void setHeatingIndicator(bool isHeating) {
     this->isHeating = isHeating;
+    notify(id, true);
   }
 
   void onButtonEvent(ButtonId event) {
