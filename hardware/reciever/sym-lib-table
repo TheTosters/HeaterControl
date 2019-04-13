@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name Laird)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/hardware/roomSensor/Laird.lib)(options "")(descr ""))
+  (lib (name Tag-Connect)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/hardware/roomSensor/Tag-Connect.lib)(options "")(descr ""))
+  (lib (name DDC114EU)(type Legacy)(uri ${KIPRJMOD}/DDC114EU.lib)(options "")(descr ""))
+)
