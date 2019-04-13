@@ -397,61 +397,6 @@ NoConn ~ 5150 3650
 NoConn ~ 4900 1850
 NoConn ~ 3700 1550
 $Comp
-L Device:Q_NMOS_GSD Q1
-U 1 1 5C695AC0
-P 6950 1850
-F 0 "Q1" H 7155 1896 50  0000 L CNN
-F 1 "NX7002AK.215" H 7155 1805 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 7150 1950 50  0001 C CNN
-F 3 "~" H 6950 1850 50  0001 C CNN
-	1    6950 1850
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR0115
-U 1 1 5C695B67
-P 7050 2300
-F 0 "#PWR0115" H 7050 2050 50  0001 C CNN
-F 1 "GND" H 7055 2127 50  0000 C CNN
-F 2 "" H 7050 2300 50  0001 C CNN
-F 3 "" H 7050 2300 50  0001 C CNN
-	1    7050 2300
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	7050 2300 7050 2250
-$Comp
-L Device:R R3
-U 1 1 5C6978A7
-P 6600 2050
-F 0 "R3" H 6670 2096 50  0000 L CNN
-F 1 "100k" H 6670 2005 50  0000 L CNN
-F 2 "Resistor_SMD:R_1206_3216Metric" V 6530 2050 50  0001 C CNN
-F 3 "~" H 6600 2050 50  0001 C CNN
-	1    6600 2050
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6600 1850 6600 1900
-Connection ~ 6600 1850
-Wire Wire Line
-	6600 1850 6750 1850
-Wire Wire Line
-	6600 2200 6600 2250
-Text Label 6100 1850 0    50   ~ 0
-SENSOR_PWR
-Wire Wire Line
-	6100 1850 6600 1850
-Text Label 7050 1150 3    50   ~ 0
-SENSOR_GND
-Wire Wire Line
-	7050 1150 7050 1650
-Wire Wire Line
-	6600 2250 7050 2250
-Connection ~ 7050 2250
-Wire Wire Line
-	7050 2250 7050 2050
-$Comp
 L Sensor_Temperature:DS18B20 U1
 U 1 1 5C6AC06A
 P 1800 1850
@@ -462,10 +407,6 @@ F 3 "http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf" H 1650 2100 50  00
 	1    1800 1850
 	1    0    0    -1  
 $EndComp
-Text Label 1800 2650 1    50   ~ 0
-SENSOR_GND
-Wire Wire Line
-	1800 2150 1800 2650
 Wire Wire Line
 	1800 1550 1800 1400
 $Comp
@@ -479,8 +420,6 @@ F 3 "" H 1800 1350 50  0001 C CNN
 	1    1800 1350
 	1    0    0    -1  
 $EndComp
-Text Label 1400 3950 0    50   ~ 0
-SENSOR_PWR
 Text Label 1400 4050 0    50   ~ 0
 DS18B20
 Text Label 2500 1850 2    50   ~ 0
@@ -488,18 +427,11 @@ DS18B20
 Wire Wire Line
 	4900 2250 5050 2250
 Wire Wire Line
-	5250 2250 5250 2800
-Text Label 5250 2800 1    50   ~ 0
-SENSOR_GND
-Text Label 3650 2500 1    50   ~ 0
-SENSOR_GND
-Wire Wire Line
-	3650 1650 3650 2500
+	3650 1650 3650 2350
 Wire Wire Line
 	4900 1450 5250 1450
 Wire Wire Line
 	5250 1750 5250 2250
-Connection ~ 5250 2250
 $Comp
 L BS-3:BS-3 U4
 U 1 1 5C6E1F18
@@ -547,8 +479,6 @@ NoConn ~ 3100 6150
 NoConn ~ 1950 5450
 Wire Wire Line
 	1950 4050 1400 4050
-Wire Wire Line
-	1950 3950 1400 3950
 NoConn ~ 1950 5350
 $Comp
 L Tag-Connect:TC2030-CTX P1
@@ -630,63 +560,6 @@ Text Label 10000 3300 2    50   ~ 0
 BTN-2
 Text Label 10000 3200 2    50   ~ 0
 BTN-3
-$Comp
-L Device:Q_NMOS_GSD Q2
-U 1 1 5CA17FC7
-P 8650 1900
-F 0 "Q2" H 8855 1946 50  0000 L CNN
-F 1 "NX7002AK.215" H 8855 1855 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 8850 2000 50  0001 C CNN
-F 3 "~" H 8650 1900 50  0001 C CNN
-	1    8650 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR0114
-U 1 1 5CA17FCE
-P 8750 2350
-F 0 "#PWR0114" H 8750 2100 50  0001 C CNN
-F 1 "GND" H 8755 2177 50  0000 C CNN
-F 2 "" H 8750 2350 50  0001 C CNN
-F 3 "" H 8750 2350 50  0001 C CNN
-	1    8750 2350
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8750 2350 8750 2300
-$Comp
-L Device:R R5
-U 1 1 5CA17FD5
-P 8300 2100
-F 0 "R5" H 8370 2146 50  0000 L CNN
-F 1 "100k" H 8370 2055 50  0000 L CNN
-F 2 "Resistor_SMD:R_1206_3216Metric" V 8230 2100 50  0001 C CNN
-F 3 "~" H 8300 2100 50  0001 C CNN
-	1    8300 2100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8300 1900 8300 1950
-Connection ~ 8300 1900
-Wire Wire Line
-	8300 1900 8450 1900
-Wire Wire Line
-	8300 2250 8300 2300
-Text Label 7800 1900 0    50   ~ 0
-OLED_PWR
-Wire Wire Line
-	7800 1900 8300 1900
-Text Label 8750 1200 3    50   ~ 0
-OLED_GND
-Wire Wire Line
-	8750 1200 8750 1700
-Wire Wire Line
-	8300 2300 8750 2300
-Connection ~ 8750 2300
-Wire Wire Line
-	8750 2300 8750 2100
-Text Label 9700 3950 0    50   ~ 0
-OLED_GND
 Wire Wire Line
 	4850 3650 4850 3050
 Wire Wire Line
@@ -699,10 +572,6 @@ Text Label 4050 3050 3    50   ~ 0
 BTN-2
 Text Label 4850 3050 3    50   ~ 0
 BTN-3
-Text Label 4300 6700 1    50   ~ 0
-OLED_PWR
-Wire Wire Line
-	4300 6150 4300 6700
 $Comp
 L Connector_Generic:Conn_02x02_Odd_Even J2
 U 1 1 5CA6610E
@@ -775,8 +644,6 @@ F 3 "~" H 10350 3950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9700 3950 10150 3950
-Wire Wire Line
 	10900 4050 10650 4050
 Wire Wire Line
 	10650 3950 10700 3950
@@ -784,4 +651,59 @@ Wire Wire Line
 	10700 3950 10700 3750
 Wire Wire Line
 	9700 4050 10150 4050
+$Comp
+L power:GND #PWR?
+U 1 1 5CB2C1A7
+P 5250 2350
+F 0 "#PWR?" H 5250 2100 50  0001 C CNN
+F 1 "GND" H 5255 2177 50  0000 C CNN
+F 2 "" H 5250 2350 50  0001 C CNN
+F 3 "" H 5250 2350 50  0001 C CNN
+	1    5250 2350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5250 2250 5250 2350
+Connection ~ 5250 2250
+$Comp
+L power:GND #PWR?
+U 1 1 5CB36B32
+P 3650 2350
+F 0 "#PWR?" H 3650 2100 50  0001 C CNN
+F 1 "GND" H 3655 2177 50  0000 C CNN
+F 2 "" H 3650 2350 50  0001 C CNN
+F 3 "" H 3650 2350 50  0001 C CNN
+	1    3650 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5CB396B8
+P 1800 2400
+F 0 "#PWR?" H 1800 2150 50  0001 C CNN
+F 1 "GND" H 1805 2227 50  0000 C CNN
+F 2 "" H 1800 2400 50  0001 C CNN
+F 3 "" H 1800 2400 50  0001 C CNN
+	1    1800 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1800 2400 1800 2150
+$Comp
+L power:GND #PWR?
+U 1 1 5CB51F1E
+P 10100 4150
+F 0 "#PWR?" H 10100 3900 50  0001 C CNN
+F 1 "GND" H 10105 3977 50  0000 C CNN
+F 2 "" H 10100 4150 50  0001 C CNN
+F 3 "" H 10100 4150 50  0001 C CNN
+	1    10100 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10100 4150 10100 3950
+Wire Wire Line
+	10100 3950 10150 3950
+NoConn ~ 1950 3950
+NoConn ~ 4300 6150
 $EndSCHEMATC
