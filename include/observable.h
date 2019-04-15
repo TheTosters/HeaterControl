@@ -8,12 +8,6 @@ class Observable {
 public:
   using ObsFun = std::function<void(TempArg...)>;
 
-//  void notify(const TempArg&... args) {
-//    for(ObsFun& obs : observers) {
-//      obs( args... );
-//    }
-//  }
-
   void notify(TempArg... args) {
     for(ObsFun& obs : observers) {
       obs( args... );

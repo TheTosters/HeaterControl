@@ -21,6 +21,7 @@ public:
     display.clear();
     drawMeasurements();
     drawTime();
+    drawHeatingMode();
     if (isHeating) {
       display.drawXbm(display.width() - flameIcon.width, 0, flameIcon);
     }
@@ -44,10 +45,23 @@ public:
   }
 
   void onButtonEvent(ButtonId event) {
-    if (event == ButtonId::OK) {
-      ScreenSelect::notify(SelectedScreen::STATUS);
+    switch(event) {
+      case ButtonId::OK:
+        ScreenSelect::notify(SelectedScreen::STATUS);
+        break;
+
+      case ButtonId::PREV:
+        //TODO: Prev heating mode
+        ScreenRedraw::notify(id, true);
+        break;
+
+      case ButtonId::NEXT:
+        //TODO: Next heating mode
+        ScreenRedraw::notify(id, true);
+        break;
     }
   }
+
 private:
   int humidity{0};
   float temperature{0};
@@ -91,5 +105,12 @@ private:
         std::setfill('0') << std::setw(2) <<
         time.tm_sec;
     display.drawString(0, 0, s.str());
+  }
+
+  void drawHeatingMode() {
+    //TODO: show proper heating plan
+    std::string text = "Auto";
+    int len = display.getStringWidth(text);
+    display.drawString(display.width() - len - 2, 50, text);
   }
 };
