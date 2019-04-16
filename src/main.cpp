@@ -29,6 +29,7 @@ extern "C" {
 #include "observable.h"
 #include "events_dispatcher.h"
 #include "temperatureSheduler.h"
+#include "heating_model.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -82,13 +83,27 @@ int main( int argc, const char* argv[] ) {
   Buttons buttons;
   Calendar calendar;
   TemperatureSheduler tempScheduler;
+  HeatingModel heatingModel{tempScheduler};
+  sensors.addObserver([&heatingModel](TemperatureC t, RelativeHumidity h) {
+    heatingModel.setTempAndHum(t, h);
+  });
+  calendar.addObserver([&heatingModel](DecodedTime t) {
+    heatingModel.setTime(t);
+  });
+
   BtleTransmiter btleTransmiter{sensors};
 //TODO:  btleTransmiter.enable();
 
   ScreensStack stack{display};
-  DefaultScreen& screen = stack.add( DefaultScreen{display, tempScheduler} );
-  sensors.addObserver([&screen](float t, int h) {screen.setTempAndHum(t,h);});
+  DefaultScreen& screen = stack.add( DefaultScreen{display} );
+  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h) {
+    screen.setTempAndHum(t, h);
+  });
   calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
+  heatingModel.addObserver(
+      [&screen](bool h, TemperatureC t, HeatingPlan p) {
+        screen.setHeatingStatus(h, t, p);
+  });
 
   StatusScreen stScr = stack.add( StatusScreen{display} );
 

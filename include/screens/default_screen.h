@@ -4,7 +4,7 @@
 #include "screens/screen.h"
 #include "buttons.h"
 #include "display.h"
-#include "temperatureSheduler.h"
+#include "heating_model.h"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -12,8 +12,8 @@
 
 class DefaultScreen : public Screen {
 public:
-  DefaultScreen(Display& display, TemperatureSheduler& tempScheduler) :
-    Screen(display, SelectedScreen::DEFAULT), tempScheduler(tempScheduler)
+  DefaultScreen(Display& display) :
+    Screen(display, SelectedScreen::DEFAULT)
   {
   }
 
@@ -22,13 +22,10 @@ public:
     drawMeasurements();
     drawTime();
     drawHeatingMode();
-    if (isHeating) {
-      display.drawXbm(display.width() - flameIcon.width, 0, flameIcon);
-    }
     ScreenRedraw::notify(id, false);
   }
 
-  void setTempAndHum(float temperature, int humidity) {
+  void setTempAndHum(TemperatureC temperature, RelativeHumidity humidity) {
     this->temperature = temperature;
     this->humidity = humidity;
     ScreenRedraw::notify(id, true);
@@ -39,8 +36,10 @@ public:
     ScreenRedraw::notify(id, true);
   }
 
-  void setHeatingIndicator(bool isHeating) {
+  void setHeatingStatus(bool isHeating, TemperatureC expTemp, HeatingPlan plan){
     this->isHeating = isHeating;
+    this->expectedTemperature = expTemp;
+    this->heatingPlan = plan;
     ScreenRedraw::notify(id, true);
   }
 
@@ -63,16 +62,18 @@ public:
   }
 
 private:
-  int humidity{0};
-  float temperature{0};
+  RelativeHumidity humidity{0};
+  TemperatureC temperature{0};
+  TemperatureC expectedTemperature{0};
+  HeatingPlan heatingPlan{HeatingPlan::SCHEDULE};
   bool isHeating{false};
   DecodedTime time{};
-  TemperatureSheduler& tempScheduler;
 
-  std::string tempToStr(const float temp) {
+  std::string tempToStr(const TemperatureC& temp) {
     std::stringstream s;
-    int integral = static_cast<int>(temp);
-    int fract = static_cast<int>((temp * 100) - integral * 100);
+    float tmpF = static_cast<float>(temp);
+    int integral = static_cast<int>(tmpF);
+    int fract = static_cast<int>((tmpF * 100) - integral * 100);
     fract = fract < 0 ? -fract : fract;
 
     s.precision(2);
@@ -87,10 +88,11 @@ private:
     auto posX = (display.width() - strWidth) / 2;
     display.drawString(posX, 8, strTemp);
 
-    if (humidity > 0) {
+    int relH = static_cast<int>(humidity);
+    if (relH > 0) {
       display.selectFont(SelectedFont::SMALL);
       std::stringstream s;
-      s << static_cast<int>(humidity) << ' ' << '%';
+      s << relH << ' ' << '%';
       display.drawString(0, 50, s.str());
     }
   }
@@ -107,14 +109,18 @@ private:
 
   void drawHeatingMode() {
     //TODO: show proper heating plan
-    std::string text = "Auto";
+    std::string text = heatingPlan == HeatingPlan::SCHEDULE ?
+        "Auto" : "Wybr.";
     int len = display.getStringWidth(text);
     display.drawString(display.width() - len - 2, 50, text);
 
-    //draw expected to have temperature
-    TemperatureC temp = tempScheduler.getTemperature(time);
-    std::string strTemp = tempToStr(static_cast<float>(temp));
+    std::string strTemp = tempToStr(expectedTemperature);
     len = display.getStringWidth(strTemp);
     display.drawString((display.width() - len)/2, 50, strTemp);
+
+    if (isHeating) {
+      display.drawXbm(display.width() - flameIcon.width,
+          (display.height() - flameIcon.height)/2, flameIcon);
+    }
   }
 };

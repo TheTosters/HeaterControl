@@ -21,7 +21,7 @@ extern "C" {
 #include <string>
 
 template<typename MainSensor, typename Bridge>
-class Sensors : TimerOwner, public Observable<float, int> {
+class Sensors : TimerOwner, public Observable<TemperatureC, RelativeHumidity> {
 public:
   TemperatureC temperature;
   RelativeHumidity humidity;
@@ -69,7 +69,7 @@ private:
          (lastHum != humidity)) {
       lastTemp = temperature;
       lastHum = humidity;
-      notify(static_cast<float>(temperature), static_cast<int>(humidity));
+      notify(temperature, humidity);
     }
   }
 
