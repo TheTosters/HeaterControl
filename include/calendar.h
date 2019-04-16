@@ -21,6 +21,10 @@ struct DecodedTime {
   std::chrono::seconds second;
   ChronoDays dayOfWeek;
   std::string dayName;
+
+  operator WeekTime() const {
+    return WeekTime{static_cast<WeekDay>(dayOfWeek.count()), hour, minute};
+  }
 };
 
 class Calendar : TimerOwner, public Observable<DecodedTime> {

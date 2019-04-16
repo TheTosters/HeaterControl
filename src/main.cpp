@@ -28,6 +28,7 @@ extern "C" {
 #include "screens/screens_stack.h"
 #include "observable.h"
 #include "events_dispatcher.h"
+#include "temperatureSheduler.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -80,21 +81,23 @@ int main( int argc, const char* argv[] ) {
 
   Buttons buttons;
   Calendar calendar;
+  TemperatureSheduler tempScheduler;
   BtleTransmiter btleTransmiter{sensors};
 //TODO:  btleTransmiter.enable();
 
   ScreensStack stack{display};
-  DefaultScreen& screen = stack.add( DefaultScreen{display} );
+  DefaultScreen& screen = stack.add( DefaultScreen{display, tempScheduler} );
   sensors.addObserver([&screen](float t, int h) {screen.setTempAndHum(t,h);});
   calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
 
   StatusScreen stScr = stack.add( StatusScreen{display} );
-  stack.selectScreen(SelectedScreen::STATUS);
 
   stack.add( TimeSetupScreen{display, calendar});
 
-  //stack.selectScreen(SelectedScreen::DEFAULT);
   buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
+
+  stack.selectScreen(SelectedScreen::STATUS);
+  //stack.selectScreen(SelectedScreen::DEFAULT);
 
   display.sustainOn();
   stack.render();
