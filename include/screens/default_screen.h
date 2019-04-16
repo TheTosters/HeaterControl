@@ -4,7 +4,6 @@
 #include "screens/screen.h"
 #include "buttons.h"
 #include "display.h"
-#include <ctime>
 #include <string>
 #include <vector>
 #include <sstream>
