@@ -24,6 +24,7 @@ extern "C" {
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
 #include "screens/status_screen.h"
+#include "screens/time_setup_screen.h"
 #include "screens/screens_stack.h"
 #include "observable.h"
 #include "events_dispatcher.h"
@@ -80,15 +81,17 @@ int main( int argc, const char* argv[] ) {
   Buttons buttons;
   Calendar calendar;
   BtleTransmiter btleTransmiter{sensors};
-  btleTransmiter.enable();
+//TODO:  btleTransmiter.enable();
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );
   sensors.addObserver([&screen](float t, int h) {screen.setTempAndHum(t,h);});
-  calendar.addObserver([&screen](std::tm t) {screen.setTime(t);});
+  calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
 
   StatusScreen stScr = stack.add( StatusScreen{display} );
   stack.selectScreen(SelectedScreen::STATUS);
+
+  stack.add( TimeSetupScreen{display, calendar});
 
   //stack.selectScreen(SelectedScreen::DEFAULT);
   buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});

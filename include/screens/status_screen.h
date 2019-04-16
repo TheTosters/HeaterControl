@@ -56,7 +56,7 @@ private:
   using OptionsVect = std::vector<OptionItem>;
   OptionsVect options{
     {"Powrot", SelectedScreen::DEFAULT},
-    {"Ustaw czas", SelectedScreen::DEFAULT},
+    {"Ustaw czas", SelectedScreen::TIME_SETUP},
     {"Zdalny konf.", SelectedScreen::DEFAULT}
   };
   OptionsVect::iterator selected{options.begin()};

@@ -34,7 +34,7 @@ public:
     ScreenRedraw::notify(id, true);
   }
 
-  void setTime(const std::tm time) {
+  void setTime(const DecodedTime time) {
     this->time = time;
     ScreenRedraw::notify(id, true);
   }
@@ -66,11 +66,7 @@ private:
   int humidity{0};
   float temperature{0};
   bool isHeating{false};
-  std::tm time{};
-
-  std::vector<std::string> dayNames {
-    "Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek",
-    "Sobota"};
+  DecodedTime time{};
 
   void drawMeasurements() {
     std::stringstream s;
@@ -97,13 +93,10 @@ private:
   void drawTime() {
     display.selectFont(SelectedFont::SMALL);
     std::stringstream s;
-    s << dayNames[time.tm_wday] << ' ' <<
-        std::setfill('0') << std::setw(2) <<
-        time.tm_hour << ':' <<
-        std::setfill('0') << std::setw(2) <<
-        time.tm_min << ':' <<
-        std::setfill('0') << std::setw(2) <<
-        time.tm_sec;
+    s << time.dayName << ' ' <<
+        std::setfill('0') << std::setw(2) << time.hour.count() << ':' <<
+        std::setfill('0') << std::setw(2) << time.minute.count() << ':' <<
+        std::setfill('0') << std::setw(2) << time.second.count();
     display.drawString(0, 0, s.str());
   }
 

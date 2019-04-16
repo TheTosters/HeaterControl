@@ -6,16 +6,27 @@ extern "C" {
 
 #include <functional>
 #include <stdint.h>
-#include <ctime>
 #include <algorithm>
+#include <string>
 #include <chrono>
 
 #include "timer_owner.h"
 #include "observable.h"
 #include "weekUnit.h"
 
-class Calendar : TimerOwner, public Observable<std::tm> {
+struct DecodedTime {
+  using ChronoDays = std::chrono::duration<int64_t, std::ratio<86400>>;
+  std::chrono::hours hour;
+  std::chrono::minutes minute;
+  std::chrono::seconds second;
+  ChronoDays dayOfWeek;
+  std::string dayName;
+};
+
+class Calendar : TimerOwner, public Observable<DecodedTime> {
 public:
+
+  static const std::vector<std::string> dayNames;
   Calendar()
     : TimerOwner(true, Calendar::timerHandler),
       rawSeconds(0)
@@ -24,36 +35,51 @@ public:
   }
 
   WeekDay getWeekDay() {
-    return static_cast<WeekDay>(getDecodedTime().tm_wday);
+    return static_cast<WeekDay>(getDecodedTime().dayOfWeek.count());
   }
 
-  std::tm getDecodedTime() {
-    std::time_t tmp = rawSeconds;
-    std::tm* decodedTime = std::localtime(&tmp);
-    return *decodedTime;
+  DecodedTime getDecodedTime() {
+    DecodedTime result;
+    using namespace std::chrono;
+    result.dayOfWeek = duration_cast<DecodedTime::ChronoDays>(rawSeconds);
+    result.hour = duration_cast<hours>(rawSeconds);
+    result.hour = result.hour % 24;
+    result.minute = duration_cast<minutes>(rawSeconds);
+    result.minute = result.minute % 60;
+    result.second = rawSeconds;
+    result.second = result.second % 60;
+    result.dayName = Calendar::dayNames[result.dayOfWeek.count()];
+    return result;
   }
 
   WeekTime getWeekTime() {
-      return WeekTime(getWeekDay(), std::chrono::hours(getDecodedTime().tm_hour), std::chrono::minutes(getDecodedTime().tm_min));
+      return WeekTime(getWeekDay(), getDecodedTime().hour,
+          getDecodedTime().minute);
   }
 
-  void setEpoch(uint32_t epoch) {
+  void setRawTime(std::chrono::seconds epoch) {
     rawSeconds = epoch;
   }
 
-  uint32_t getEpoch() {
+  std::chrono::seconds getRawTime() {
     return rawSeconds;
   }
 
 private:
-  static constexpr unsigned int SEC_PER_TICK = 10;
-  static constexpr unsigned int TICK_DELAY = APP_TIMER_TICKS(SEC_PER_TICK * 1000);
+  static constexpr std::chrono::seconds WEEK_SECONDS{7 * 24 * 3600};
+  static constexpr unsigned int SEC_PER_TICK{10};
+  static constexpr unsigned int TICK_DELAY{APP_TIMER_TICKS(SEC_PER_TICK * 1000)};
 
-  uint32_t  rawSeconds;
+  std::chrono::seconds rawSeconds;
 
   static void timerHandler(void* selfPtr) {
     Calendar* self = static_cast<Calendar*>(selfPtr);
-    self->rawSeconds += SEC_PER_TICK;
+    self->rawSeconds += std::chrono::seconds{SEC_PER_TICK};
+    //we measure only in range of week, so this is not a real epoch
+    self->rawSeconds = self->rawSeconds % WEEK_SECONDS;
     self->notify( self->getDecodedTime() );
   }
 };
+const std::vector<std::string> Calendar::dayNames {
+  "Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek",
+  "Sobota"};

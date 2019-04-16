@@ -3,13 +3,14 @@
 #include "screens/screen.h"
 #include "screens/default_screen.h"
 #include "screens/status_screen.h"
+#include "screens/time_setup_screen.h"
 #include "buttons.h"
 #include <variant>
 #include <forward_list>
 #include <algorithm>
 #include "events_dispatcher.h"
 
-using AnyScreen = std::variant<DefaultScreen, StatusScreen>;
+using AnyScreen = std::variant<DefaultScreen, StatusScreen, TimeSetupScreen>;
 
 class ScreensStack {
 public:
