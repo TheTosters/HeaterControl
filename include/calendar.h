@@ -4,24 +4,18 @@ extern "C" {
 #include "app_timer.h"
 }
 
-#include "timer_owner.h"
-#include "observable.h"
 #include <functional>
 #include <stdint.h>
 #include <ctime>
+#include <algorithm>
+#include <chrono>
+
+#include "timer_owner.h"
+#include "observable.h"
+#include "weekUnit.h"
 
 class Calendar : TimerOwner, public Observable<std::tm> {
 public:
-  enum Day {
-    SUNDAY = 0,
-    MONDAY = 1,
-    TUESDAY = 2,
-    WEDNESDAY = 3,
-    THURSDAY = 4,
-    FRIDAY = 5,
-    SATURDAY = 6
-  };
-
   Calendar()
     : TimerOwner(true, Calendar::timerHandler),
       rawSeconds(0)
@@ -29,14 +23,18 @@ public:
     startTimer(TICK_DELAY);
   }
 
-  Day getDay() {
-    return static_cast<Day>(getDecodedTime().tm_wday);
+  WeekDay getWeekDay() {
+    return static_cast<WeekDay>(getDecodedTime().tm_wday);
   }
 
   std::tm getDecodedTime() {
     std::time_t tmp = rawSeconds;
     std::tm* decodedTime = std::localtime(&tmp);
     return *decodedTime;
+  }
+
+  WeekTime getWeekTime() {
+      return WeekTime(getWeekDay(), std::chrono::hours(getDecodedTime().tm_hour), std::chrono::minutes(getDecodedTime().tm_min));
   }
 
   void setEpoch(uint32_t epoch) {

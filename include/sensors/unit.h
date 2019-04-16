@@ -20,7 +20,7 @@ private:
     T value;
 
 public:
-    explicit unit(T value) : value(value) {};
+    explicit constexpr unit(T value) : value(value) {};
 
     explicit operator T() {
         return value;
