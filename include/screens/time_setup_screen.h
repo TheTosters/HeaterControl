@@ -9,7 +9,6 @@
 #include <string>
 #include <stdint.h>
 #include <sstream>
-#include <ctime>
 #include <chrono>
 
 class TimeSetupScreen : public Screen {
