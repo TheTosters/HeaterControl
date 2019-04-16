@@ -82,7 +82,7 @@ macro(nRF5x_setup)
                 )
     endif ()
 
-    set(COMMON_FLAGS "-MP -MD -mthumb -mabi=aapcs  -Werror -O0 -g3 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums ${CPU_FLAGS} ")
+    set(COMMON_FLAGS "-MP -MD -mthumb -mabi=aapcs  -Werror -O0 -g3 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums -Wno-psabi ${CPU_FLAGS} ")
 
     # compiler/assambler/linker flags
     set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
