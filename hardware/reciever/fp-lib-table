@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name LUMBERG)(type KiCad)(uri ${KIPRJMOD}/LUMBERG.pretty)(options "")(descr ""))
+  (lib (name Laird)(type KiCad)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/hardware/roomSensor/Laird.pretty)(options "")(descr ""))
+  (lib (name Tag-Connect)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/hardware/roomSensor/Tag-Connect.mod)(options "")(descr ""))
+)
