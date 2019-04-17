@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <optional>
 
 #include "types/unit.h"
 #include "weekUnit.h"
@@ -29,7 +30,65 @@ private:
             startTime(startTime), endTime(endTime), temperatureAlias(temperatureAlias){}
     };
 
-    std::vector<TemperaturePeriods> periods;
+    using PeriodVector = std::vector<TemperaturePeriods>;
+    PeriodVector periods;
+
+    struct FindPeriodResult {
+        PeriodVector::iterator insertionPosition;
+
+        std::optional<PeriodVector::iterator> beginRemovePosition;
+        std::optional<PeriodVector::iterator> endRemovePosition;
+
+        std::optional<PeriodVector::iterator> truncateTail;
+        std::optional<PeriodVector::iterator> truncateHead;
+    };
+
+    FindPeriodResult findPeriodRange(const WeekTime& startTime, const WeekTime& endTime) {
+
+        FindPeriodResult result = {periods.end()};
+
+        for (PeriodVector::iterator iterator = periods.begin(); iterator < periods.end(); iterator++)
+        {
+            if (iterator->startTime == startTime)
+            {
+                result.insertionPosition = iterator;
+                result.beginRemovePosition = iterator;
+            }
+            else if ( iterator->startTime > startTime )
+            {
+                result.insertionPosition = iterator;
+                result.beginRemovePosition = iterator;
+
+                if (startTime <= std::prev(iterator)->endTime)
+                {
+                    result.truncateTail = std::prev(iterator);
+                }
+            }
+
+            if (iterator->endTime == endTime)
+            {
+                result.endRemovePosition = iterator;
+                break;
+            }
+            else if (iterator->endTime > endTime)
+            {
+                result.endRemovePosition = std::prev(iterator);
+                if (endTime >= iterator->startTime)
+                {
+                    result.truncateHead = iterator;
+                }
+                break;
+            }
+        }
+
+        if (result.beginRemovePosition.value()->startTime > result.endRemovePosition.value()->startTime)
+        {
+            result.beginRemovePosition = std::nullopt;
+            result.endRemovePosition = std::nullopt;
+        }
+
+        return result;
+    }
 
     auto findPeriod(const WeekTime& weekTime) {
         return std::find_if(periods.begin(),periods.end(),
@@ -102,33 +161,42 @@ public:
         if ( aliasIterator != aliases.end() )
             return false;
 
-        auto startPeriod = findPeriod(startTime);
-        if (endTime == startPeriod->endTime)
+        FindPeriodResult findResult = findPeriodRange(startTime, endTime);
+        if ( findResult.truncateHead && findResult.truncateTail && findResult.truncateHead == findResult.truncateTail )
         {
-            //|--------old--------|
-            //|---old---|---new---|
-            startPeriod->endTime = startTime - std::chrono::minutes(1); //old
-            periods.emplace(std::next(startPeriod),startTime, endTime, alias);  //new
+            findResult.insertionPosition = periods.emplace(findResult.insertionPosition,
+                    endTime + std::chrono::minutes(1), findResult.truncateHead.value()->endTime, findResult.truncateHead.value()->temperatureAlias);
+            findResult.truncateTail.value()->endTime = startTime - std::chrono::minutes(1);
         }
-        else if (endTime < startPeriod->endTime)
+        else
         {
-            //|-------------old----------------|
-            //|---old---|---new---|---newOld---|
-            periods.emplace(std::next(startPeriod),endTime + std::chrono::minutes(1), startPeriod->endTime, startPeriod->temperatureAlias); //newOld
-            startPeriod->endTime = startTime - std::chrono::minutes(1); //old
-            periods.emplace(std::next(startPeriod),startTime, endTime, alias); //new
-        }
-        else if (endTime > startPeriod->endTime)
-        {
-            auto endPeriod = findPeriod(endTime);
-            //|---old---|---old1---|---old2---|---old3---|
-            //|---old-|-----------new-----------|-old3---|
-            startPeriod->endTime = startTime - std::chrono::minutes(1); //old
-            endPeriod->startTime = endTime+std::chrono::minutes(1); //old3
-            periods.erase(std::next(startPeriod),std::prev(endPeriod)); //old1,old2
-            periods.emplace(std::next(startPeriod),startTime, endTime, alias); //new
+            if (findResult.truncateHead)
+            {
+                findResult.truncateHead.value()->startTime = endTime + std::chrono::minutes(1);
+            }
+            if (findResult.truncateTail)
+            {
+                findResult.truncateTail.value()->endTime = startTime - std::chrono::minutes(1);
+            }
+            if (findResult.beginRemovePosition)
+            {
+               periods.erase(findResult.beginRemovePosition.value(), findResult.endRemovePosition.value());
+            }
         }
 
+        periods.emplace(findResult.insertionPosition, startTime, endTime, alias);
+
+        return true;
+    }
+
+    bool removeTemperaturePeriod(const WeekTime& weekTime) {
+        auto weekTimeIterator = findPeriod(weekTime);
+        if (weekTimeIterator != periods.end())
+        {
+            return false;
+        }
+
+        periods.erase(findPeriod(weekTime));
         return true;
     }
 };
