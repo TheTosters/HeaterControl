@@ -1,20 +1,23 @@
 #pragma once
+
+extern "C" {
+  #include "boards.h"
+  #include "nrf_gpio.h"
+  #include "nrf_delay.h"
+}
+
+#include "types/hardware_pin.h"
+
 #include <stdint.h>
 #include <algorithm>
 #include <array>
-extern "C" {
-#include "boards.h"
-#include "nrf_gpio.h"
-#include "nrf_delay.h"
-}
 
 //based on https://github.com/PaulStoffregen/OneWire/blob/master/OneWire.h
 class OneWire {
 public:
   using DeviceAddress = std::array<uint8_t, 8>;
 
-  OneWire(uint32_t pinNo) : wirePin(pinNo) {
-    resetSearch();
+  explicit OneWire(HardwarePin pinNo) : wirePin(pinNo) {
   }
 
   void resetSearch() {
@@ -24,7 +27,7 @@ public:
     std::fill(std::begin(discoveredAddress), std::end(discoveredAddress), 0);
   }
 
-  bool search(DeviceAddress& address, bool search_mode) {
+  DeviceAddress search(bool search_mode) {
     uint8_t id_bit_number;
     uint8_t last_zero, rom_byte_number;
     bool search_result;
@@ -47,7 +50,7 @@ public:
         lastDiscrepancy = 0;
         lastDeviceFlag = false;
         lastFamilyDiscrepancy = 0;
-        return false;
+        return {};
       }
 
       // issue the search command
@@ -133,10 +136,9 @@ public:
       lastFamilyDiscrepancy = 0;
       search_result = false;
     } else {
-      std::copy(discoveredAddress.begin(), discoveredAddress.end(),
-          address.begin());
+      return discoveredAddress;
     }
-    return search_result;
+    return {};
   }
 
   uint8_t crc8(uint8_t* data, size_t len) {
@@ -159,21 +161,21 @@ public:
   }
 
   bool reset() {
-    nrf_gpio_cfg_output(wirePin);
-    nrf_gpio_pin_clear(wirePin);
+    nrf_gpio_cfg_output(wirePin.get());
+    nrf_gpio_pin_clear(wirePin.get());
 
     nrf_delay_us(500);
-    nrf_gpio_pin_set(wirePin);
+    nrf_gpio_pin_set(wirePin.get());
 
-    nrf_gpio_cfg_input(wirePin, NRF_GPIO_PIN_NOPULL);
+    nrf_gpio_cfg_input(wirePin.get(), NRF_GPIO_PIN_NOPULL);
     nrf_delay_us(70);
 
     //NOTE: == 0 not != 0
-    bool presence = nrf_gpio_pin_read(wirePin) == 0;
+    bool presence = nrf_gpio_pin_read(wirePin.get()) == 0;
     nrf_delay_us(410);
 
     //NOTE: == 1
-    presence = nrf_gpio_pin_read(wirePin) == 1;
+    presence = nrf_gpio_pin_read(wirePin.get()) == 1;
     return presence;
   }
 
@@ -184,8 +186,8 @@ public:
     nrf_delay_us(100);
 
     if (not power) {
-      nrf_gpio_cfg_input(wirePin, NRF_GPIO_PIN_NOPULL);
-      nrf_gpio_pin_clear(wirePin);
+      nrf_gpio_cfg_input(wirePin.get(), NRF_GPIO_PIN_NOPULL);
+      nrf_gpio_pin_clear(wirePin.get());
     }
   }
 
@@ -194,8 +196,8 @@ public:
       write(buf[i]);
     }
     if (not power) {
-      nrf_gpio_cfg_input(wirePin, NRF_GPIO_PIN_NOPULL);
-      nrf_gpio_pin_clear(wirePin);
+      nrf_gpio_cfg_input(wirePin.get(), NRF_GPIO_PIN_NOPULL);
+      nrf_gpio_pin_clear(wirePin.get());
     }
   }
 
@@ -207,8 +209,8 @@ public:
 
   void select(const DeviceAddress& address) {
     write(0x55);
-    for(unsigned int t = 0; t < 8; t++) {
-      write(address[t]);
+    for(auto& c: address) {
+      write(c);
     }
   }
 
@@ -217,34 +219,34 @@ public:
   }
 
   bool read_bit() {
-    nrf_gpio_cfg_output(wirePin);
-    nrf_gpio_pin_clear(wirePin);
+    nrf_gpio_cfg_output(wirePin.get());
+    nrf_gpio_pin_clear(wirePin.get());
 
     nrf_delay_us(3);
 
-    nrf_gpio_cfg_input(wirePin, NRF_GPIO_PIN_NOPULL);
+    nrf_gpio_cfg_input(wirePin.get(), NRF_GPIO_PIN_NOPULL);
     nrf_delay_us(10);
 
-    bool result = nrf_gpio_pin_read(wirePin) != 0;
+    bool result = nrf_gpio_pin_read(wirePin.get()) != 0;
 
-    nrf_gpio_pin_set(wirePin);
+    nrf_gpio_pin_set(wirePin.get());
     nrf_delay_us(53);
 
     return result;
   }
 
   void write_bit(bool high) {
-    nrf_gpio_cfg_output(wirePin);
-    nrf_gpio_pin_clear(wirePin);
+    nrf_gpio_cfg_output(wirePin.get());
+    nrf_gpio_pin_clear(wirePin.get());
 
     if(high) {
       nrf_delay_us(10);
-      nrf_gpio_pin_set(wirePin);
+      nrf_gpio_pin_set(wirePin.get());
       nrf_delay_us(55);
 
     } else {
       nrf_delay_us(65);
-      nrf_gpio_pin_set(wirePin);
+      nrf_gpio_pin_set(wirePin.get());
       nrf_delay_us(5);
     }
   }
@@ -252,18 +254,20 @@ public:
   uint8_t read() {
     uint8_t r = 0;
 
-    for (uint8_t bitMask = 0x01; bitMask; bitMask <<= 1) {
+    uint16_t bitMask = 0x01;
+    for(int t = 0; t < 8; t++) {
       if ( OneWire::read_bit()) {
-        r |= bitMask;
+        r |= static_cast<uint8_t>(bitMask);
       }
+      bitMask <<= 1;
     }
     return r;
   }
 
 private:
-  uint32_t wirePin;
+  HardwarePin wirePin;
   DeviceAddress discoveredAddress;
-  uint8_t lastDiscrepancy;
-  uint8_t lastFamilyDiscrepancy;
-  bool lastDeviceFlag;
+  uint8_t lastDiscrepancy {};
+  uint8_t lastFamilyDiscrepancy {};
+  bool lastDeviceFlag {};
 };

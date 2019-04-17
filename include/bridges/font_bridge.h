@@ -3,15 +3,19 @@
 #include <cinttypes>
 #include <initializer_list>
 
-typedef struct __attribute__((packed)) {
+struct __attribute__((packed)) CharDesc {
   uint8_t msb;
   uint8_t lsb;
   uint8_t size;
   uint8_t width;
-} CharDesc;
+};
 
 class FontCharacter {
 public:
+  FontCharacter(nullptr_t, nullptr_t) = delete;
+  FontCharacter(nullptr_t, const uint8_t* charDataPtr) = delete;
+  FontCharacter(const CharDesc* descr, nullptr_t) = delete;
+
   FontCharacter(const CharDesc* descr, const uint8_t* charDataPtr)
     : cd(descr), charPtr(charDataPtr) {}
 

@@ -73,7 +73,7 @@ public:
   }
 
   int height() {
-    return ssd1306.width();
+    return ssd1306.height();
   }
 
   bool isPowered() {

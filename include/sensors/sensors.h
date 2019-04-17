@@ -13,7 +13,7 @@ extern "C" {
 #include "bridges/one_wire.h"
 #include "ds18b20.h"
 #include "observable.h"
-#include "unit.h"
+#include "types/unit.h"
 #include "sht30.h"
 
 #include <stdint.h>
@@ -76,6 +76,7 @@ private:
   static void timerHandler(void* selfPtr) {
     Sensors* self = static_cast<Sensors*>(selfPtr);
     switch(self->state){
+      default:
       case WAIT:
         self->state = CONFIGURING;
         self->mainSensor.configure();

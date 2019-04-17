@@ -1,5 +1,9 @@
 #pragma once
 
+extern "C" {
+#include "boards.h"
+}
+
 #include <cinttypes>
 #include <vector>
 #include <array>
@@ -15,6 +19,9 @@ public:
 
   SSD1306(I2c_Bridge& bridge);
 
+  SSD1306(const SSD1306&) = delete;
+  SSD1306& operator=(const SSD1306&) = delete;
+
   void enable();
   void disable();
 
@@ -25,13 +32,17 @@ public:
   void drawString(int x, int y, const std::string& strUser);
   unsigned int getStringWidth(const std::string& text) const;
 
-  unsigned int width() const { return 128;}
-  unsigned int height() const { return 64;}
+  unsigned int width() const { return WIDTH;}
+  unsigned int height() const { return HEIGHT;}
 
   void drawXbm(int x, int y, const IconBridge& icon);
   void setPixel(int x, int y);
 private:
-  using ScreenBuffer = std::array<uint8_t, 1 + (128 * 64) / 8>;
+  static constexpr unsigned int WIDTH = 128;
+  static constexpr unsigned int HEIGHT = 64;
+
+  using ScreenBuffer = std::array<uint8_t, 1 + (WIDTH * HEIGHT) / 8>;
+  static constexpr I2c_Bridge::I2cAddress SSD_ADDR{CONFIG_SSD1306_I2C_ADDRESS};
 
   I2c_Bridge&   bridge;
   ScreenBuffer screen;
@@ -39,7 +50,7 @@ private:
 
   void sendCmd(SSD1306Cmd cmd);
   void sendCmd(SSD1306Cmd cmd, uint8_t param);
-  void sendCmdStream(std::vector<uint8_t>&);
+  void sendCmdStream(const std::vector<uint8_t>&);
 
   void drawInternal(int x, int y, const FontCharacter& character);
 };

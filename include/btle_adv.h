@@ -19,39 +19,35 @@ extern "C" {
 /**
 * Struct with data used to advertise measurements.
 */
-typedef struct __attribute__((packed)) {
+struct __attribute__((packed)) AdvMeasurements_t {
   int16_t temperature;
   int16_t humidity;
   int16_t battery;
   int32_t localTime;
-} AdvMeasurements_t;
+};
 
 using AdvFinishedCallback = std::function<void(void)>;
 
 class BleAdvertiser {
 public:
-  BleAdvertiser(int advCount, AdvMeasurements_t& data,
-    AdvFinishedCallback callback)
-  {
-    BleAdvertiser::doneCallback = callback;
+  static BleAdvertiser& getInstance() {
+    static BleAdvertiser instance;
+    return instance;
+  }
+
+  void startAdvertisement(int advCount, AdvMeasurements_t& data,
+      AdvFinishedCallback callback = nullptr) {
+    doneCallback = callback;
     initBleStack();
     initAdvertising(advCount, data);
-  }
-
-  ~BleAdvertiser() {
-    BleAdvertiser::doneCallback = nullptr;
-
-    //don't care about error, it should be already stopped, called just in case
-    ret_code_t err_code = sd_ble_gap_adv_stop(advHandle);
-
-    err_code = nrf_sdh_disable_request();
-    APP_ERROR_CHECK(err_code);
-  }
-
-  void start() {
     printMacAddress();
     ret_code_t err_code = sd_ble_gap_adv_start(advHandle, APP_BLE_CONN_CFG_TAG);
     APP_ERROR_CHECK(err_code);
+    transmitting = true;
+  }
+
+  bool isTransmiting() {
+    return transmitting;
   }
 
 private:
@@ -69,19 +65,36 @@ private:
 
   /**@brief Struct that contains pointers to the encoded advertising data. */
   ble_gap_adv_data_t gapAdvData = {
-      .adv_data = {
-          .p_data = encodedAdvPayload,
-          .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
-      },
-      .scan_rsp_data = {
-          .p_data = NULL,
-          .len    = 0
-
-      }
+      {encodedAdvPayload,BLE_GAP_ADV_SET_DATA_SIZE_MAX},
+      {nullptr, 0}
   };
+//      .adv_data = {
+//          .p_data = encodedAdvPayload,
+//          .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
+//      },
+//      .scan_rsp_data = {
+//          .p_data = NULL,
+//          .len    = 0
+//
+//      }
+//  };
 
   /** Callback will be called when advertising is finished */
-  static AdvFinishedCallback doneCallback;
+  AdvFinishedCallback doneCallback;
+  bool transmitting{};
+
+  BleAdvertiser(){}
+
+  void finalizeAdvertiser() {
+    doneCallback = nullptr;
+
+    //don't care about error, it should be already stopped, called just in case
+    ret_code_t err_code = sd_ble_gap_adv_stop(advHandle);
+
+    err_code = nrf_sdh_disable_request();
+    APP_ERROR_CHECK(err_code);
+    transmitting = false;
+  }
 
   void printMacAddress() {
 #ifdef BTLE_DEBUG
@@ -155,12 +168,17 @@ private:
 
   static void bleEventHandler(ble_evt_t const * p_ble_evt, void * p_context) {
     switch (p_ble_evt->header.evt_id) {
-      case BLE_GAP_EVT_ADV_SET_TERMINATED:
-        if (BleAdvertiser::doneCallback) {
-          BleAdvertiser::doneCallback();
+      case BLE_GAP_EVT_ADV_SET_TERMINATED: {
+        BleAdvertiser& instance = BleAdvertiser::getInstance();
+        instance.finalizeAdvertiser();
+        if (instance.doneCallback) {
+          instance.doneCallback();
         }
+        break;
+      }
+
+      default:
         break;
     }
   }
 };
-AdvFinishedCallback BleAdvertiser::doneCallback;

@@ -5,7 +5,7 @@
 #include <array>
 #include <algorithm>
 
-#include "sensors/unit.h"
+#include "types/unit.h"
 #include "weekUnit.h"
 
 class TemperatureSheduler {

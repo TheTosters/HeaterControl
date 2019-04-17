@@ -69,31 +69,16 @@ private:
   bool isHeating{false};
   DecodedTime time{};
 
-  std::string tempToStr(const TemperatureC& temp) {
-    std::stringstream s;
-    float tmpF = static_cast<float>(temp);
-    int integral = static_cast<int>(tmpF);
-    int fract = static_cast<int>((tmpF * 100) - integral * 100);
-    fract = fract < 0 ? -fract : fract;
-
-    s.precision(2);
-    s << integral << '.' << fract;
-    return s.str();
-  }
-
   void drawMeasurements() {
-    std::string strTemp = tempToStr(temperature);
+    std::string strTemp = temperature.toString();
     display.selectFont(SelectedFont::LARGE);
     auto strWidth = display.getStringWidth(strTemp);
     auto posX = (display.width() - strWidth) / 2;
     display.drawString(posX, 8, strTemp);
 
-    int relH = static_cast<int>(humidity);
-    if (relH > 0) {
+    if (humidity > RelativeHumidity{0}) {
       display.selectFont(SelectedFont::SMALL);
-      std::stringstream s;
-      s << relH << ' ' << '%';
-      display.drawString(0, 50, s.str());
+      display.drawString(0, 50, humidity.toString() + '%');
     }
   }
 
@@ -114,7 +99,7 @@ private:
     int len = display.getStringWidth(text);
     display.drawString(display.width() - len - 2, 50, text);
 
-    std::string strTemp = tempToStr(expectedTemperature);
+    std::string strTemp = expectedTemperature.toString();
     len = display.getStringWidth(strTemp);
     display.drawString((display.width() - len)/2, 50, strTemp);
 

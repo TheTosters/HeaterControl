@@ -1,4 +1,3 @@
-#include "bridges/i2c_bridge.h"
 #include "ssd1306.h"
 
 extern "C" {
@@ -119,7 +118,7 @@ void SSD1306::updateDisplay() {
     uint8_t tmp = *offset;
     *offset = SET_START_LINE;
 
-    bridge.send(CONFIG_SSD1306_I2C_ADDRESS, &(*offset), size + 1);
+    bridge.send( SSD_ADDR, &(*offset), size + 1);
     *offset = tmp;
 
     offset = std::next(offset, size + 1);
@@ -127,16 +126,15 @@ void SSD1306::updateDisplay() {
 }
 
 void SSD1306::sendCmd(SSD1306Cmd cmd) {
-  bridge.send(CONFIG_SSD1306_I2C_ADDRESS, static_cast<uint8_t>(0), cmd);
+  bridge.send(SSD_ADDR, static_cast<uint8_t>(0), cmd);
 }
 
 void SSD1306::sendCmd(SSD1306Cmd cmd, uint8_t param) {
-  bridge.send(CONFIG_SSD1306_I2C_ADDRESS, 0, cmd, param);
+  bridge.send(SSD_ADDR, 0, cmd, param);
 }
 
-void SSD1306::sendCmdStream(std::vector<uint8_t>& cmds) {
-  bridge.send(CONFIG_SSD1306_I2C_ADDRESS, cmds.data(),
-      static_cast<uint8_t>(cmds.size()));
+void SSD1306::sendCmdStream(const std::vector<uint8_t>& cmds) {
+  bridge.send(SSD_ADDR, cmds.data(),  static_cast<uint8_t>(cmds.size()));
 }
 
 void SSD1306::drawInternal(int x, int y, const FontCharacter& character) {

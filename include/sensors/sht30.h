@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bridges/i2c_bridge.h"
-#include "unit.h"
+#include "types/unit.h"
 #include <stdint.h>
 
     enum class Sht30Mode {
@@ -30,9 +30,9 @@ public:
 
 private:
     constexpr static uint8_t readLength = 6;
+    constexpr static I2c_Bridge::I2cAddress SHT_ADDR{static_cast<uint8_t>(Address)};
 
     I2c_Bridge& bridge;
-    Sht30Address address;
     Sht30Mode mode;
     uint8_t measLSB{0};
     uint8_t measMSB{0};
@@ -40,7 +40,6 @@ private:
     RelativeHumidity relHumidity{0};
 
     struct __attribute__ ((packed)) Readings {
-        constexpr static size_t size = 6;
         uint8_t tempMSB;
         uint8_t tempLSB;
         uint8_t tempCRC;
@@ -48,8 +47,6 @@ private:
         uint8_t humLSB;
         uint8_t humCRC;
     };
-
-    static_assert(Readings::size == 6  && offsetof(Readings, humCRC) == Readings::size-1, "Wrong size!");
 
     /*
     *   Name  : CRC-8
@@ -74,7 +71,7 @@ private:
     }
 
     void sendCmd(uint8_t MSB, uint8_t LSB) {
-        bridge.send(static_cast<uint8_t>(address), MSB, LSB);
+        bridge.send(SHT_ADDR, MSB, LSB);
     }
 
     void heaterOn() {
@@ -91,7 +88,7 @@ private:
 
 public:
     Sht30 (I2c_Bridge& bridge) :
-        bridge(bridge), mode(Mode), address(Address) {
+        bridge(bridge), mode(Mode) {
 
         setMode(this->mode);
     }
@@ -153,10 +150,12 @@ public:
 
     void requestMeasurements() {
         sendCmd(measMSB, measLSB);
-        auto readings = bridge.read<Readings>(static_cast<uint8_t>(address));
+        auto readings = bridge.read<Readings>(SHT_ADDR);
         if (isCrc8Valid(readings)) {
-            temperature = TemperatureC((readings.tempMSB*256 + readings.tempLSB) * 0.00267033 - 45.0);
-            relHumidity = RelativeHumidity((readings.humMSB*256 + readings.humLSB) * 0.0015259);
+            temperature = TemperatureC(
+                (readings.tempMSB*256 + readings.tempLSB) * 0.00267033 - 45.0);
+            relHumidity = RelativeHumidity(
+                (readings.humMSB*256 + readings.humLSB) * 0.0015259);
         }
     }
 

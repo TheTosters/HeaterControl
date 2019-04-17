@@ -5,10 +5,11 @@
 #include "screens/status_screen.h"
 #include "screens/time_setup_screen.h"
 #include "buttons.h"
+#include "events_dispatcher.h"
 #include <variant>
 #include <forward_list>
 #include <algorithm>
-#include "events_dispatcher.h"
+#include <type_traits>
 
 using AnyScreen = std::variant<DefaultScreen, StatusScreen, TimeSetupScreen>;
 
@@ -40,9 +41,11 @@ public:
 
   template<typename T>
   T& add(T&& screen) {
+    static_assert(std::is_rvalue_reference<decltype(screen)>::value,
+        "Arument need to be rvalue ref");
     T& result = std::get<T>(screens.emplace_front(std::forward<T>(screen)));
-    attachRefreshLogic<T>(result);
-    attachSwapScreenLogic<T>(result);
+    attachRefreshLogic(result);
+    attachSwapScreenLogic(result);
     return result;
   }
 

@@ -30,6 +30,7 @@ extern "C" {
 #include "events_dispatcher.h"
 #include "temperatureSheduler.h"
 #include "heating_model.h"
+#include "types/hardware_pin.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -72,7 +73,8 @@ int main( int argc, const char* argv[] ) {
   initLowFreqClock();
 
   uint32_t err_code = app_timer_init();
-  I2c_Bridge i2cBridge{CONFIG_SDA_PIN, CONFIG_SCL_PIN, nullptr};
+  I2c_Bridge i2cBridge{HardwarePin{CONFIG_SDA_PIN},
+    HardwarePin{CONFIG_SCL_PIN}, nullptr};
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
   EventsDispatcher<10,
@@ -96,6 +98,7 @@ int main( int argc, const char* argv[] ) {
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );
+
   sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h) {
     screen.setTempAndHum(t, h);
   });

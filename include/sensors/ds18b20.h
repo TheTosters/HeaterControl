@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bridges/one_wire.h"
-#include "unit.h"
+#include "types/unit.h"
 #include <stdint.h>
 #include <algorithm>
 #include <array>
@@ -35,9 +35,12 @@ public:
 
   Ds18b20(OneWire& onwWire) : wire(onwWire) {}
 
+  Ds18b20(const Ds18b20&) =  delete;
+  Ds18b20& operator=(const Ds18b20&) = delete;
+
   bool enable() {
     wire.resetSearch();
-    wire.search(deviceAddress, true);
+    deviceAddress = wire.search(true);
 #ifdef DS_DEBUG
     NRF_LOG_ERROR("Device address:");
     for(auto i = deviceAddress.begin(); i != deviceAddress.end(); i++) {
@@ -124,9 +127,12 @@ private:
     wire.select(deviceAddress);
     wire.write(READSCRATCH);
 
-    for(uint8_t i = 0; i < fields; i++) {
-      scratchPad[i] = wire.read();
-    }
+    std::generate_n(std::begin(scratchPad),
+        std::min( static_cast<size_t>(fields), scratchPad.size()),
+        [&](){ return wire.read();});
+//    for(uint8_t i = 0; i < fields; i++) {
+//      scratchPad[i] = wire.read();
+//    }
 #ifdef DS_DEBUG
     NRF_LOG_ERROR("scratchPad:");
     for(auto i = scratchPad.begin(); i != scratchPad.begin() + fields; i++) {

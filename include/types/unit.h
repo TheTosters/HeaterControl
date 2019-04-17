@@ -1,33 +1,36 @@
 #pragma once
 
+#include "types/named_value_type.h"
 #include <stdint.h>
 #include <cstddef>
-
-struct episolon02 {
-    constexpr static float epsilon = 0.2f;
-};
+#include <string>
 
 template<typename T>
 struct default_trait
 {
-    constexpr static T epsilon = std::numeric_limits<T>::epsilon();
+    constexpr static T epsilon = 0.2f;
 };
 
 template <typename T, typename Tag, typename Traits = default_trait<T>>
-class unit {
+class unit : public NamedValueType<T, Tag>{
 private:
     constexpr static T epsilon = Traits::epsilon;
-    T value;
 
 public:
-    explicit constexpr unit(T value) : value(value) {};
+    explicit constexpr unit(T value)
+      : NamedValueType<T, Tag>(std::move(value)) {};
 
-    explicit operator T() {
-        return value;
-    }
+    std::string toString() const {
+      if constexpr (std::is_floating_point<T>::value) {
+          T frac, integral;
+          frac = modf(this->value, &integral);
+          frac = std::abs(frac);
+          return std::to_string( static_cast<int>(integral)) + '.' +
+                 std::to_string( static_cast<int>(frac * 100));
 
-    explicit operator T() const {
-        return value;
+      } else {
+          return std::to_string(this->value);
+      }
     }
 
     bool operator ==(const unit& rhs) const noexcept {
@@ -79,5 +82,5 @@ public:
     }
 };
 
-using TemperatureC = unit<float, struct TemperatureC_tag, episolon02>;
+using TemperatureC = unit<float, struct TemperatureC_tag>;
 using RelativeHumidity = unit<int, struct RelativeHumidity_tag>;

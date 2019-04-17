@@ -1,6 +1,7 @@
 #pragma once
 
 #include "boards.h"
+#include "types/hardware_pin.h"
 #include "bridges/i2c_bridge.h"
 #include "bridges/one_wire.h"
 #include "sensors/sensors.h"
@@ -27,7 +28,7 @@ struct FactoryTrait<BoardSensor::DS18B20> {
 
   static BoardSensorType build(I2c_Bridge& bridge) {
     UNUSED_PARAMETER(bridge);
-    static OneWire oneWire{CONFIG_DS18B20_PIN};
+    static OneWire oneWire{HardwarePin{CONFIG_DS18B20_PIN}};
     return BoardSensorType{oneWire};
   }
 };

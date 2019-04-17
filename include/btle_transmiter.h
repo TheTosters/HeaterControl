@@ -38,7 +38,6 @@ private:
 
   const OnBoardSensor& sensors;
   AdvMeasurements_t measurementsPackage;
-  std::unique_ptr<BleAdvertiser> advertiser;
 
   void doBuildPackage() {
     measurementsPackage.temperature =
@@ -50,24 +49,14 @@ private:
   }
 
   void doTransmit() {
-    if (advertiser) {
+    BleAdvertiser& advertiser = BleAdvertiser::getInstance();
+    if (advertiser.isTransmiting()) {
       NRF_LOG_ERROR("Illegal state of transport!");
       APP_ERROR_CHECK(NRF_ERROR_INVALID_STATE);
-    } else {
-      advertiser = std::make_unique<BleAdvertiser>(ADV_COUNT, measurementsPackage,
-          [this](){
-            //NRF_LOG_ERROR("Transmit done");
-            dispatchOnMainThread(this, BtleTransmiter::mainThreadExecutor);
-      });
-    }
-    advertiser->start();
-  }
 
-  static void mainThreadExecutor(void* p_event_data, uint16_t event_size) {
-    //NRF_LOG_ERROR("Destroying advertiser");
-    BtleTransmiter** self =
-        extractDispatchedData<BtleTransmiter*>(p_event_data, event_size);
-    (*self)->advertiser.reset(nullptr);
+    } else {
+      advertiser.startAdvertisement(ADV_COUNT, measurementsPackage);
+    }
   }
 
   static void timerHandler(void* selfPtr) {
