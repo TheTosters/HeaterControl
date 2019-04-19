@@ -110,10 +110,20 @@ public:
 
     TemperatureC getTemperature(const WeekTime& weekTime) {
         auto weekTimeIterator = findPeriod(weekTime);
-        return findAlias(weekTimeIterator != periods.end() ? weekTimeIterator->temperatureAlias : DEFAULT_ALIAS)->temperature;
+        return findAlias(weekTimeIterator != periods.end() ?
+            weekTimeIterator->temperatureAlias : DEFAULT_ALIAS)->temperature;
     }
 
-    void setTemperatureAlias(const std::string& alias, const TemperatureC& temperature) {
+    const size_t getTemperatureAliasCount() const {
+      return aliases.size();
+    }
+
+    const TemperatureAliases& getTemperatureAlias(int index) const {
+      return aliases[index];
+    }
+
+    void addTemperatureAlias(const std::string& alias,
+                             const TemperatureC& temperature) {
         auto aliasIterator = findAlias(alias);
 
         if ( aliasIterator != aliases.end() )
@@ -131,13 +141,20 @@ public:
         if ( aliasIterator != aliases.end() )
         {
             aliases.erase(aliasIterator);
-            periods.erase(std::remove_if(periods.begin(), periods.end(),
-                    [&alias] (const TemperaturePeriods& periods)
-                    {return periods.temperatureAlias == alias;}));
+            auto removeIter = std::remove_if(
+                periods.begin(), periods.end(),
+                [&alias] (const TemperaturePeriods& periods) {
+                   return periods.temperatureAlias == alias;
+            });
+            if (removeIter != periods.end()) {
+              periods.erase(removeIter);
+            }
         }
     }
 
-    void updateTemperatureAlias(const std::string& alias, const std::string& newAlias) {
+    void updateTemperatureAlias(const std::string& alias,
+                                const std::string& newAlias,
+                                const TemperatureC& newTemperature) {
         if ( newAlias == DEFAULT_ALIAS )
             return;
 
@@ -145,14 +162,22 @@ public:
 
         if ( aliasIterator != aliases.end() )
         {
+          aliasIterator->temperature = newTemperature;
+          if (alias != newAlias) {
             aliasIterator->alias = newAlias;
             std::for_each(periods.begin(), periods.end(),
-                    [&alias, &newAlias] (TemperaturePeriods& periods)
-                    {if (periods.temperatureAlias == alias) {periods.temperatureAlias = newAlias;}});
+                    [&alias, &newAlias] (TemperaturePeriods& periods) {
+                      if (periods.temperatureAlias == alias) {
+                        periods.temperatureAlias = newAlias;
+                      }
+                    });
+          }
         }
     }
 
-    bool setTemperaturePeriod(const WeekTime& startTime, const WeekTime& endTime, const std::string& alias) {
+    bool setTemperaturePeriod(const WeekTime& startTime,
+                              const WeekTime& endTime,
+                              const std::string& alias) {
         if ( alias == DEFAULT_ALIAS || startTime >= endTime)
             return false;
 
@@ -162,25 +187,33 @@ public:
             return false;
 
         FindPeriodResult findResult = findPeriodRange(startTime, endTime);
-        if ( findResult.truncateHead && findResult.truncateTail && findResult.truncateHead == findResult.truncateTail )
+        if ( findResult.truncateHead && findResult.truncateTail &&
+             findResult.truncateHead == findResult.truncateTail )
         {
-            findResult.insertionPosition = periods.emplace(findResult.insertionPosition,
-                    endTime + std::chrono::minutes(1), findResult.truncateHead.value()->endTime, findResult.truncateHead.value()->temperatureAlias);
-            findResult.truncateTail.value()->endTime = startTime - std::chrono::minutes(1);
+            findResult.insertionPosition = periods.emplace(
+                findResult.insertionPosition,
+                endTime + std::chrono::minutes(1),
+                findResult.truncateHead.value()->endTime,
+                findResult.truncateHead.value()->temperatureAlias);
+            findResult.truncateTail.value()->endTime =
+                startTime - std::chrono::minutes(1);
         }
         else
         {
             if (findResult.truncateHead)
             {
-                findResult.truncateHead.value()->startTime = endTime + std::chrono::minutes(1);
+                findResult.truncateHead.value()->startTime =
+                    endTime + std::chrono::minutes(1);
             }
             if (findResult.truncateTail)
             {
-                findResult.truncateTail.value()->endTime = startTime - std::chrono::minutes(1);
+                findResult.truncateTail.value()->endTime =
+                    startTime - std::chrono::minutes(1);
             }
             if (findResult.beginRemovePosition)
             {
-               periods.erase(findResult.beginRemovePosition.value(), findResult.endRemovePosition.value());
+               periods.erase(findResult.beginRemovePosition.value(),
+                   findResult.endRemovePosition.value());
             }
         }
 

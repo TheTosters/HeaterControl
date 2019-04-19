@@ -27,7 +27,7 @@ It will use host compiler (not cross-compiler) to build host based tests.
 It is NOT ment to test all, only most complicated logic. So to have test build and run you have to:
 
 execute 
-cmake -D -DBUILD_TESTS=ON
+cmake .. -DBUILD_TESTS=ON
 make all
 
 then you can call for example 
