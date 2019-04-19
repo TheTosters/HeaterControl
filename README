@@ -1,9 +1,11 @@
+# Preamble
 first instruction taken from:
 https://github.com/Polidea/cmake-nRF5x
+It is constantly changed and improved (or downproved :P)
 
-
-IMPORTANT:
+# IMPORTANT:
 This compiler is used to compile:
+gcc-arm-none-eabi-8-2018-q4-major
 
 But if you set C++17 then it fails :P You have to manualy patch NordicSDK (15.2)
 and upgrade CMSIS to have things working go here
@@ -17,3 +19,17 @@ also copy folder
 CMSIS_5-develop/CMSIS/Core/Include  ->  nordic_SDK_15.2/components/toolchain/cmsis/include
 
 clean & build all should work
+
+# To build & run tests...
+
+This is super-glue solution, so your eyes will bleeed...
+It will use host compiler (not cross-compiler) to build host based tests.
+It is NOT ment to test all, only most complicated logic. So to have test build and run you have to:
+
+execute 
+cmake -D -DBUILD_TESTS=ON
+make all
+
+then you can call for example 
+./test/time_schedule_tests
+
