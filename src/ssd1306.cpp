@@ -97,6 +97,13 @@ void SSD1306::clear() {
   std::fill(screen.begin(), screen.end(), 0);
 }
 
+template <typename ForwardIterator>
+auto takeAtMost(int count, ForwardIterator first, ForwardIterator last)
+{
+    return std::pair{first, std::next(first,
+        std::min(count, std::distance(first, last)))};
+}
+
 void SSD1306::updateDisplay() {
   std::vector<uint8_t> cmdStream({
     0,
@@ -106,23 +113,19 @@ void SSD1306::updateDisplay() {
   });
   sendCmdStream(cmdStream);
 
-  constexpr uint8_t chunkSize = 254;
-  ScreenBuffer::iterator offset = std::next(screen.begin());
+  constexpr int chunkSize = 255;
   //TODO: reimplement to use easyDma + PPI
-  do {
-    uint8_t size = (screen.end() - offset) >= chunkSize ?
-        chunkSize : screen.end() - offset;
+  for(auto range = takeAtMost(chunkSize, std::begin(screen), std::end(screen));
+      range.first != range.second;
+      range = takeAtMost(chunkSize, range.second, std::end(screen))) {
 
-    offset = std::prev(offset);
+    uint8_t tmp = SET_START_LINE;
+    std::swap(tmp, *range.first);
 
-    uint8_t tmp = *offset;
-    *offset = SET_START_LINE;
-
-    bridge.send( SSD_ADDR, &(*offset), size + 1);
-    *offset = tmp;
-
-    offset = std::next(offset, size + 1);
-  } while (offset < screen.end());
+    const int count = std::distance(range.first, range.second);
+    bridge.send( SSD_ADDR, &(*(range.first)), count);
+    std::swap(tmp, *range.first);
+  }
 }
 
 void SSD1306::sendCmd(SSD1306Cmd cmd) {
