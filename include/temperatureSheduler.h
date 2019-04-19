@@ -14,23 +14,27 @@ private:
     static constexpr TemperatureC DEFAULT_TEMPERAUTRE {18.0f};
     static constexpr char DEFAULT_ALIAS[] = "DEFAULT";
 
-    struct TemperatureAliases {
-        std::string alias;
+    struct TemperatureAlias {
+        std::string name;
         TemperatureC temperature;
-        TemperatureAliases(const std::string& alias, const TemperatureC& temperature) : alias(alias), temperature(temperature){}
+        TemperatureAlias(const std::string& name,
+            const TemperatureC& temperature)
+        : name(name), temperature(temperature) {}
     };
 
-    std::vector<TemperatureAliases> aliases { {DEFAULT_ALIAS, DEFAULT_TEMPERAUTRE} };
+    std::vector<TemperatureAlias> aliases { {DEFAULT_ALIAS, DEFAULT_TEMPERAUTRE} };
 
-    struct TemperaturePeriods {
+    struct TemperaturePeriod {
         WeekTime startTime;
         WeekTime endTime;
         std::string temperatureAlias;
-        TemperaturePeriods(const WeekTime& startTime, const WeekTime& endTime, const std::string& temperatureAlias) :
-            startTime(startTime), endTime(endTime), temperatureAlias(temperatureAlias){}
+        TemperaturePeriod(const WeekTime& startTime,
+            const WeekTime& endTime, const std::string& temperatureAlias) :
+            startTime(startTime), endTime(endTime),
+            temperatureAlias(temperatureAlias){}
     };
 
-    using PeriodVector = std::vector<TemperaturePeriods>;
+    using PeriodVector = std::vector<TemperaturePeriod>;
     PeriodVector periods;
 
     struct FindPeriodResult {
@@ -45,9 +49,11 @@ private:
 
     FindPeriodResult findPeriodRange(const WeekTime& startTime, const WeekTime& endTime) {
 
-        FindPeriodResult result = {periods.end()};
+        FindPeriodResult result = {periods.end(), std::nullopt, std::nullopt,
+            std::nullopt, std::nullopt};
 
-        for (PeriodVector::iterator iterator = periods.begin(); iterator < periods.end(); iterator++)
+        for (PeriodVector::iterator iterator = periods.begin();
+            iterator < periods.end(); iterator++)
         {
             if (iterator->startTime == startTime)
             {
@@ -81,7 +87,10 @@ private:
             }
         }
 
-        if (result.beginRemovePosition.value()->startTime > result.endRemovePosition.value()->startTime)
+        if (static_cast<bool>(result.beginRemovePosition) &&
+            static_cast<bool>(result.endRemovePosition) &&
+            result.beginRemovePosition.value()->startTime >
+            result.endRemovePosition.value()->startTime)
         {
             result.beginRemovePosition = std::nullopt;
             result.endRemovePosition = std::nullopt;
@@ -92,14 +101,14 @@ private:
 
     auto findPeriod(const WeekTime& weekTime) {
         return std::find_if(periods.begin(),periods.end(),
-                [&weekTime] (const TemperaturePeriods& periods)
+                [&weekTime] (const TemperaturePeriod& periods)
                 { return weekTime >= periods.startTime && weekTime <= periods.endTime;});
     }
 
-    auto findAlias(const std::string& alias) {
+    auto findAlias(const std::string& name) {
         return std::find_if(aliases.begin(),aliases.end(),
-                [&alias] (const TemperatureAliases& aliases)
-                {return aliases.alias == alias;});
+                [&name] (const TemperatureAlias& aliases)
+                {return aliases.name == name;});
     }
 
 public:
@@ -118,33 +127,33 @@ public:
       return aliases.size();
     }
 
-    const TemperatureAliases& getTemperatureAlias(int index) const {
+    const TemperatureAlias& getTemperatureAlias(int index) const {
       return aliases[index];
     }
 
-    void addTemperatureAlias(const std::string& alias,
+    void addTemperatureAlias(const std::string& name,
                              const TemperatureC& temperature) {
-        auto aliasIterator = findAlias(alias);
+        auto aliasIterator = findAlias(name);
 
         if ( aliasIterator != aliases.end() )
             aliasIterator->temperature = temperature;
         else
-            aliases.emplace_back( alias, temperature );
+            aliases.emplace_back( name, temperature );
     }
 
-    void removeTemperatureAlias(const std::string& alias) {
-        if ( alias == DEFAULT_ALIAS )
+    void removeTemperatureAlias(const std::string& name) {
+        if ( name == DEFAULT_ALIAS )
             return;
 
-        auto aliasIterator = findAlias(alias);
+        auto aliasIterator = findAlias(name);
 
         if ( aliasIterator != aliases.end() )
         {
             aliases.erase(aliasIterator);
             auto removeIter = std::remove_if(
                 periods.begin(), periods.end(),
-                [&alias] (const TemperaturePeriods& periods) {
-                   return periods.temperatureAlias == alias;
+                [&name] (const TemperaturePeriod& periods) {
+                   return periods.temperatureAlias == name;
             });
             if (removeIter != periods.end()) {
               periods.erase(removeIter);
@@ -152,23 +161,23 @@ public:
         }
     }
 
-    void updateTemperatureAlias(const std::string& alias,
-                                const std::string& newAlias,
+    void updateTemperatureAlias(const std::string& name,
+                                const std::string& newName,
                                 const TemperatureC& newTemperature) {
-        if ( newAlias == DEFAULT_ALIAS )
+        if ( newName == DEFAULT_ALIAS || name == DEFAULT_ALIAS )
             return;
 
-        auto aliasIterator = findAlias(alias);
+        auto aliasIterator = findAlias(name);
 
         if ( aliasIterator != aliases.end() )
         {
           aliasIterator->temperature = newTemperature;
-          if (alias != newAlias) {
-            aliasIterator->alias = newAlias;
+          if (name != newName) {
+            aliasIterator->name = newName;
             std::for_each(periods.begin(), periods.end(),
-                    [&alias, &newAlias] (TemperaturePeriods& periods) {
-                      if (periods.temperatureAlias == alias) {
-                        periods.temperatureAlias = newAlias;
+                    [&name, &newName] (TemperaturePeriod& period) {
+                      if (period.temperatureAlias == name) {
+                        period.temperatureAlias = newName;
                       }
                     });
           }
@@ -177,18 +186,19 @@ public:
 
     bool setTemperaturePeriod(const WeekTime& startTime,
                               const WeekTime& endTime,
-                              const std::string& alias) {
-        if ( alias == DEFAULT_ALIAS || startTime >= endTime)
+                              const std::string& name) {
+        if ( name == DEFAULT_ALIAS || startTime >= endTime)
             return false;
 
-        auto aliasIterator = findAlias(alias);
+        auto aliasIterator = findAlias(name);
 
-        if ( aliasIterator != aliases.end() )
+        if ( aliasIterator == aliases.end() )
             return false;
 
         FindPeriodResult findResult = findPeriodRange(startTime, endTime);
-        if ( findResult.truncateHead && findResult.truncateTail &&
-             findResult.truncateHead == findResult.truncateTail )
+        if ( static_cast<bool>(findResult.truncateHead) &&
+             static_cast<bool>(findResult.truncateTail) &&
+             findResult.truncateHead.value() == findResult.truncateTail.value())
         {
             findResult.insertionPosition = periods.emplace(
                 findResult.insertionPosition,
@@ -217,7 +227,7 @@ public:
             }
         }
 
-        periods.emplace(findResult.insertionPosition, startTime, endTime, alias);
+        periods.emplace(findResult.insertionPosition, startTime, endTime, name);
 
         return true;
     }
@@ -231,5 +241,13 @@ public:
 
         periods.erase(findPeriod(weekTime));
         return true;
+    }
+
+    size_t getPeriodsCount() const {
+      return periods.size();
+    }
+
+    const TemperaturePeriod& getPeriod(int index) const {
+      return periods[index];
     }
 };
