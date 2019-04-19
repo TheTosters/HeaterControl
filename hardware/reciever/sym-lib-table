@@ -3,4 +3,5 @@
   (lib (name Tag-Connect)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/hardware/roomSensor/Tag-Connect.lib)(options "")(descr ""))
   (lib (name DDC114EU)(type Legacy)(uri ${KIPRJMOD}/DDC114EU.lib)(options "")(descr ""))
   (lib (name Lumberg)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/hardware/reciever/Lumberg.lib)(options "")(descr ""))
+  (lib (name Reciever-rescue)(type Legacy)(uri ${KIPRJMOD}/Reciever-rescue.lib)(options "")(descr ""))
 )
