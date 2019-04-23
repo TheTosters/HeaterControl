@@ -5,6 +5,8 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 struct DecodedTime {
   using ChronoDays = std::chrono::duration<int64_t, std::ratio<86400>>;
@@ -36,14 +38,35 @@ struct DecodedTime {
     dayName(DecodedTime::dayNames[dayOfWeek.count()])
   { }
 
+  DecodedTime(std::chrono::seconds rawSeconds) {
+      using namespace std::chrono;
+      dayOfWeek = duration_cast<DecodedTime::ChronoDays>(rawSeconds);
+      hour = duration_cast<hours>(rawSeconds);
+      hour = hour % 24;
+      minute = duration_cast<minutes>(rawSeconds);
+      minute = minute % 60;
+      second = rawSeconds;
+      second = second % 60;
+      dayName = DecodedTime::dayNames[dayOfWeek.count()];
+  }
+
   operator WeekTime() const {
     return WeekTime{static_cast<WeekDay>(dayOfWeek.count()), hour, minute};
   }
 
   template<typename ChronoDurationType>
-  explicit operator ChronoDurationType() const {
+  explicit operator ChronoDurationType() const noexcept {
     return std::chrono::duration_cast<ChronoDurationType>(
         dayOfWeek + hour + minute + second);
+  }
+
+  explicit operator std::string() const noexcept {
+    std::stringstream s;
+    s << dayName << ' ' <<
+        std::setfill('0') << std::setw(2) << hour.count() << ':' <<
+        std::setfill('0') << std::setw(2) << minute.count() << ':' <<
+        std::setfill('0') << std::setw(2) << second.count();
+    return s.str();
   }
 };
 

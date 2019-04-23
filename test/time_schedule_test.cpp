@@ -216,14 +216,30 @@ struct temperatureShedulerTestFixture : public testing::Test {
 
   void printScenarioRanges(const std::vector<TimeRange> ranges,
       TimeRange toInsert) {
-    //if (::testing::Test::HasFailure()) {
+    if (::testing::Test::HasFailure()) {
       std::cout << "Ranges for this scenario: \n";
       TimeRange limits = findLimits(ranges, toInsert);
       printRanges(limits, ranges);
       char c = 'A' + static_cast<char>(ranges.size());
       printRange(limits, toInsert, c);
-    //}
+      dumpPeriods();
+    }
+  }
 
+  void dumpPeriods() {
+    using namespace std::chrono;
+    for(int t = 0; t < sch.getPeriodsCount(); t++) {
+      auto period = sch.getPeriod(t);
+      seconds secStart = static_cast<seconds>(period.startTime);
+      seconds secEnd = static_cast<seconds>(period.endTime);
+
+      DecodedTime dStart{secStart};
+      DecodedTime dEnd{secEnd};
+
+      std::cout << t << ": [" << period.temperatureAlias << "] " <<
+          static_cast<std::string>(dStart) << " - " <<
+          static_cast<std::string>(dEnd) << '\n';
+    }
   }
 
   void printRange(TimeRange timeSpace, const TimeRange& range, char c) {
@@ -277,7 +293,6 @@ struct temperatureShedulerTestFixture : public testing::Test {
   }
 };
 
-
 TEST_F(temperatureShedulerTestFixture, setOverlapingPeriod) {
   //situation to test
   // | -- PERIOD 1 --      |        -- PERIOD 2 --|
@@ -304,12 +319,13 @@ TEST_F(temperatureShedulerTestFixture, setOverlapingPeriod) {
   sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(
+      {WeekDay::SUNDAY, hours{12}, minutes{29}}));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(
+      {WeekDay::SUNDAY, hours{13}, minutes{31}}));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
-
 
 TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod) {
   //situation to test

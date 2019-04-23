@@ -63,4 +63,8 @@ public:
     bool operator >(const WeekTime& rhs) const noexcept {
         return *this >= rhs && *this != rhs;
     }
+
+    operator std::chrono::seconds() const noexcept {
+      return weekTime;
+    }
 };
