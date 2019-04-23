@@ -355,7 +355,8 @@ TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod) {
 
   EXPECT_EQ(3, sch.getPeriodsCount());
   EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(
+      {WeekDay::SUNDAY, hours{14}, minutes{31}}));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -519,8 +520,8 @@ TEST_F(temperatureShedulerTestFixture, setHeadTouchPeriod) {
   sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(
+      {WeekDay::SUNDAY, hours{14}, minutes{01}}));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
