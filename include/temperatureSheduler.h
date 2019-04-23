@@ -234,12 +234,12 @@ public:
 
     bool removeTemperaturePeriod(const WeekTime& weekTime) {
         auto weekTimeIterator = findPeriod(weekTime);
-        if (weekTimeIterator != periods.end())
+        if (weekTimeIterator == periods.end())
         {
             return false;
         }
 
-        periods.erase(findPeriod(weekTime));
+        periods.erase(weekTimeIterator);
         return true;
     }
 

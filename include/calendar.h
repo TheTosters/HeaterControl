@@ -4,33 +4,16 @@ extern "C" {
 #include "app_timer.h"
 }
 
-#include <functional>
-#include <stdint.h>
-#include <algorithm>
 #include <string>
 #include <chrono>
 
 #include "timer_owner.h"
 #include "observable.h"
 #include "weekUnit.h"
-
-struct DecodedTime {
-  using ChronoDays = std::chrono::duration<int64_t, std::ratio<86400>>;
-  std::chrono::hours hour;
-  std::chrono::minutes minute;
-  std::chrono::seconds second;
-  ChronoDays dayOfWeek;
-  std::string dayName;
-
-  operator WeekTime() const {
-    return WeekTime{static_cast<WeekDay>(dayOfWeek.count()), hour, minute};
-  }
-};
+#include "decoded_time.h"
 
 class Calendar : TimerOwner, public Observable<DecodedTime> {
 public:
-
-  static const std::vector<std::string> dayNames;
   Calendar()
     : TimerOwner(true, Calendar::timerHandler),
       rawSeconds(0)
@@ -52,7 +35,7 @@ public:
     result.minute = result.minute % 60;
     result.second = rawSeconds;
     result.second = result.second % 60;
-    result.dayName = Calendar::dayNames[result.dayOfWeek.count()];
+    result.dayName = DecodedTime::dayNames[result.dayOfWeek.count()];
     return result;
   }
 
@@ -84,6 +67,3 @@ private:
     self->notify( self->getDecodedTime() );
   }
 };
-const std::vector<std::string> Calendar::dayNames {
-  "Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek",
-  "Sobota"};
