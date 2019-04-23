@@ -152,11 +152,11 @@ public:
             aliases.erase(aliasIterator);
             auto removeIter = std::remove_if(
                 periods.begin(), periods.end(),
-                [&name] (const TemperaturePeriod& periods) {
-                   return periods.temperatureAlias == name;
+                [&name] (const TemperaturePeriod& period) {
+                   return period.temperatureAlias == name;
             });
             if (removeIter != periods.end()) {
-              periods.erase(removeIter);
+              periods.erase(removeIter, periods.end());
             }
         }
     }
