@@ -9,6 +9,10 @@
 //uncomment this if you want to see ranges in tests
 #define SHOW_RANGES
 
+namespace{
+constexpr static std::chrono::seconds MINUTE{60};
+}
+
 TEST(temperatureShedulerTest, checkIfDefaultAliasIsCreated) {
   TemperatureSheduler sch;
   EXPECT_EQ(1, sch.getTemperatureAliasCount());
@@ -1010,7 +1014,6 @@ TEST_F(temperatureShedulerTestFixture, splitPeriodByRange) {
   EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
   EXPECT_EQ(ALIAS_1_NAME, p2.temperatureAlias);
 
-  constexpr static std::chrono::seconds MINUTE{60};
   EXPECT_EQ(p1.startTime, P1.startTime);
   EXPECT_EQ(p1.endTime, SPLIT_RANGE.startTime - MINUTE);
 
@@ -1036,7 +1039,6 @@ TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod) {
   EXPECT_EQ(1, sch.getPeriodsCount());
   auto p1 = sch.getPeriod(0);
   EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
-
   EXPECT_EQ(p1.startTime, P1.startTime);
   EXPECT_EQ(p1.endTime, P1.endTime);
 
@@ -1059,7 +1061,6 @@ TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod2) {
   EXPECT_EQ(1, sch.getPeriodsCount());
   auto p1 = sch.getPeriod(0);
   EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
-
   EXPECT_EQ(p1.startTime, P1.startTime);
   EXPECT_EQ(p1.endTime, P1.endTime);
 
@@ -1082,10 +1083,139 @@ TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod3) {
   EXPECT_EQ(1, sch.getPeriodsCount());
   auto p1 = sch.getPeriod(0);
   EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
-
   EXPECT_EQ(p1.startTime, P1.startTime);
   EXPECT_EQ(p1.endTime, P1.endTime);
 
   printScenarioRanges({P1}, SPLIT_RANGE);
 }
 
+TEST_F(temperatureShedulerTestFixture, truncatePeriodHead) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  WeekTime START_AFTER{
+    WeekDay::SUNDAY, hours{13}, minutes{00}};
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.truncatePeriodHead(START_AFTER);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(p1.startTime, START_AFTER + MINUTE);
+  EXPECT_EQ(p1.endTime, P1.endTime);
+}
+
+TEST_F(temperatureShedulerTestFixture, noPeriodToTruncateHead) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  WeekTime START_AFTER{
+    WeekDay::SUNDAY, hours{11}, minutes{00}};
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.truncatePeriodHead(START_AFTER);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, P1.endTime);
+}
+
+TEST_F(temperatureShedulerTestFixture, removePeriodDueHeadTruncation) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  WeekTime START_AFTER{
+    WeekDay::SUNDAY, hours{15}, minutes{00}};
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.truncatePeriodHead(START_AFTER);
+
+  EXPECT_EQ(0, sch.getPeriodsCount());
+}
+
+TEST_F(temperatureShedulerTestFixture, truncatePeriodTail) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  WeekTime END_BEFORE{
+    WeekDay::SUNDAY, hours{14}, minutes{00}};
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.truncatePeriodTail(END_BEFORE);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, END_BEFORE - MINUTE);
+}
+
+TEST_F(temperatureShedulerTestFixture, noPeriodToTruncateTail) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  WeekTime END_BEFORE{
+    WeekDay::SUNDAY, hours{11}, minutes{00}};
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.truncatePeriodTail(END_BEFORE);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, P1.endTime);
+}
+
+TEST_F(temperatureShedulerTestFixture, removePeriodDueTailTruncation) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  WeekTime END_BEFORE{
+    WeekDay::SUNDAY, hours{12}, minutes{00}};
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.truncatePeriodTail(END_BEFORE);
+
+  EXPECT_EQ(0, sch.getPeriodsCount());
+}
+
+TEST_F(temperatureShedulerTestFixture, truncateRange) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{13}, minutes{00}}
+  };
+  TimeRange P2 {
+    {WeekDay::SUNDAY, hours{14}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  TimeRange RANGE {
+    {WeekDay::SUNDAY, hours{12}, minutes{30}},
+    {WeekDay::SUNDAY, hours{14}, minutes{30}}
+  };
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
+  sch.truncateRange(RANGE);
+
+  EXPECT_EQ(2, sch.getPeriodsCount());
+
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, RANGE.startTime - MINUTE);
+
+  auto p2 = sch.getPeriod(1);
+  EXPECT_EQ(ALIAS_2_NAME, p2.temperatureAlias);
+  EXPECT_EQ(p2.startTime, RANGE.endTime + MINUTE);
+  EXPECT_EQ(p2.endTime, P2.endTime);
+}

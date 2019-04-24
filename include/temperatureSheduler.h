@@ -23,6 +23,7 @@ class TemperatureSheduler {
 private:
     static constexpr TemperatureC DEFAULT_TEMPERAUTRE {18.0f};
     static constexpr char DEFAULT_ALIAS[] = "DEFAULT";
+    static constexpr std::chrono::seconds MINUTE{60};
 
     struct TemperatureAlias {
         std::string name;
@@ -278,7 +279,6 @@ public:
           //we DO NOT want single end truncation!
           if (periodIter->startTime < range.startTime and
               periodIter->endTime > range.endTime) {
-            constexpr static std::chrono::seconds MINUTE{60};
             WeekTime newPeriodStartTime = periodIter->endTime;
             periodIter->endTime = range.startTime - MINUTE;
             periods.emplace(std::next(periodIter),
@@ -286,6 +286,51 @@ public:
                             newPeriodStartTime,
                             periodIter->temperatureAlias);
           }
+        }
+      }
+    }
+
+    /**
+     * Equivalent to truncateTail on startTime and truncateHead on endTime.
+     * Only border periods are touched, all periods inside range are not changed
+     */
+    void truncateRange(const WeekTimeRange& range) {
+      truncatePeriodTail(range.startTime);
+      truncatePeriodHead(range.endTime);
+    }
+
+    /**
+     * If endBefore points inside known period then:
+     * 1) If endBefore equals period startTime whole period is removed.
+     * 2) If endBefore points after period startTime, then length of period is
+     * set to one minute before endBefore.
+     */
+    void truncatePeriodTail(const WeekTime& endBefore) {
+      auto iter = findPeriod(endBefore);
+      if (iter != periods.end()) {
+        if (iter->startTime == endBefore) {
+          periods.erase(iter);
+
+        } else {
+          iter->endTime = endBefore - MINUTE;
+        }
+      }
+    }
+
+    /**
+    * If startAfter points inside known period then:
+    * 1) If startAfter equals period endTime whole period is removed.
+    * 2) If startAfter points after period startTime, then period startTime is
+    * set to one minute after startAfter argument.
+    */
+    void truncatePeriodHead(const WeekTime& startAfter) {
+      auto iter = findPeriod(startAfter);
+      if (iter != periods.end()) {
+        if (iter->endTime == startAfter) {
+          periods.erase(iter);
+
+        } else {
+          iter->startTime = startAfter + MINUTE;
         }
       }
     }
