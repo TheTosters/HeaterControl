@@ -166,18 +166,16 @@ TEST(temperatureShedulerTest, removePeriod) {
   EXPECT_EQ(0, sch.getPeriodsCount());
 }
 
-struct TimeRange {
-  WeekTime start;
-  WeekTime end;
+struct TimeRange : public WeekTimeRange {
 
   TimeRange(const WeekTime& start, const WeekTime& end)
-  : start(start), end(end)
+  : WeekTimeRange(start, end)
   {}
 
   void validate(TemperatureSheduler& sch, const TemperatureC& temp) {
     using namespace std::chrono;
     const std::chrono::seconds delta{60};
-    for(WeekTime t = start; t < end; t = t + delta) {
+    for(WeekTime t = startTime; t < endTime; t = t + delta) {
       EXPECT_EQ(temp, sch.getTemperature(t));
       if (::testing::Test::HasFailure()) {
         break;
@@ -186,7 +184,7 @@ struct TimeRange {
   }
 
   bool inRange(WeekTime t) const {
-    return (start <= t) and (t < end);
+    return (startTime <= t) and (t < endTime);
   }
 };
 
@@ -244,7 +242,7 @@ struct temperatureShedulerTestFixture : public testing::Test {
 
   void printRange(TimeRange timeSpace, const TimeRange& range, char c) {
     std::chrono::seconds delta {15 * 60};
-    for(auto t = timeSpace.start; t <= timeSpace.end; t = t + delta) {
+    for(auto t = timeSpace.startTime; t <= timeSpace.endTime; t = t + delta) {
       if (range.inRange(t)) {
         std::cout << c;
 
@@ -259,7 +257,7 @@ struct temperatureShedulerTestFixture : public testing::Test {
       const std::vector<TimeRange>& ranges) {
 
     std::chrono::seconds delta {15 * 60};
-    for(auto t = timeSpace.start; t <= timeSpace.end; t = t + delta) {
+    for(auto t = timeSpace.startTime; t <= timeSpace.endTime; t = t + delta) {
       auto it = std::find_if(ranges.begin(), ranges.end(), [=](auto& r){
         return r.inRange(t);
       });
@@ -284,11 +282,11 @@ struct temperatureShedulerTestFixture : public testing::Test {
     };
 
     for(const TimeRange& t : ranges) {
-      timeSpace.start = std::min(t.start, timeSpace.start);
-      timeSpace.end = std::max(t.end, timeSpace.end);
+      timeSpace.startTime = std::min(t.startTime, timeSpace.startTime);
+      timeSpace.endTime = std::max(t.endTime, timeSpace.endTime);
     }
-    timeSpace.start = std::min(r.start, timeSpace.start);
-    timeSpace.end = std::max(r.end, timeSpace.end);
+    timeSpace.startTime = std::min(r.startTime, timeSpace.startTime);
+    timeSpace.endTime = std::max(r.endTime, timeSpace.endTime);
     return timeSpace;
   }
 };
@@ -312,11 +310,11 @@ TEST_F(temperatureShedulerTestFixture, setOverlapingPeriod) {
     {WeekDay::SUNDAY, hours{13}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
   EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(
@@ -346,15 +344,15 @@ TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod) {
     {WeekDay::SUNDAY, hours{14}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
   EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(
       {WeekDay::SUNDAY, hours{14}, minutes{31}}));
   PNEW.validate(sch, ALIAS_3_TEMP);
@@ -380,16 +378,17 @@ TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod2) {
     {WeekDay::SUNDAY, hours{14}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(
+      {WeekDay::SUNDAY, hours{14}, minutes{31}}));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -413,16 +412,16 @@ TEST_F(temperatureShedulerTestFixture, setTailOverlapingPeriod) {
     {WeekDay::SUNDAY, hours{13}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -446,16 +445,16 @@ TEST_F(temperatureShedulerTestFixture, setTailOverlapingPeriod2) {
     {WeekDay::SUNDAY, hours{13}, minutes{00}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -479,16 +478,16 @@ TEST_F(temperatureShedulerTestFixture, setTailTouchPeriod) {
     {WeekDay::SUNDAY, hours{13}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -512,12 +511,12 @@ TEST_F(temperatureShedulerTestFixture, setHeadTouchPeriod) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
   EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(
@@ -545,15 +544,15 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteFirstPeriod) {
     {WeekDay::SUNDAY, hours{13}, minutes{00}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -577,15 +576,15 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteSecondPeriod) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.start));
+  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
@@ -609,12 +608,12 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteTwoPeriods) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   PNEW.validate(sch, ALIAS_3_TEMP);
@@ -636,11 +635,11 @@ TEST_F(temperatureShedulerTestFixture, setSingleHeadOverlapPeriod) {
     {WeekDay::SUNDAY, hours{12}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
   //TODO:segmentation fault
-  //sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  //sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
   PNEW.validate(sch, ALIAS_3_TEMP);
@@ -662,10 +661,10 @@ TEST_F(temperatureShedulerTestFixture, setSingleTailOverlapPeriod) {
     {WeekDay::SUNDAY, hours{13}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
   PNEW.validate(sch, ALIAS_3_TEMP);
@@ -687,14 +686,14 @@ TEST_F(temperatureShedulerTestFixture, setSplittingPeriod) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(PNEW.end));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(PNEW.endTime));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1}, PNEW);
 }
@@ -722,16 +721,16 @@ TEST_F(temperatureShedulerTestFixture, setSwallowAndTruncatePeriod) {
     {WeekDay::SUNDAY, hours{15}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
-  sch.setTemperaturePeriod(P3.start, P3.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P3.startTime, P3.endTime, ALIAS_3_NAME);
   EXPECT_EQ(3, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_4_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_4_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_3_TEMP, sch.getTemperature(P3.end));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_3_TEMP, sch.getTemperature(P3.endTime));
   PNEW.validate(sch, ALIAS_4_TEMP);
   printScenarioRanges({P1, P2, P3}, PNEW);
 }
@@ -759,16 +758,16 @@ TEST_F(temperatureShedulerTestFixture, setSwallowPeriod) {
     {WeekDay::SUNDAY, hours{15}, minutes{30}}
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_2_NAME);
-  sch.setTemperaturePeriod(P3.start, P3.end, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P3.startTime, P3.endTime, ALIAS_3_NAME);
   EXPECT_EQ(3, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_4_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_4_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.start));
-  EXPECT_EQ(ALIAS_3_TEMP, sch.getTemperature(P3.end));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
+  EXPECT_EQ(ALIAS_3_TEMP, sch.getTemperature(P3.endTime));
   PNEW.validate(sch, ALIAS_4_TEMP);
   printScenarioRanges({P1, P2, P3}, PNEW);
 }
@@ -788,14 +787,14 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodTail) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
   TimeRange MERGED{
-    P1.start,
-    PNEW.end
+    P1.startTime,
+    PNEW.endTime
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
@@ -817,14 +816,14 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodTail2) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
   TimeRange MERGED{
-    P1.start,
-    PNEW.end
+    P1.startTime,
+    PNEW.endTime
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
@@ -846,14 +845,14 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead) {
     {WeekDay::SUNDAY, hours{12}, minutes{00}}
   };
   TimeRange MERGED{
-    PNEW.start,
-    P1.end
+    PNEW.startTime,
+    P1.endTime
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  //TODO: core dump sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_1_NAME);
+  //TODO: core dump sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
@@ -875,14 +874,14 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead2) {
     {WeekDay::SUNDAY, hours{12}, minutes{30}}
   };
   TimeRange MERGED{
-    PNEW.start,
-    P1.end
+    PNEW.startTime,
+    P1.endTime
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  //TODO: Core dump sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_1_NAME);
+  //TODO: Core dump sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
@@ -908,15 +907,15 @@ TEST_F(temperatureShedulerTestFixture, setMergeTwoPeriod) {
     {WeekDay::SUNDAY, hours{14}, minutes{00}}
   };
   TimeRange MERGED{
-    P1.start,
-    P2.end
+    P1.startTime,
+    P2.endTime
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_1_NAME);
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
@@ -942,17 +941,151 @@ TEST_F(temperatureShedulerTestFixture, setMergeTwoPeriod2) {
     {WeekDay::SUNDAY, hours{14}, minutes{30}}
   };
   TimeRange MERGED{
-    P1.start,
-    P2.end
+    P1.startTime,
+    P2.endTime
   };
 
-  sch.setTemperaturePeriod(P1.start, P1.end, ALIAS_1_NAME);
-  sch.setTemperaturePeriod(P2.start, P2.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_1_NAME);
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.setTemperaturePeriod(PNEW.start, PNEW.end, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
+
+TEST_F(temperatureShedulerTestFixture, removePeriodsInRange) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{13}, minutes{00}}
+  };
+  TimeRange P2 {
+    {WeekDay::SUNDAY, hours{14}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  TimeRange P3 {
+    {WeekDay::SUNDAY, hours{16}, minutes{00}},
+    {WeekDay::SUNDAY, hours{17}, minutes{00}}
+  };
+  TimeRange REMOVE_RANGE{
+    {WeekDay::SUNDAY, hours{13}, minutes{30}},
+    {WeekDay::SUNDAY, hours{16}, minutes{30}}
+  };
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(P2.startTime, P2.endTime, ALIAS_2_NAME);
+  sch.setTemperaturePeriod(P3.startTime, P3.endTime, ALIAS_3_NAME);
+  EXPECT_EQ(3, sch.getPeriodsCount());
+
+  sch.removePeriodsInRange(REMOVE_RANGE);
+
+  EXPECT_EQ(2, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  auto p3 = sch.getPeriod(1);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(ALIAS_3_NAME, p3.temperatureAlias);
+  P1.validate(sch, ALIAS_1_TEMP);
+  P3.validate(sch, ALIAS_3_TEMP);
+  printScenarioRanges({P1, P2, P3}, REMOVE_RANGE);
+}
+
+TEST_F(temperatureShedulerTestFixture, splitPeriodByRange) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  TimeRange SPLIT_RANGE{
+    {WeekDay::SUNDAY, hours{13}, minutes{00}},
+    {WeekDay::SUNDAY, hours{14}, minutes{00}}
+  };
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.splitPeriodByRange(SPLIT_RANGE);
+
+  EXPECT_EQ(2, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  auto p2 = sch.getPeriod(1);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+  EXPECT_EQ(ALIAS_1_NAME, p2.temperatureAlias);
+
+  constexpr static std::chrono::seconds MINUTE{60};
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, SPLIT_RANGE.startTime - MINUTE);
+
+  EXPECT_EQ(p2.startTime, SPLIT_RANGE.endTime + MINUTE);
+  EXPECT_EQ(p2.endTime, P1.endTime);
+
+  printScenarioRanges({P1}, SPLIT_RANGE);
+}
+
+TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  TimeRange SPLIT_RANGE{
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{14}, minutes{00}}
+  };
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.splitPeriodByRange(SPLIT_RANGE);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, P1.endTime);
+
+  printScenarioRanges({P1}, SPLIT_RANGE);
+}
+
+TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod2) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  TimeRange SPLIT_RANGE{
+    {WeekDay::SUNDAY, hours{14}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.splitPeriodByRange(SPLIT_RANGE);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, P1.endTime);
+
+  printScenarioRanges({P1}, SPLIT_RANGE);
+}
+
+TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod3) {
+  using namespace std::chrono;
+  TimeRange P1 {
+    {WeekDay::SUNDAY, hours{12}, minutes{00}},
+    {WeekDay::SUNDAY, hours{15}, minutes{00}}
+  };
+  TimeRange SPLIT_RANGE{
+    {WeekDay::SUNDAY, hours{11}, minutes{00}},
+    {WeekDay::SUNDAY, hours{13}, minutes{00}}
+  };
+  sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+  sch.splitPeriodByRange(SPLIT_RANGE);
+
+  EXPECT_EQ(1, sch.getPeriodsCount());
+  auto p1 = sch.getPeriod(0);
+  EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+
+  EXPECT_EQ(p1.startTime, P1.startTime);
+  EXPECT_EQ(p1.endTime, P1.endTime);
+
+  printScenarioRanges({P1}, SPLIT_RANGE);
+}
+

@@ -68,3 +68,16 @@ public:
       return weekTime;
     }
 };
+
+struct WeekTimeRange {
+  WeekTime startTime;
+  WeekTime endTime;
+
+  WeekTimeRange(const WeekTime& startTime, const WeekTime& endTime)
+  : startTime(startTime), endTime(endTime)
+  {}
+
+  bool isZeroLen() {
+    return startTime == endTime;
+  }
+};
