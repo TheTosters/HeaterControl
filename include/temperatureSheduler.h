@@ -4,7 +4,6 @@
 #include <vector>
 #include <array>
 #include <algorithm>
-#include <optional>
 
 #include "types/unit.h"
 #include "weekUnit.h"
@@ -19,86 +18,26 @@ struct TemperaturePeriod : public WeekTimeRange {
       temperatureAlias(temperatureAlias){}
 };
 
+struct TemperatureAlias {
+    std::string name;
+    TemperatureC temperature;
+    TemperatureAlias(const std::string& name,
+        const TemperatureC& temperature)
+    : name(name), temperature(temperature) {}
+};
+
 class TemperatureSheduler {
 private:
+    using PeriodVector = std::vector<TemperaturePeriod>;
     static constexpr TemperatureC DEFAULT_TEMPERAUTRE {18.0f};
     static constexpr char DEFAULT_ALIAS[] = "DEFAULT";
     static constexpr std::chrono::seconds MINUTE{60};
 
-    struct TemperatureAlias {
-        std::string name;
-        TemperatureC temperature;
-        TemperatureAlias(const std::string& name,
-            const TemperatureC& temperature)
-        : name(name), temperature(temperature) {}
+    std::vector<TemperatureAlias> aliases {
+      {DEFAULT_ALIAS, DEFAULT_TEMPERAUTRE}
     };
 
-    std::vector<TemperatureAlias> aliases { {DEFAULT_ALIAS, DEFAULT_TEMPERAUTRE} };
-
-    using PeriodVector = std::vector<TemperaturePeriod>;
     PeriodVector periods;
-
-    struct FindPeriodResult {
-        PeriodVector::iterator insertionPosition;
-
-        std::optional<PeriodVector::iterator> beginRemovePosition;
-        std::optional<PeriodVector::iterator> endRemovePosition;
-
-        std::optional<PeriodVector::iterator> truncateTail;
-        std::optional<PeriodVector::iterator> truncateHead;
-    };
-
-    FindPeriodResult findPeriodRange(const WeekTime& startTime, const WeekTime& endTime) {
-
-        FindPeriodResult result = {periods.end(), std::nullopt, std::nullopt,
-            std::nullopt, std::nullopt};
-
-        for (PeriodVector::iterator iterator = periods.begin();
-            iterator < periods.end(); iterator++)
-        {
-            if (iterator->startTime == startTime)
-            {
-                result.insertionPosition = iterator;
-                result.beginRemovePosition = iterator;
-            }
-            else if ( iterator->startTime > startTime )
-            {
-                result.insertionPosition = iterator;
-                result.beginRemovePosition = iterator;
-
-                if (startTime <= std::prev(iterator)->endTime)
-                {
-                    result.truncateTail = std::prev(iterator);
-                }
-            }
-
-            if (iterator->endTime == endTime)
-            {
-                result.endRemovePosition = iterator;
-                break;
-            }
-            else if (iterator->endTime > endTime)
-            {
-                result.endRemovePosition = std::prev(iterator);
-                if (endTime >= iterator->startTime)
-                {
-                    result.truncateHead = iterator;
-                }
-                break;
-            }
-        }
-
-        if (static_cast<bool>(result.beginRemovePosition) &&
-            static_cast<bool>(result.endRemovePosition) &&
-            result.beginRemovePosition.value()->startTime >
-            result.endRemovePosition.value()->startTime)
-        {
-            result.beginRemovePosition = std::nullopt;
-            result.endRemovePosition = std::nullopt;
-        }
-
-        return result;
-    }
 
     auto findInsertionPoint(const WeekTime& time) {
       return std::find_if(periods.begin(), periods.end(),

@@ -7,8 +7,6 @@
 #include "heating_model.h"
 #include <string>
 #include <vector>
-#include <sstream>
-#include <iomanip>
 
 class DefaultScreen : public Screen {
 public:
@@ -84,12 +82,7 @@ private:
 
   void drawTime() {
     display.selectFont(SelectedFont::SMALL);
-    std::stringstream s;
-    s << time.dayName << ' ' <<
-        std::setfill('0') << std::setw(2) << time.hour.count() << ':' <<
-        std::setfill('0') << std::setw(2) << time.minute.count() << ':' <<
-        std::setfill('0') << std::setw(2) << time.second.count();
-    display.drawString(0, 0, s.str());
+    display.drawString(0, 0, static_cast<std::string>(time));
   }
 
   void drawHeatingMode() {
