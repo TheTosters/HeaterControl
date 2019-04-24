@@ -162,11 +162,11 @@ TEST(temperatureShedulerTest, removePeriod) {
       {WeekDay::SUNDAY, hours{14}, minutes{40}},
       ALIAS_1_NAME);
 
-  sch.removeTemperaturePeriod({WeekDay::SUNDAY, hours{13}, minutes{00}});
+  sch.removePeriodAt({WeekDay::SUNDAY, hours{13}, minutes{00}});
   EXPECT_EQ(2, sch.getPeriodsCount());
 
-  sch.removeTemperaturePeriod({WeekDay::SUNDAY, hours{12}, minutes{00}});
-  sch.removeTemperaturePeriod({WeekDay::SUNDAY, hours{14}, minutes{00}});
+  sch.removePeriodAt({WeekDay::SUNDAY, hours{12}, minutes{00}});
+  sch.removePeriodAt({WeekDay::SUNDAY, hours{14}, minutes{00}});
   EXPECT_EQ(0, sch.getPeriodsCount());
 }
 

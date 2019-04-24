@@ -236,7 +236,7 @@ public:
         return true;
     }
 
-    bool removeTemperaturePeriod(const WeekTime& weekTime) {
+    bool removePeriodAt(const WeekTime& weekTime) {
         auto weekTimeIterator = findPeriod(weekTime);
         if (weekTimeIterator == periods.end())
         {
