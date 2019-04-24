@@ -183,23 +183,23 @@ public:
     }
 
     void removeTemperatureAlias(const std::string& name) {
-        if ( name == DEFAULT_ALIAS )
-            return;
+      if ( name == DEFAULT_ALIAS ) {
+        return;
+      }
 
-        auto aliasIterator = findAlias(name);
+      auto aliasIterator = findAlias(name);
 
-        if ( aliasIterator != aliases.end() )
-        {
-            aliases.erase(aliasIterator);
-            auto removeIter = std::remove_if(
-                periods.begin(), periods.end(),
-                [&name] (const TemperaturePeriod& period) {
-                   return period.temperatureAlias == name;
-            });
-            if (removeIter != periods.end()) {
-              periods.erase(removeIter, periods.end());
-            }
+      if (aliasIterator != aliases.end()) {
+        aliases.erase(aliasIterator);
+        auto removeIter = std::remove_if(
+          periods.begin(), periods.end(),
+          [&name] (const TemperaturePeriod& period) {
+            return period.temperatureAlias == name;
+        });
+        if (removeIter != periods.end()) {
+          periods.erase(removeIter, periods.end());
         }
+      }
     }
 
     void updateTemperatureAlias(const std::string& name,
@@ -308,8 +308,20 @@ public:
      * Only border periods are touched, all periods inside range are not changed
      */
     void truncateRange(const WeekTimeRange& range) {
-      truncatePeriodTail(range.startTime);
-      truncatePeriodHead(range.endTime);
+      auto startIter = findPeriod(range.startTime);
+      auto endIter = findPeriod(range.endTime);
+      if (startIter == endIter and endIter != periods.end()) {
+        if (startIter->startTime == range.startTime) {
+          truncatePeriodHead(range.endTime);
+
+        } else {
+          truncatePeriodTail(range.startTime);
+        }
+
+      } else {
+        truncatePeriodTail(range.startTime);
+        truncatePeriodHead(range.endTime);
+      }
     }
 
     /**

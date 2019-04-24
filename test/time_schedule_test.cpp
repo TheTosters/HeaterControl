@@ -53,6 +53,7 @@ TEST(temperatureShedulerTest, removePeriodsWhenAliasIsRemoved) {
   WeekTime start{WeekDay::SUNDAY, hours{12}, minutes{00}};
   WeekTime end{WeekDay::SUNDAY, hours{12}, minutes{40}};
   sch.setTemperaturePeriod(start, end, ALIAS_NAME);
+  EXPECT_EQ(1, sch.getPeriodsCount());
 
   sch.removeTemperatureAlias(ALIAS_NAME);
   EXPECT_EQ(0, sch.getPeriodsCount());
@@ -556,8 +557,7 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteFirstPeriod) {
   sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
-  PNEW.validate(sch, ALIAS_3_TEMP);
+  P1.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
 
@@ -588,8 +588,7 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteSecondPeriod) {
   sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_2_TEMP, sch.getTemperature(P2.startTime));
-  PNEW.validate(sch, ALIAS_3_TEMP);
+  P2.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1, P2}, PNEW);
 }
 
@@ -642,8 +641,7 @@ TEST_F(temperatureShedulerTestFixture, setSingleHeadOverlapPeriod) {
   sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  //TODO:segmentation fault
-  //sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(2, sch.getPeriodsCount());
   PNEW.validate(sch, ALIAS_3_TEMP);
@@ -696,8 +694,8 @@ TEST_F(temperatureShedulerTestFixture, setSplittingPeriod) {
   sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_3_NAME);
 
   EXPECT_EQ(3, sch.getPeriodsCount());
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(P1.startTime));
-  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(PNEW.endTime));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(PNEW.startTime - MINUTE));
+  EXPECT_EQ(ALIAS_1_TEMP, sch.getTemperature(PNEW.endTime + MINUTE));
   PNEW.validate(sch, ALIAS_3_TEMP);
   printScenarioRanges({P1}, PNEW);
 }
@@ -1218,4 +1216,48 @@ TEST_F(temperatureShedulerTestFixture, truncateRange) {
   EXPECT_EQ(ALIAS_2_NAME, p2.temperatureAlias);
   EXPECT_EQ(p2.startTime, RANGE.endTime + MINUTE);
   EXPECT_EQ(p2.endTime, P2.endTime);
+}
+
+TEST_F(temperatureShedulerTestFixture, truncateRangeHeadOverlap) {
+  using namespace std::chrono;
+    TimeRange P1 {
+      {WeekDay::SUNDAY, hours{12}, minutes{00}},
+      {WeekDay::SUNDAY, hours{14}, minutes{00}}
+    };
+    TimeRange RANGE {
+      {WeekDay::SUNDAY, hours{12}, minutes{00}},
+      {WeekDay::SUNDAY, hours{13}, minutes{00}}
+    };
+    sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+    sch.truncateRange(RANGE);
+
+    EXPECT_EQ(1, sch.getPeriodsCount());
+
+    auto p1 = sch.getPeriod(0);
+    EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+    EXPECT_EQ(p1.startTime, RANGE.endTime + MINUTE);
+    EXPECT_EQ(p1.endTime, P1.endTime);
+    printScenarioRanges({P1}, RANGE);
+}
+
+TEST_F(temperatureShedulerTestFixture, truncateRangeTailOverlap) {
+  using namespace std::chrono;
+    TimeRange P1 {
+      {WeekDay::SUNDAY, hours{12}, minutes{00}},
+      {WeekDay::SUNDAY, hours{14}, minutes{00}}
+    };
+    TimeRange RANGE {
+      {WeekDay::SUNDAY, hours{13}, minutes{00}},
+      {WeekDay::SUNDAY, hours{14}, minutes{00}}
+    };
+    sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
+    sch.truncateRange(RANGE);
+
+    EXPECT_EQ(1, sch.getPeriodsCount());
+
+    auto p1 = sch.getPeriod(0);
+    EXPECT_EQ(ALIAS_1_NAME, p1.temperatureAlias);
+    EXPECT_EQ(p1.startTime, P1.startTime);
+    EXPECT_EQ(p1.endTime, RANGE.startTime - MINUTE);
+    printScenarioRanges({P1}, RANGE);
 }
