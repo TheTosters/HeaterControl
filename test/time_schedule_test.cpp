@@ -856,7 +856,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead) {
   sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  //TODO: core dump sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);
@@ -885,7 +885,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead2) {
   sch.setTemperaturePeriod(P1.startTime, P1.endTime, ALIAS_1_NAME);
   EXPECT_EQ(1, sch.getPeriodsCount());
 
-  //TODO: Core dump sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
+  sch.setTemperaturePeriod(PNEW.startTime, PNEW.endTime, ALIAS_1_NAME);
 
   EXPECT_EQ(1, sch.getPeriodsCount());
   MERGED.validate(sch, ALIAS_1_TEMP);

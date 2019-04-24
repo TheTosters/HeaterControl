@@ -100,6 +100,13 @@ private:
         return result;
     }
 
+    auto findInsertionPoint(const WeekTime& time) {
+      return std::find_if(periods.begin(), periods.end(),
+          [=](const TemperaturePeriod& period) {
+        return period.startTime > time;
+      });
+    }
+
     auto findPeriod(const WeekTime& weekTime) {
         return std::find_if(periods.begin(),periods.end(),
                 [&weekTime] (const TemperaturePeriod& periods)
@@ -113,6 +120,36 @@ private:
         return std::find_if(aliases.begin(),aliases.end(),
                 [&name] (const TemperatureAlias& aliases)
                 {return aliases.name == name;});
+    }
+
+    bool periodsTouches(const WeekTimeRange& first, const WeekTimeRange& second){
+      return first.endTime == (second.startTime - MINUTE);
+    }
+
+    bool singleMergeInRange(const WeekTimeRange& range) {
+      auto lastIter = findPeriod(range.endTime);
+      if (lastIter != periods.end()) {
+        lastIter = std::next(lastIter);
+      }
+      auto startIter = findPeriod(range.startTime);
+      if (startIter != periods.begin()) {
+        startIter = std::prev(startIter);
+      }
+      for(;startIter != lastIter; startIter++) {
+
+        auto nextIter = std::next(startIter);
+        if (nextIter == periods.end()){
+          break;
+        }
+
+        if (startIter->temperatureAlias == nextIter->temperatureAlias and
+            periodsTouches(*startIter, *nextIter)) {
+          startIter->endTime = nextIter->endTime;
+          periods.erase(nextIter);
+          return true;
+        }
+      }
+      return false;
     }
 
 public:
@@ -191,60 +228,36 @@ public:
     bool setTemperaturePeriod(const WeekTime& startTime,
                               const WeekTime& endTime,
                               const std::string& name) {
-        if ( name == DEFAULT_ALIAS || startTime >= endTime)
-            return false;
+      if ( name == DEFAULT_ALIAS || startTime >= endTime) {
+          return false;
+      }
 
-        auto aliasIterator =findAlias(name);
-
-        if ( aliasIterator == aliases.end() )
-            return false;
-
-        FindPeriodResult findResult = findPeriodRange(startTime, endTime);
-        if ( static_cast<bool>(findResult.truncateHead) &&
-             static_cast<bool>(findResult.truncateTail) &&
-             findResult.truncateHead.value() == findResult.truncateTail.value())
-        {
-            findResult.insertionPosition = periods.emplace(
-                findResult.insertionPosition,
-                endTime + std::chrono::minutes(1),
-                findResult.truncateHead.value()->endTime,
-                findResult.truncateHead.value()->temperatureAlias);
-            findResult.truncateTail.value()->endTime =
-                startTime - std::chrono::minutes(1);
-        }
-        else
-        {
-            if (findResult.truncateHead)
-            {
-                findResult.truncateHead.value()->startTime =
-                    endTime + std::chrono::minutes(1);
-            }
-            if (findResult.truncateTail)
-            {
-                findResult.truncateTail.value()->endTime =
-                    startTime - std::chrono::minutes(1);
-            }
-            if (findResult.beginRemovePosition)
-            {
-               periods.erase(findResult.beginRemovePosition.value(),
-                   findResult.endRemovePosition.value());
-            }
-        }
-
-        periods.emplace(findResult.insertionPosition, startTime, endTime, name);
-
-        return true;
+      WeekTimeRange cleanupRange{startTime, endTime};
+      removePeriodsInRange(cleanupRange);
+      splitPeriodByRange(cleanupRange);
+      truncateRange(cleanupRange);
+      periods.emplace(findInsertionPoint(endTime), startTime, endTime, name);
+      mergeInRange(cleanupRange);
+      return true;
     }
 
-    bool removePeriodAt(const WeekTime& weekTime) {
-        auto weekTimeIterator = findPeriod(weekTime);
-        if (weekTimeIterator == periods.end())
-        {
-            return false;
-        }
+    void mergeInRange(const WeekTimeRange& range) {
+      while( singleMergeInRange(range) ) {
+        //nothing
+      }
+    }
 
-        periods.erase(weekTimeIterator);
-        return true;
+    /**
+     * Removes period which contains given weekTime
+     * (period startTime and endTime are inclusive)
+     */
+    bool removePeriodAt(const WeekTime& weekTime) {
+      auto weekTimeIterator = findPeriod(weekTime);
+      if (weekTimeIterator == periods.end()) {
+          return false;
+      }
+      periods.erase(weekTimeIterator);
+      return true;
     }
 
     /**
