@@ -1,7 +1,7 @@
 #pragma once
 
 #include "sensors/sensor_factory.h"
-#include "btle_adv.h"
+#include "bluetooth/btle_adv.h"
 #include "timer_owner.h"
 #include "events_dispatcher.h"
 #include <memory>
@@ -13,7 +13,7 @@
 class BtleTransmiter : TimerOwner{
 public:
   BtleTransmiter(const OnBoardSensor& sensors)
-    : TimerOwner(false, BtleTransmiter::timerHandler),
+    : TimerOwner(true, BtleTransmiter::timerHandler),
       sensors(sensors)
   {
   }
@@ -34,10 +34,11 @@ private:
   static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(9 * 1000);
 
   //small values might lead to not visible broadcast
-  static constexpr unsigned int ADV_COUNT = 32;
+  static constexpr unsigned int ADV_COUNT = 12;
 
   const OnBoardSensor& sensors;
   AdvMeasurements_t measurementsPackage;
+  BleAdvertiser advertiser;
 
   void doBuildPackage() {
     measurementsPackage.temperature =
@@ -49,7 +50,6 @@ private:
   }
 
   void doTransmit() {
-    BleAdvertiser& advertiser = BleAdvertiser::getInstance();
     if (advertiser.isTransmiting()) {
       NRF_LOG_ERROR("Illegal state of transport!");
       APP_ERROR_CHECK(NRF_ERROR_INVALID_STATE);

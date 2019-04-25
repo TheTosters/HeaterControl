@@ -1,9 +1,5 @@
 #pragma once
 
-#include <functional>
-#include <stdbool.h>
-#include <stdint.h>
-#include <inttypes.h>
 extern "C" {
 #include "nordic_common.h"
 #include "bsp.h"
@@ -14,7 +10,11 @@ extern "C" {
 #include "nrf_sdh_soc.h"
 }
 
-#define BTLE_DEBUG 1
+#include "bluetooth/bluetooth_ctrl.h"
+
+#include <functional>
+#include <stdbool.h>
+#include <stdint.h>
 
 /**
 * Struct with data used to advertise measurements.
@@ -30,18 +30,21 @@ using AdvFinishedCallback = std::function<void(void)>;
 
 class BleAdvertiser {
 public:
-  static BleAdvertiser& getInstance() {
-    static BleAdvertiser instance;
-    return instance;
+  BleAdvertiser(){
+    BluetoothController::getInstance().addObserver(
+        [this](BleEventPtr eventPtr) {
+          bleEventHandler(eventPtr);
+    });
   }
 
   void startAdvertisement(int advCount, AdvMeasurements_t& data,
       AdvFinishedCallback callback = nullptr) {
     doneCallback = callback;
-    initBleStack();
+    btLock = BluetoothController::getInstance().acquireBluetooth();
     initAdvertising(advCount, data);
-    printMacAddress();
-    ret_code_t err_code = sd_ble_gap_adv_start(advHandle, APP_BLE_CONN_CFG_TAG);
+    BluetoothController::printMacAddress();
+    ret_code_t err_code = sd_ble_gap_adv_start(advHandle,
+        BluetoothController::APP_BLE_CONN_CFG_TAG);
     APP_ERROR_CHECK(err_code);
     transmitting = true;
   }
@@ -51,9 +54,6 @@ public:
   }
 
 private:
-  static constexpr uint8_t APP_BLE_CONN_CFG_TAG = 1;
-  static constexpr int APP_BLE_OBSERVER_PRIO = 2;
-
   /** Parameters to be passed to the stack when starting advertising. */
   ble_gap_adv_params_t advParams;
 
@@ -68,22 +68,11 @@ private:
       {encodedAdvPayload,BLE_GAP_ADV_SET_DATA_SIZE_MAX},
       {nullptr, 0}
   };
-//      .adv_data = {
-//          .p_data = encodedAdvPayload,
-//          .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
-//      },
-//      .scan_rsp_data = {
-//          .p_data = NULL,
-//          .len    = 0
-//
-//      }
-//  };
 
   /** Callback will be called when advertising is finished */
   AdvFinishedCallback doneCallback;
   bool transmitting{};
-
-  BleAdvertiser(){}
+  BluetoothController::BTLockId btLock{};
 
   void finalizeAdvertiser() {
     doneCallback = nullptr;
@@ -91,43 +80,8 @@ private:
     //don't care about error, it should be already stopped, called just in case
     ret_code_t err_code = sd_ble_gap_adv_stop(advHandle);
 
-    err_code = nrf_sdh_disable_request();
-    APP_ERROR_CHECK(err_code);
+    BluetoothController::getInstance().releaseBluetooth(btLock);
     transmitting = false;
-  }
-
-  void printMacAddress() {
-#ifdef BTLE_DEBUG
-      constexpr int SERIAL_NUMBER_STRING_SIZE = 12;
-
-      char buff[SERIAL_NUMBER_STRING_SIZE + 1] = {0};
-      // The masking makes the address match the Random Static BLE address.
-      const uint16_t hBytes = (uint16_t)NRF_FICR->DEVICEADDR[1] | 0xC000;
-      const uint32_t lBytes  = NRF_FICR->DEVICEADDR[0];
-      snprintf(buff, SERIAL_NUMBER_STRING_SIZE + 1,
-               "%04" PRIX16 "%08" PRIX32,
-               hBytes, lBytes);
-      NRF_LOG_INFO("MAC ADDR: %s", buff);
-#endif
-  }
-
-  void initBleStack() {
-      ret_code_t err_code = nrf_sdh_enable_request();
-      APP_ERROR_CHECK(err_code);
-
-      // Configure the BLE stack using the default settings.
-      // Fetch the start address of the application RAM.
-      uint32_t ram_start = 0;
-      err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
-      APP_ERROR_CHECK(err_code);
-
-      // Enable BLE stack.
-      err_code = nrf_sdh_ble_enable(&ram_start);
-      APP_ERROR_CHECK(err_code);
-
-      // Register a handler for BLE events.
-      NRF_SDH_BLE_OBSERVER(m_ble_observer, APP_BLE_OBSERVER_PRIO,
-        BleAdvertiser::bleEventHandler, nullptr);
   }
 
   void initAdvertising(int advCount, AdvMeasurements_t& data) {
@@ -166,19 +120,13 @@ private:
       APP_ERROR_CHECK(err_code);
   }
 
-  static void bleEventHandler(ble_evt_t const * p_ble_evt, void * p_context) {
-    switch (p_ble_evt->header.evt_id) {
-      case BLE_GAP_EVT_ADV_SET_TERMINATED: {
-        BleAdvertiser& instance = BleAdvertiser::getInstance();
-        instance.finalizeAdvertiser();
-        if (instance.doneCallback) {
-          instance.doneCallback();
-        }
-        break;
+  void bleEventHandler(ble_evt_t const * p_ble_evt) {
+    if(p_ble_evt->header.evt_id == BLE_GAP_EVT_ADV_SET_TERMINATED) {
+      finalizeAdvertiser();
+      if (doneCallback) {
+        doneCallback();
       }
-
-      default:
-        break;
     }
   }
+
 };

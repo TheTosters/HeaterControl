@@ -13,13 +13,14 @@ extern "C" {
 #include "bsp.h"
 #include "app_timer.h"
 #include "nrf_drv_clock.h"
+#include "sdk_config.h"
 }
 
 #include "bridges/i2c_bridge.h"
 #include "buttons.h"
 #include "display.h"
 #include "sensors/sensor_factory.h"
-#include "btle_transmiter.h"
+#include "bluetooth/btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
@@ -31,6 +32,7 @@ extern "C" {
 #include "temperatureSheduler.h"
 #include "heating_model.h"
 #include "types/hardware_pin.h"
+#include "bluetooth/bluetooth_ctrl.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -78,7 +80,7 @@ int main( int argc, const char* argv[] ) {
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
   EventsDispatcher<10,
-    ButtonId, app_timer_event_t, BtleTransmiter*> dispatcher;
+    ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr> dispatcher;
   Display display{i2cBridge};
   OnBoardSensor sensors = instantiateSensor(i2cBridge);
 
@@ -94,7 +96,8 @@ int main( int argc, const char* argv[] ) {
   });
 
   BtleTransmiter btleTransmiter{sensors};
-//TODO:  btleTransmiter.enable();
+  btleTransmiter.enable();
+//  BluetoothController::getInstance();
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );
@@ -114,8 +117,7 @@ int main( int argc, const char* argv[] ) {
 
   buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
 
-  stack.selectScreen(SelectedScreen::STATUS);
-  //stack.selectScreen(SelectedScreen::DEFAULT);
+  stack.selectScreen(SelectedScreen::DEFAULT);
 
   display.sustainOn();
   stack.render();

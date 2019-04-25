@@ -113,18 +113,20 @@ void SSD1306::updateDisplay() {
   });
   sendCmdStream(cmdStream);
 
-  constexpr int chunkSize = 255;
+  constexpr int chunkSize = 254;
   //TODO: reimplement to use easyDma + PPI
-  for(auto range = takeAtMost(chunkSize, std::begin(screen), std::end(screen));
+  for(auto range = takeAtMost(chunkSize, std::next(std::begin(screen)), std::end(screen));
       range.first != range.second;
       range = takeAtMost(chunkSize, range.second, std::end(screen))) {
 
     uint8_t tmp = SET_START_LINE;
+    range.first = std::prev(range.first);
     std::swap(tmp, *range.first);
 
     const int count = std::distance(range.first, range.second);
     bridge.send( SSD_ADDR, &(*(range.first)), count);
     std::swap(tmp, *range.first);
+    range.first = std::next(range.first);
   }
 }
 
