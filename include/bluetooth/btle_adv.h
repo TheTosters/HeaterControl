@@ -40,7 +40,8 @@ public:
   void startAdvertisement(int advCount, AdvMeasurements_t& data,
       AdvFinishedCallback callback = nullptr) {
     doneCallback = callback;
-    btLock = BluetoothController::getInstance().acquireBluetooth();
+    //TODO: check true for acquire
+    BluetoothController::getInstance().acquireBluetooth(btLock);
     initAdvertising(advCount, data);
     BluetoothController::printMacAddress();
     ret_code_t err_code = sd_ble_gap_adv_start(advHandle,
