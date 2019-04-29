@@ -39,9 +39,13 @@ public:
 
   void startAdvertisement(int advCount, AdvMeasurements_t& data,
       AdvFinishedCallback callback = nullptr) {
+
+    APP_ERROR_CHECK(btLock == BluetoothController::BTLockId::NOT_SET ?
+        NRF_SUCCESS : NRF_ERROR_INVALID_STATE);
+
     doneCallback = callback;
-    //TODO: check true for acquire
-    BluetoothController::getInstance().acquireBluetooth(btLock);
+    bool succ = BluetoothController::getInstance().acquireBluetooth(btLock);
+    APP_ERROR_CHECK(succ ? NRF_SUCCESS : NRF_ERROR_INVALID_STATE);
     initAdvertising(advCount, data);
     BluetoothController::printMacAddress();
     ret_code_t err_code = sd_ble_gap_adv_start(advHandle,

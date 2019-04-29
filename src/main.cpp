@@ -1,5 +1,3 @@
-
-
 extern "C" {
 #include "nrf_delay.h"
 #include "boards.h"
@@ -32,7 +30,8 @@ extern "C" {
 #include "temperatureSheduler.h"
 #include "heating_model.h"
 #include "types/hardware_pin.h"
-#include "bluetooth/bluetooth_ctrl.h"
+#include "bluetooth/gatt_stack.h"
+#include "bluetooth/gatt_service.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -95,9 +94,11 @@ int main( int argc, const char* argv[] ) {
     heatingModel.setTime(t);
   });
 
-  BtleTransmiter btleTransmiter{sensors};
-  btleTransmiter.enable();
+//  BtleTransmiter btleTransmiter{sensors};
+//  btleTransmiter.enable();
 //  BluetoothController::getInstance();
+  GattStack<GattService> gattStack{"PioPio"};
+  gattStack.enable();
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );

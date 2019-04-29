@@ -28,6 +28,14 @@ SET(SDK_SEARCH_DIRECTORIES
   ${NRF5_SDK_PATH}/components/libraries/timer
   ${NRF5_SDK_PATH}/components/ble/common
   ${NRF5_SDK_PATH}/components/libraries/scheduler
+  ${NRF5_SDK_PATH}/components/ble/ble_advertising
+  ${NRF5_SDK_PATH}/components/libraries/fds
+  ${NRF5_SDK_PATH}/components/ble/peer_manager
+  ${NRF5_SDK_PATH}/components/ble/nrf_ble_gatt
+  ${NRF5_SDK_PATH}/components/ble/nrf_ble_qwr
+  ${NRF5_SDK_PATH}/components/libraries/atomic_flags
+  ${NRF5_SDK_PATH}/components/libraries/atomic_fifo
+  ${NRF5_SDK_PATH}/components/libraries/fstorage
 )
 
 SET(EXTRA_SDK_SOURCE_FILES
@@ -66,5 +74,26 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_clock.c
   ${NRF5_SDK_PATH}/components/libraries/scheduler/app_scheduler.c
   #${NRF5_SDK_PATH}/components/libraries/scheduler/app_scheduler_serconn.c
+  ${NRF5_SDK_PATH}/components/ble/nrf_ble_qwr/nrf_ble_qwr.c
+  ${NRF5_SDK_PATH}/components/ble/common/ble_conn_params.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/peer_manager.c
+  ${NRF5_SDK_PATH}/components/ble/common/ble_conn_state.c
+  ${NRF5_SDK_PATH}/components/libraries/fds/fds.c
+  ${NRF5_SDK_PATH}/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
+  ${NRF5_SDK_PATH}/components/ble/ble_advertising/ble_advertising.c
+  ${NRF5_SDK_PATH}/components/libraries/atomic_flags/nrf_atflags.c
+  ${NRF5_SDK_PATH}/components/ble/common/ble_srv_common.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/id_manager.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/security_manager.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/gatt_cache_manager.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/peer_data_storage.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/peer_database.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/security_dispatcher.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/gatts_cache_manager.c
+  ${NRF5_SDK_PATH}/components/libraries/fstorage/nrf_fstorage.c
+  ${NRF5_SDK_PATH}/components/libraries/atomic_fifo/nrf_atfifo.c
+  ${NRF5_SDK_PATH}/components/libraries/fstorage/nrf_fstorage_sd.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/peer_id.c
+  ${NRF5_SDK_PATH}/components/ble/peer_manager/pm_buffer.c
 )
 
