@@ -1,0 +1,52 @@
+if (NOT NRFJPROG)
+   message(STATUS "nrfjprog not found")
+endif ()
+
+if (NOT MERGEHEX)
+   message(STATUS "mergehex not found")
+endif ()
+
+if (NRFJPROG AND MERGEHEX)
+    add_custom_target(merge)
+    function(add_flash_target target)
+        # Both the manual <merge> and <flash> target and depends on
+        # the custom command that generates the merged hexfile.
+        add_custom_target(merge_${target}
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex)
+
+        add_dependencies(merge merge_${target})
+
+        add_custom_target(flash_erase 
+            COMMAND ${NRFJPROG} --eraseall
+            COMMENT "erasing flashing")
+            
+        add_custom_target(flash_SoftDevice${target}
+            COMMAND ${NRFJPROG} --program ${${SOFTDEVICE}_HEX_FILE} --sectorerase
+            COMMAND ${NRFJPROG} --reset
+            COMMENT "flashing SoftDevice.hex")
+            
+        add_custom_target(flash_${target}
+            COMMAND ${NRFJPROG} --program ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex --sectorerase
+            COMMAND ${NRFJPROG} --reset
+            COMMENT "flashing ${target}.hex")
+            
+        add_custom_target(flash_merged_${target}
+            COMMAND ${NRFJPROG} --eraseall
+            COMMAND ${NRFJPROG} --program ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+            COMMAND ${NRFJPROG} --reset
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+            COMMENT "flashing ${target}_merged.hex")
+
+        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+            COMMAND ${MERGEHEX} -m ${${SOFTDEVICE}_HEX_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex -o ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+            DEPENDS ${target}
+            VERBATIM)
+    endfunction(add_flash_target)
+else ()
+    message(STATUS "Could not find nRFx command line tools (`nrfjprog` and `mergehex`).
+   See http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.tools/dita/tools/nrf5x_command_line_tools/nrf5x_installation.html?cp=5_1_1.
+   Flash target will not be supported.")
+    function(add_flash_target target)
+        # Not supported
+    endfunction(add_flash_target)
+endif (NRFJPROG AND MERGEHEX)
