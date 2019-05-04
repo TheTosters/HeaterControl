@@ -70,6 +70,7 @@ set(TARGET_INCLUDE_DIRS
     ${${PLATFORM}_INCLUDE_DIRS}
     ${${BOARD}_INCLUDE_DIRS}
     ${${nRF5_SDK_VERSION}_INCLUDE_DIRS}
+    ${ARM_NONE_EABI_TOOLCHAIN_PATH}/arm-none-eabi/include
 )
 
 add_executable(${TARGET_NAME}

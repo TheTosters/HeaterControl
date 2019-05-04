@@ -33,6 +33,7 @@ class GattStack :
                        ConnParamsCgfComp,
                        PeerMgrSubComp> {
 public:
+  using ServicesCol = std::tuple<Services<GattStack<Services...>>...>;
   GattStack(const std::string& deviceName) : CustomStack() {
     GAPSubComp& gapSub = std::get<GAPSubComp>(subComponents);
     gapSub.deviceName = deviceName;
@@ -62,9 +63,12 @@ public:
     CustomStack::disable();
   }
 
+  void collectServicesUids(ServicesUidsVect& collection) {
+    std::apply([&collection](auto&&... args) {
+               ((args.collectServicesUids(collection)), ...);
+           }, services);
+  }
 private:
-  using ServicesCol = std::tuple<Services<GattStack<Services...>>...>;
-
   ServicesCol services;
   GattAdvertiser<GattStack> advertiser;
   static nrf_ble_gatt_t gattInstance;

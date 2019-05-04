@@ -18,10 +18,16 @@ extern "C" {
 //#include "nrf_ble_gatt.h"
 }
 
+#include "bluetooth/services/gatt_service.h"
+#include <tuple>
+
 template<typename Stack>
 class GattAdvertiser {
 public:
   void enable(Stack& stack) {
+    servicesUids.clear();
+    stack.collectServicesUids(GattAdvertiser::servicesUids);
+
     configure();
     ret_code_t err_code = ble_advertising_start(&advertisingInstance,
         BLE_ADV_MODE_FAST);
@@ -42,6 +48,7 @@ private:
   static constexpr uint32_t APP_ADV_DURATION{18000};
 
   static ble_advertising_t advertisingInstance;
+  static ServicesUidsVect servicesUids;
 
   static void on_adv_evt(ble_adv_evt_t ble_adv_evt) {
     switch (ble_adv_evt) {
@@ -64,7 +71,8 @@ private:
     init.advdata.name_type = BLE_ADVDATA_FULL_NAME;
     init.advdata.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
 
-    // STEP 6: Declare and instantiate the scan response
+    init.srdata.uuids_complete.uuid_cnt = servicesUids.size();
+    init.srdata.uuids_complete.p_uuids  = servicesUids.data();
 
     init.config.ble_adv_fast_enabled  = true;
     init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
@@ -90,3 +98,6 @@ private:
 
 template<typename Stack>
 ble_advertising_t GattAdvertiser<Stack>::advertisingInstance;
+
+template<typename Stack>
+ServicesUidsVect GattAdvertiser<Stack>::servicesUids;
