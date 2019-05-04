@@ -31,7 +31,8 @@ extern "C" {
 #include "heating_model.h"
 #include "types/hardware_pin.h"
 #include "bluetooth/gatt_stack.h"
-#include "bluetooth/gatt_service.h"
+#include "bluetooth/services/gatt_service.h"
+#include "bluetooth/services/room_state_service.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -97,7 +98,7 @@ int main( int argc, const char* argv[] ) {
 //  BtleTransmiter btleTransmiter{sensors};
 //  btleTransmiter.enable();
 //  BluetoothController::getInstance();
-  GattStack<GattService> gattStack{"PioPio"};
+  GattStack<RoomStateService> gattStack{"PioPio"};
   gattStack.enable();
 
   ScreensStack stack{display};
