@@ -16,23 +16,23 @@ template<ble_uuid128_t const& UUID_BASE, uint16_t serviceUid, typename Stack>
 class GattService {
 public:
   void enable(Stack& stack) {
-    ret_code_t err_code = sd_ble_uuid_vs_add(this->getBaseUid(), &this->uuid.type);
+    ret_code_t err_code = sd_ble_uuid_vs_add(&baseUid, &uuid.type);
     APP_ERROR_CHECK(err_code);
 
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
-                                        &this->uuid,
-                                        &this->handle);
+                                        &uuid,
+                                        &handle);
     APP_ERROR_CHECK(err_code);
 
-    NRF_LOG_DEBUG("Enabling RoomStateService");
-    NRF_LOG_DEBUG("    UUID: 0x%#04x", this->uuid.uuid);
-    NRF_LOG_DEBUG("    Type: 0x%#02x", this->uuid.type);
-    NRF_LOG_DEBUG("  Handle: 0x%#04x", this->handle);
+    NRF_LOG_DEBUG("Enabling Service");
+    NRF_LOG_DEBUG("    UUID: 0x%#04x", uuid.uuid);
+    NRF_LOG_DEBUG("    Type: 0x%#02x", uuid.type);
+    NRF_LOG_DEBUG("  Handle: 0x%#04x", handle);
   }
 
   void disable(Stack& stack) {
     //TODO: Description of this function suggests problems...
-    ret_code_t err_code = sd_ble_uuid_vs_remove(&this->uuid.type);
+    ret_code_t err_code = sd_ble_uuid_vs_remove(&uuid.type);
     APP_ERROR_CHECK(err_code);
   }
 
