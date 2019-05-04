@@ -15,20 +15,27 @@ extern "C" {
 //0x2A1F -> Temperature Celsius org.bluetooth.characteristic.temperature_celsius
 class TemperatureCharacteristic : public GattCharacteristic<0x2A1F> {
   public:
-    template<typename Stack>
-    void addToStack(GattService<Stack>& service) {
+    //template<typename Stack>
+    void addToStack(/*GattService<Stack>& service*/) {
       ble_gatts_char_md_t characteristicMetadata{};
       ble_gatts_attr_md_t confClientCharMetadata{};
       ble_gatts_attr_md_t attribMetadata{};
       attribMetadata.vloc = BLE_GATTS_VLOC_STACK;
 
       ble_gatts_attr_t attribCharValue{};
-      attribCharValue.p_uuid = &charUuid;
+      attribCharValue.p_uuid = &uuid;
       attribCharValue.p_attr_md = &attribMetadata;
-
+/*
       ble_uuid128_t base_uuid {service.getBaseUid()};
-      ret_code_t err_code = sd_ble_uuid_vs_add(&base_uuid, &charUuid.type);
+      ret_code_t err_code = sd_ble_uuid_vs_add(&base_uuid, &uuid.type);
       APP_ERROR_CHECK(err_code);
+
+      err_code = sd_ble_gatts_characteristic_add(service.service_handle,
+                                         &characteristicMetadata,
+                                         &attribCharValue,
+                                         &handles);
+      APP_ERROR_CHECK(err_code);
+      */
     }
   private:
 
