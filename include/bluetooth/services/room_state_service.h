@@ -21,5 +21,6 @@ class RoomStateService : public GattService<ROOM_STATE_UUID_BASE, 0xABCD, Stack>
     }
 
   protected:
-    TemperatureCharacteristic tempChar; //TODO: temporary for experiments
+    //TODO: Ask Piter about this construct, kind of stink?
+    TemperatureCharacteristic tempChar{*this}; //TODO: temporary for experiments
 };
