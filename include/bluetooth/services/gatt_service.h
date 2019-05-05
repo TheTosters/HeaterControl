@@ -10,7 +10,6 @@ extern "C" {
 #include <stdint.h>
 
 using ServicesUidsVect = std::vector<ble_uuid_t>;
-using uint128_t = uint8_t[16];
 
 template<ble_uuid128_t const& UUID_BASE, uint16_t serviceUid, typename Stack>
 class GattService {
@@ -40,8 +39,26 @@ public:
 
   uint16_t getHandle() { return handle; }
 
+  uint16_t getConnectionHandle() {return connectionHandle;}
+
+  void onBtleEvent(ble_evt_t const* event) {
+    switch (event->header.evt_id) {
+      case BLE_GAP_EVT_CONNECTED:
+        connectionHandle = event->evt.gap_evt.conn_handle;
+        break;
+
+      case BLE_GAP_EVT_DISCONNECTED:
+        connectionHandle = BLE_CONN_HANDLE_INVALID;
+        break;
+
+      default:
+        break;
+    }
+  }
+
 protected:
   ble_uuid128_t baseUid{UUID_BASE};
   uint16_t handle {};
   ble_uuid_t uuid {serviceUid, 0};
+  uint16_t connectionHandle {BLE_CONN_HANDLE_INVALID};
 };
