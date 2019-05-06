@@ -17,6 +17,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(data_flags "-ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums")
 set(warning_flags "-Wall -Wno-psabi -Wno-attributes -Wno-format -Wno-unused-function")
 set(CMAKE_C_FLAGS_INIT "${warning_flags} ${data_flags}")
+set(CMAKE_CXX_FLAGS_INIT "${warning_flags} ${data_flags}")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)

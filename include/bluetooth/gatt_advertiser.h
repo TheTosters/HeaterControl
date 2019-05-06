@@ -10,14 +10,22 @@ extern "C" {
 template<typename Stack>
 class GattAdvertiser {
 public:
-  void enable(Stack& stack) {
-    servicesUids.clear();
-    stack.collectServicesUids(GattAdvertiser::servicesUids);
+  GattAdvertiser() = default;
+  GattAdvertiser(const GattAdvertiser&) = delete;
+  GattAdvertiser operator=(const GattAdvertiser&) = delete;
 
-    configure();
-    ret_code_t err_code = ble_advertising_start(&advertisingInstance,
-        BLE_ADV_MODE_FAST);
-    APP_ERROR_CHECK(err_code);
+  void enable(Stack& stack) {
+    NRF_LOG_ERROR("== enable");
+//    servicesUids.clear();
+//    NRF_LOG_ERROR("== enable-1");
+//    stack.collectServicesUids(GattAdvertiser::servicesUids);
+//
+//    configure();
+//    NRF_LOG_ERROR("== enable-2");
+//    ret_code_t err_code = ble_advertising_start(&advertisingInstance,
+//        BLE_ADV_MODE_FAST);
+//    NRF_LOG_ERROR("== enable:%d", err_code);
+//    APP_ERROR_CHECK(err_code);
   }
 
   void disable(Stack& stack) {
@@ -53,6 +61,7 @@ private:
   }
 
   void configure() {
+    NRF_LOG_INFO("adv configure");
     ble_advertising_init_t init{};
     init.advdata.name_type = BLE_ADVDATA_FULL_NAME;
     init.advdata.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
@@ -66,19 +75,20 @@ private:
     init.evt_handler = GattAdvertiser::on_adv_evt;
 
     ret_code_t err_code = ble_advertising_init(&advertisingInstance, &init);
+    NRF_LOG_INFO("ble_advertising_init:%d", err_code);
     APP_ERROR_CHECK(err_code);
 
     ble_advertising_conn_cfg_tag_set(&advertisingInstance,
         BluetoothController::APP_BLE_CONN_CFG_TAG);
-
-    NRF_SDH_BLE_OBSERVER(advertisingInstanceBleObs,
-                         BLE_ADV_BLE_OBSERVER_PRIO,
-                         ble_advertising_on_ble_evt,
-                         &advertisingInstance);
-    NRF_SDH_SOC_OBSERVER(advertisingInstanceSocObs,
-                         BLE_ADV_SOC_OBSERVER_PRIO,
-                         ble_advertising_on_sys_evt,
-                         &advertisingInstance);
+    NRF_LOG_INFO("adv configure-");
+//    NRF_SDH_BLE_OBSERVER(advertisingInstanceBleObs,
+//                         BLE_ADV_BLE_OBSERVER_PRIO,
+//                         ble_advertising_on_ble_evt,
+//                         &advertisingInstance);
+//    NRF_SDH_SOC_OBSERVER(advertisingInstanceSocObs,
+//                         BLE_ADV_SOC_OBSERVER_PRIO,
+//                         ble_advertising_on_sys_evt,
+//                         &advertisingInstance);
   }
 };
 

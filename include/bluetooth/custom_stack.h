@@ -11,14 +11,16 @@ public:
   CustomStack &operator=(const CustomStack &) = delete;
 
   void enable() {
+    NRF_LOG_ERROR("CustomStack enable");
     APP_ERROR_CHECK(btLock == BluetoothController::BTLockId::NOT_SET ?
         NRF_SUCCESS : NRF_ERROR_INVALID_STATE);
 
     bool succ = BluetoothController::getInstance().acquireBluetooth(btLock);
     APP_ERROR_CHECK(succ ? NRF_SUCCESS : NRF_ERROR_INVALID_STATE);
-    std::apply([this](auto&&... args) {
+    std::apply([](auto&&... args) {
             ((args.enable()), ...);
         }, subComponents);
+    NRF_LOG_ERROR("CustomStack enable-");
   }
 
   void disable() {
@@ -35,7 +37,7 @@ protected:
 
 template<>
 class CustomStack<> {
-  std::tuple<> components;
+public:
   void enable() {
     APP_ERROR_CHECK(btLock == BluetoothController::BTLockId::NOT_SET ?
         NRF_SUCCESS : NRF_ERROR_INVALID_STATE);
@@ -48,4 +50,5 @@ class CustomStack<> {
   }
 protected:
   BluetoothController::BTLockId btLock;
+  std::tuple<> subComponents;
 };

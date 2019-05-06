@@ -6,8 +6,9 @@ extern "C" {
 #include "bluetooth/services/gatt_service.h"
 
 //0x2A1F -> Temperature Celsius org.bluetooth.characteristic.temperature_celsius
-class TemperatureCharacteristic : public GattCharacteristic<0x2A1F, int16_t> {
-  public:
-    TemperatureCharacteristic(GattServiceBase& service) : GattCharacteristic(service) {}
-
+class TemperatureCharacteristic : public GattCharacteristic<
+    0x2A1F,
+    int16_t,
+    CharValChangeNotify,
+    CharReadable<PropSecureNone>> {
 };
