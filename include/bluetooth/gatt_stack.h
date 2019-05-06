@@ -27,23 +27,38 @@ extern "C" {
 
 template <template <typename> class... Services>
 class GattStack :
-    public SingleInstance,
     public CustomStack<GAPSubComp,
                        QueuedWritesSubComp,
                        ConnParamsCgfComp,
                        PeerMgrSubComp> {
+
+private:
+  using GattStackType = CustomStack<GAPSubComp,
+      QueuedWritesSubComp,
+      ConnParamsCgfComp,
+      PeerMgrSubComp>;
+
 public:
   using ServicesCol = std::tuple<Services<GattStack<Services...>>...>;
-  GattStack(const std::string& deviceName) : CustomStack() {
+
+  explicit GattStack(const std::string& deviceName) {
     GAPSubComp& gapSub = std::get<GAPSubComp>(subComponents);
     gapSub.deviceName = deviceName;
+
+    BluetoothController::getInstance().addObserver([this](BleEventPtr event){
+      NRF_LOG_ERROR("GattStack Ble Event");
+      std::apply([event](auto&&... args) {
+                      ((args.onBtleEvent(event)), ...);
+                  }, services);
+    });
   }
 
   GattStack(const GattStack &) = delete;
   GattStack &operator=(const GattStack &) = delete;
 
   void enable() {
-    CustomStack::enable();
+    NRF_LOG_ERROR("--- GattStack ENABLE");
+    GattStackType::enable();
     initGATT();
 
     //Enable services
@@ -52,15 +67,18 @@ public:
        }, services);
 
     advertiser.enable(*this);
+    NRF_LOG_ERROR("--- GattStack ENABLE-");
   }
 
   void disable() {
+    NRF_LOG_ERROR("--- GattStack DISABLE");
     advertiser.disable(*this);
     std::apply([this](auto&&... args) {
            ((args.disable(*this)), ...);
        }, services);
 
-    CustomStack::disable();
+    GattStackType::disable();
+    NRF_LOG_ERROR("--- GattStack DISABLE-");
   }
 
   void collectServicesUids(ServicesUidsVect& collection) {
@@ -74,12 +92,8 @@ private:
   static nrf_ble_gatt_t gattInstance;
 
   void initGATT() {
-    //Warning: this is compilation time static macro!
-    NRF_SDH_BLE_OBSERVER(gattInstanceObs,
-                         NRF_BLE_GATT_BLE_OBSERVER_PRIO,
-                         nrf_ble_gatt_on_ble_evt, &gattInstance);
-
     ret_code_t err_code = nrf_ble_gatt_init(&gattInstance, nullptr);
+    NRF_LOG_ERROR("--- initGATT: %d", err_code);
     APP_ERROR_CHECK(err_code);
   }
 };

@@ -7,35 +7,20 @@ extern "C" {
 #include "nrf_log.h"
 }
 #include <vector>
+#include <tuple>
 #include <stdint.h>
 
 using ServicesUidsVect = std::vector<ble_uuid_t>;
 
-class GattServiceBase {
-  public:
-    GattServiceBase(const ble_uuid128_t& uid,
-                    const uint16_t& serviceUid)
-    : baseUid(uid), uuid({serviceUid, 0}) { }
-
-    ble_uuid128_t* getBaseUid() { return &baseUid; }
-
-    uint16_t getHandle() { return handle; }
-
-    uint16_t getConnectionHandle() {return connectionHandle;}
-  protected:
-    ble_uuid128_t baseUid {};
-    uint16_t handle {};
-    ble_uuid_t uuid {};
-    uint16_t connectionHandle {BLE_CONN_HANDLE_INVALID};
-};
-
-template<ble_uuid128_t const& UUID_BASE, uint16_t serviceUid, typename Stack>
-class GattService : public GattServiceBase {
+template<const ble_uuid128_t& UUID_BASE, uint16_t serviceUid, typename Stack,
+typename...CharacteristicTypes>
+class GattService {
 public:
-  GattService() : GattServiceBase(UUID_BASE, serviceUid) {}
+  explicit GattService() = default;
 
   void enable(Stack& stack) {
     ret_code_t err_code = sd_ble_uuid_vs_add(&baseUid, &uuid.type);
+    NRF_LOG_ERROR("sd_ble_uuid_vs_add: %d", err_code);
     APP_ERROR_CHECK(err_code);
 
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
@@ -43,10 +28,14 @@ public:
                                         &handle);
     APP_ERROR_CHECK(err_code);
 
-    NRF_LOG_DEBUG("Enabling Service");
-    NRF_LOG_DEBUG("    UUID: 0x%#04x", uuid.uuid);
-    NRF_LOG_DEBUG("    Type: 0x%#02x", uuid.type);
-    NRF_LOG_DEBUG("  Handle: 0x%#04x", handle);
+    NRF_LOG_ERROR("Enabling Service");
+    NRF_LOG_ERROR("    UUID: 0x%04x", uuid.uuid);
+    NRF_LOG_ERROR("    Type: 0x%02x", uuid.type);
+    NRF_LOG_ERROR("  Handle: 0x%04x", handle);
+
+    std::apply([this](auto&&... args) {
+                    ((args.addToStack(*this)), ...);
+                }, this->characteristics);
   }
 
   void disable(Stack& stack) {
@@ -56,13 +45,17 @@ public:
   }
 
   void onBtleEvent(ble_evt_t const* event) {
+    NRF_LOG_ERROR("GattService Ble Event");
     switch (event->header.evt_id) {
       case BLE_GAP_EVT_CONNECTED:
-        connectionHandle = event->evt.gap_evt.conn_handle;
+        NRF_LOG_ERROR("--> BLE_GAP_EVT_CONNECTED, handle: %d",
+            event->evt.gap_evt.conn_handle);
+        this->setConnectionHandle(event->evt.gap_evt.conn_handle);
         break;
 
       case BLE_GAP_EVT_DISCONNECTED:
-        connectionHandle = BLE_CONN_HANDLE_INVALID;
+        NRF_LOG_ERROR("--> BLE_GAP_EVT_DISCONNECTED");
+        this->setConnectionHandle(BLE_CONN_HANDLE_INVALID);
         break;
 
       default:
@@ -70,4 +63,16 @@ public:
     }
   }
 
+  ble_uuid128_t* getBaseUid() { return &baseUid; }
+  uint16_t getHandle() { return handle; }
+
+protected:
+  ble_uuid128_t baseUid {UUID_BASE};
+  uint16_t handle {};
+  ble_uuid_t uuid {serviceUid, 0};
+  std::tuple<CharacteristicTypes...> characteristics;
+
+  void setConnectionHandle(uint16_t connHandle) {
+    //by default we ignore it, derived class can handle it differently
+  }
 };
