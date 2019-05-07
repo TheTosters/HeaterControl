@@ -76,6 +76,8 @@ int main( int argc, const char* argv[] ) {
   initLowFreqClock();
 
   uint32_t err_code = app_timer_init();
+  APP_ERROR_CHECK(err_code);
+
   I2c_Bridge i2cBridge{HardwarePin{CONFIG_SDA_PIN},
     HardwarePin{CONFIG_SCL_PIN}, nullptr};
   //All data types which are used by classes which uses dispatching into main

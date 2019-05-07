@@ -44,7 +44,7 @@ public:
     PropNoSecureNoAccess::applySecurePolicy(attribMeta.read_perm);
   }
 
-  static void configureConfClientCharMeta(ble_gatts_attr_md_t& confClientMeta) {
+  static void configureClientCharConfMeta(ble_gatts_attr_md_t& confClientMeta) {
     PropNoSecureNoAccess::applySecurePolicy(confClientMeta.read_perm);
   }
 };
@@ -57,7 +57,7 @@ public:
     SECURE_POLICY::applySecurePolicy(attribMeta.read_perm);
   }
 
-  static void configureConfClientCharMeta(ble_gatts_attr_md_t& confClientMeta) {
+  static void configureClientCharConfMeta(ble_gatts_attr_md_t& confClientMeta) {
     SECURE_POLICY::applySecurePolicy(confClientMeta.read_perm);
   }
 };
@@ -70,7 +70,7 @@ public:
     PropNoSecureNoAccess::applySecurePolicy(attribMeta.write_perm);
   }
 
-  static void configureConfClientCharMeta(ble_gatts_attr_md_t& confClientMeta) {
+  static void configureClientCharConfMeta(ble_gatts_attr_md_t& confClientMeta) {
     PropNoSecureNoAccess::applySecurePolicy(confClientMeta.write_perm);
   }
 };
@@ -83,7 +83,7 @@ public:
     SECURE_POLICY::applySecurePolicy(attribMeta.write_perm);
   }
 
-  static void configureConfClientCharMeta(ble_gatts_attr_md_t& confClientMeta) {
+  static void configureClientCharConfMeta(ble_gatts_attr_md_t& confClientMeta) {
     SECURE_POLICY::applySecurePolicy(confClientMeta.write_perm);
   }
 };

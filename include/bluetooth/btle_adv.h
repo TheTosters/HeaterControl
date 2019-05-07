@@ -83,7 +83,7 @@ private:
     doneCallback = nullptr;
 
     //don't care about error, it should be already stopped, called just in case
-    ret_code_t err_code = sd_ble_gap_adv_stop(advHandle);
+    sd_ble_gap_adv_stop(advHandle);
 
     BluetoothController::getInstance().releaseBluetooth(btLock);
     transmitting = false;

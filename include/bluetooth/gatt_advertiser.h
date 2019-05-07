@@ -15,17 +15,17 @@ public:
   GattAdvertiser operator=(const GattAdvertiser&) = delete;
 
   void enable(Stack& stack) {
-    NRF_LOG_ERROR("== enable");
-//    servicesUids.clear();
-//    NRF_LOG_ERROR("== enable-1");
-//    stack.collectServicesUids(GattAdvertiser::servicesUids);
-//
-//    configure();
-//    NRF_LOG_ERROR("== enable-2");
-//    ret_code_t err_code = ble_advertising_start(&advertisingInstance,
-//        BLE_ADV_MODE_FAST);
-//    NRF_LOG_ERROR("== enable:%d", err_code);
-//    APP_ERROR_CHECK(err_code);
+    NRF_LOG_ERROR("== enable-0");
+    servicesUids.clear();
+    NRF_LOG_ERROR("== enable-1");
+    stack.collectServicesUids(GattAdvertiser::servicesUids);
+
+    configure();
+    NRF_LOG_ERROR("== enable-2");
+    ret_code_t err_code = ble_advertising_start(&advertisingInstance,
+        BLE_ADV_MODE_FAST);
+    NRF_LOG_ERROR("== enable:%d", err_code);
+    APP_ERROR_CHECK(err_code);
   }
 
   void disable(Stack& stack) {
@@ -66,14 +66,14 @@ private:
     init.advdata.name_type = BLE_ADVDATA_FULL_NAME;
     init.advdata.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
 
-    init.srdata.uuids_complete.uuid_cnt = servicesUids.size();
-    init.srdata.uuids_complete.p_uuids  = servicesUids.data();
+    init.srdata.uuids_complete.uuid_cnt = 0;//servicesUids.size();
+    init.srdata.uuids_complete.p_uuids  = 0;//servicesUids.data();
 
     init.config.ble_adv_fast_enabled  = true;
     init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
     init.config.ble_adv_fast_timeout  = APP_ADV_DURATION;
     init.evt_handler = GattAdvertiser::on_adv_evt;
-
+    nrf_delay_ms(500);  //TODO: probably BTLE need time to bootup, investigate further
     ret_code_t err_code = ble_advertising_init(&advertisingInstance, &init);
     NRF_LOG_INFO("ble_advertising_init:%d", err_code);
     APP_ERROR_CHECK(err_code);

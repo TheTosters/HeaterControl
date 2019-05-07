@@ -10,7 +10,6 @@ extern "C" {
 #include "nrf_log.h"
 }
 
-#include "types/single_instance.h"
 #include "bluetooth/subcomponents/btctrl_sub_comp.h"
 #include "bluetooth/bluetooth_ctrl.h"
 #include "bluetooth/gatt_advertiser.h"
