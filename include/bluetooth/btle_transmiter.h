@@ -19,7 +19,6 @@ public:
   }
 
   void enable() {
-    ret_code_t ret;
     startTimer(ADV_INTERVAL);
     doBuildPackage();
     doTransmit();
