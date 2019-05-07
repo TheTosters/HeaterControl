@@ -85,6 +85,11 @@ public:
                ((args.collectServicesUids(collection)), ...);
            }, services);
   }
+
+  template<template <typename> class T>
+  T<GattStack>& getService() {
+    return std::get<T<GattStack>>(services);
+  }
 private:
   ServicesCol services;
   GattAdvertiser<GattStack> advertiser;

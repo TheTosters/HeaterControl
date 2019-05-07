@@ -102,9 +102,18 @@ int main( int argc, const char* argv[] ) {
   BluetoothController::getInstance();
   /*
   BtleTransmiter btleTransmiter{sensors};
-  btleTransmiter.enable();
-*/
+  using GattStackType = GattStack<RoomStateService>;
+  GattStackType gattStack{"PioPio"};
   gattStack.enable();
+  auto& roomServ = gattStack.getService<RoomStateService>();
+  auto& tempChar = roomServ.getCharacteristic<TemperatureCharacteristic>();
+  sensors.addObserver([&tempChar](TemperatureC t, RelativeHumidity h) {
+    float fTemp = static_cast<float>(t);
+    uint16_t v = static_cast<int16_t>(10 * fTemp);
+    NRF_LOG_ERROR("Temp: %d", v);
+    tempChar.setValue(v);
+  });
+
 
 //  ScreensStack stack{display};
 //  DefaultScreen& screen = stack.add( DefaultScreen{display} );
