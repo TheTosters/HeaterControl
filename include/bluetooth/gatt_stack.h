@@ -45,7 +45,6 @@ public:
     gapSub.deviceName = deviceName;
 
     BluetoothController::getInstance().addObserver([this](BleEventPtr event){
-      NRF_LOG_ERROR("GattStack Ble Event");
       std::apply([event](auto&&... args) {
                       ((args.onBtleEvent(event)), ...);
                   }, services);
@@ -56,7 +55,6 @@ public:
   GattStack &operator=(const GattStack &) = delete;
 
   void enable() {
-    NRF_LOG_ERROR("--- GattStack ENABLE");
     GattStackType::enable();
     initGATT();
 
@@ -66,18 +64,15 @@ public:
        }, services);
 
     advertiser.enable(*this);
-    NRF_LOG_ERROR("--- GattStack ENABLE-");
   }
 
   void disable() {
-    NRF_LOG_ERROR("--- GattStack DISABLE");
     advertiser.disable(*this);
     std::apply([this](auto&&... args) {
            ((args.disable(*this)), ...);
        }, services);
 
     GattStackType::disable();
-    NRF_LOG_ERROR("--- GattStack DISABLE-");
   }
 
   void collectServicesUids(ServicesUidsVect& collection) {
@@ -97,7 +92,6 @@ private:
 
   void initGATT() {
     ret_code_t err_code = nrf_ble_gatt_init(&gattInstance, nullptr);
-    NRF_LOG_ERROR("--- initGATT: %d", err_code);
     APP_ERROR_CHECK(err_code);
   }
 };

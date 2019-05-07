@@ -22,7 +22,6 @@ public:
 
   void enable(Stack& stack) {
     ret_code_t err_code = sd_ble_uuid_vs_add(&baseUid, &uuid.type);
-    NRF_LOG_ERROR("sd_ble_uuid_vs_add: %d", err_code);
     APP_ERROR_CHECK(err_code);
 
     err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
@@ -30,10 +29,10 @@ public:
                                         &handle);
     APP_ERROR_CHECK(err_code);
 
-    NRF_LOG_ERROR("Enabling Service");
-    NRF_LOG_ERROR("    UUID: 0x%04x", uuid.uuid);
-    NRF_LOG_ERROR("    Type: 0x%02x", uuid.type);
-    NRF_LOG_ERROR("  Handle: 0x%04x", handle);
+    NRF_LOG_INFO("Enabling Service");
+    NRF_LOG_INFO("    UUID: 0x%04x", uuid.uuid);
+    NRF_LOG_INFO("    Type: 0x%02x", uuid.type);
+    NRF_LOG_INFO("  Handle: 0x%04x", handle);
 
     std::apply([this](auto&&... args) {
                     ((args.addToStack(*this)), ...);
@@ -47,10 +46,9 @@ public:
   }
 
   void onBtleEvent(ble_evt_t const* event) {
-    NRF_LOG_ERROR("GattService Ble Event");
     switch (event->header.evt_id) {
       case BLE_GAP_EVT_CONNECTED:
-        NRF_LOG_ERROR("--> BLE_GAP_EVT_CONNECTED, handle: %d",
+        NRF_LOG_DEBUG("--> BLE_GAP_EVT_CONNECTED, handle: %d",
             event->evt.gap_evt.conn_handle);
         if (connHandlerDelegate) {
           connHandlerDelegate(event->evt.gap_evt.conn_handle);
@@ -58,7 +56,7 @@ public:
         break;
 
       case BLE_GAP_EVT_DISCONNECTED:
-        NRF_LOG_ERROR("--> BLE_GAP_EVT_DISCONNECTED");
+        NRF_LOG_DEBUG("--> BLE_GAP_EVT_DISCONNECTED");
         if (connHandlerDelegate) {
           connHandlerDelegate(BLE_CONN_HANDLE_INVALID);
         }
