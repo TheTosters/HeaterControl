@@ -21,16 +21,16 @@ struct DecodedTime {
 
   DecodedTime(
       const ChronoDays dayOfWeek = ChronoDays{0},
-      const std::chrono::hours = std::chrono::hours{0},
+      const std::chrono::hours hours = std::chrono::hours{0},
       std::chrono::minutes minute = std::chrono::minutes{0},
       std::chrono::seconds second = std::chrono::seconds{0})
-  : hour(hour), minute(minute), second(second),
+  : hour(hours), minute(minute), second(second),
     dayOfWeek(dayOfWeek), dayName(DecodedTime::dayNames[dayOfWeek.count()])
   { }
 
   DecodedTime(
       const WeekDay day,
-      const std::chrono::hours = std::chrono::hours{0},
+      const std::chrono::hours hour = std::chrono::hours{0},
       std::chrono::minutes minute = std::chrono::minutes{0},
       std::chrono::seconds second = std::chrono::seconds{0})
   : hour(hour), minute(minute), second(second),

@@ -25,7 +25,7 @@ public:
   BatteryPrc battery;
 
   Sensors(Bridge& bridge)
-  : TimerOwner(false, Sensors::timerHandler), state(WAIT),
+  : TimerOwner(false, Sensors::timerHandler),
     temperature(0), humidity(0), battery(0), mainSensor(bridge) {
 
     startTimer(CONFIGURE_DELAY);
@@ -46,11 +46,11 @@ private:
   static constexpr unsigned int MEASURING_DELAY =
       APP_TIMER_TICKS(MainSensor::MEASURING_DELAY_MS);
 
-  enum State {
+  enum class State {
     WAIT, CONFIGURING, MEASURING
   };
 
-  State state;
+  State state {State::WAIT};
   TemperatureC lastTemp{0};
   RelativeHumidity lastHum{0};
   BatteryPrc lastBattery{0};
@@ -79,23 +79,23 @@ private:
     Sensors* self = static_cast<Sensors*>(selfPtr);
     switch(self->state){
       default:
-      case WAIT:
-        self->state = CONFIGURING;
+      case State::WAIT:
+        self->state = State::CONFIGURING;
         self->batterySensor.configure();
         self->mainSensor.configure();
         self->startTimer(CONFIGURE_DELAY);
         break;
 
-      case CONFIGURING:
+      case State::CONFIGURING:
         self->batterySensor.requestMeasurements();
         self->mainSensor.requestMeasurements();
-        self->state = MEASURING;
+        self->state = State::MEASURING;
         self->startTimer(MEASURING_DELAY);
         break;
 
-      case MEASURING:
+      case State::MEASURING:
         self->collectMeasurement();
-        self->state = WAIT;
+        self->state = State::WAIT;
         self->startTimer(MEASUREMENT_INTERVAL);
         break;
     }
