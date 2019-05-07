@@ -32,7 +32,6 @@ public:
       };
       ret_code_t err_code = sd_ble_gatts_value_set(connectionHandle,
           handles.value_handle, &updateValueStruct);
-      NRF_LOG_ERROR("setValue: %d", err_code);
       APP_ERROR_CHECK(err_code);
     }
     this->btNotify(connectionHandle, handles.value_handle, value);
@@ -41,14 +40,11 @@ public:
   template<typename Service>
   void addToStack(Service& service) {
     ret_code_t err_code = sd_ble_uuid_vs_add(service.getBaseUid(), &uuid.type);
-    NRF_LOG_ERROR("AddToStack sd_ble_uuid_vs_add: %d", err_code);
     APP_ERROR_CHECK(err_code);
 
     ble_gatts_attr_md_t attribMetadata{};
-//    READ_TRAIT::configureAttMeta(attribMetadata);
-//    WRITE_TRAIT::configureAttMeta(attribMetadata);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attribMetadata.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attribMetadata.write_perm);
+    READ_TRAIT::configureAttMeta(attribMetadata);
+    WRITE_TRAIT::configureAttMeta(attribMetadata);
     attribMetadata.vloc = BLE_GATTS_VLOC_STACK;
 
     ble_gatts_attr_t attribCharValue{};
@@ -58,25 +54,22 @@ public:
     attribCharValue.init_len = sizeof(ValueType);
     attribCharValue.p_value = reinterpret_cast<uint8_t*>(&value);
 
-    //TODO: Enabling cccd causes apperror 7 -> Invalid params, why?
     ble_gatts_attr_md_t clientCharConfMetadata{};
-//    READ_TRAIT::configureClientCharConfMeta(clientCharConfMetadata);
-//    WRITE_TRAIT::configureClientCharConfMeta(clientCharConfMetadata);
+    //this must be readable & writable always (at least it looks like this in tests)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharConfMetadata.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharConfMetadata.write_perm);
     clientCharConfMetadata.vloc = BLE_GATTS_VLOC_STACK;
 
     ble_gatts_char_md_t characteristicMetadata{};
-    characteristicMetadata.char_props.write = 1;//WRITE_TRAIT::CHAR_PROPS_WRITE;
-    characteristicMetadata.char_props.read = 1;//READ_TRAIT::CHAR_PROPS_READ;
-    characteristicMetadata.char_props.notify = 1;//NOTIFY_TRAIT_T::CHAR_PROPS_NOTIFY;
+    characteristicMetadata.char_props.write = WRITE_TRAIT::CHAR_PROPS_WRITE;
+    characteristicMetadata.char_props.read = READ_TRAIT::CHAR_PROPS_READ;
+    characteristicMetadata.char_props.notify = NOTIFY_TRAIT_T::CHAR_PROPS_NOTIFY;
     characteristicMetadata.p_cccd_md = &clientCharConfMetadata;
 
     err_code = sd_ble_gatts_characteristic_add(service.getHandle(),
                                        &characteristicMetadata,
                                        &attribCharValue,
                                        &handles);
-    NRF_LOG_ERROR("AddToStack sd_ble_gatts_characteristic_add: %d", err_code);
     APP_ERROR_CHECK(err_code);
   }
 

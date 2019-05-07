@@ -171,11 +171,11 @@ void SSD1306::drawInternal(int x, int y, const FontCharacter& character) {
     int dataPos = xPos + yPos;
     const int displayBufferSize = screen.size() - 1;
     if (dataPos >= 0 and dataPos < displayBufferSize and
-        xPos >= 0 and xPos < this->width()) {
+        xPos >= 0 and xPos < static_cast<int>(this->width())) {
 
       if (yOffset >= 0) {
         screen[1 + dataPos] |= currentByte << yOffset;
-        if (dataPos < (displayBufferSize - this->width())) {
+        if (dataPos < (displayBufferSize -  static_cast<int>(this->width()))) {
           screen[1 + dataPos + this->width()] |= currentByte >> (8 - yOffset);
         }
       } else {
@@ -202,8 +202,8 @@ void SSD1306::drawString(int x, int y, const std::string& text) {
   unsigned int textWidth = getStringWidth(text);
 
   // Don't draw anything if it is not on the screen.
-  if (x + textWidth  < 0 or x > this->width() or
-      y + font->getFontHeight() < 0 or y > this->height() ) {
+  if (x + textWidth < 0 or x >  static_cast<int>(this->width()) or
+      y + font->getFontHeight() < 0 or y >  static_cast<int>(this->height())) {
     return;
   }
 
@@ -235,7 +235,8 @@ void SSD1306::setFont(const FontBridge* font) {
 }
 
 void SSD1306::setPixel(int x, int y) {
-  if (x >= 0 && x < this->width() && y >= 0 && y < this->height()) {
+  if (x >= 0 && x <  static_cast<int>(this->width()) &&
+      y >= 0 && y <  static_cast<int>(this->height())) {
     int dataPos = x + (y / 8) * this->width();
     screen[1 + dataPos] |=  (1 << (y & 7));
   }

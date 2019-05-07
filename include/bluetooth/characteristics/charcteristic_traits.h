@@ -34,8 +34,7 @@ public:
       hvx_params.p_len  = &len;
       hvx_params.p_data = reinterpret_cast<const uint8_t*>(&value);
 
-      ret_code_t err_code = sd_ble_gatts_hvx(connHandle, &hvx_params);
-      NRF_LOG_ERROR("sd_ble_gatts_hvx: %d", err_code);
+      sd_ble_gatts_hvx(connHandle, &hvx_params);
     }
   }
 };
