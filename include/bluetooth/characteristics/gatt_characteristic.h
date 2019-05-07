@@ -54,17 +54,20 @@ public:
     attribCharValue.init_len = sizeof(ValueType);
     attribCharValue.p_value = reinterpret_cast<uint8_t*>(&value);
 
-    ble_gatts_attr_md_t clientCharConfMetadata{};
-    //this must be readable & writable always (at least it looks like this in tests)
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharConfMetadata.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharConfMetadata.write_perm);
-    clientCharConfMetadata.vloc = BLE_GATTS_VLOC_STACK;
-
     ble_gatts_char_md_t characteristicMetadata{};
     characteristicMetadata.char_props.write = WRITE_TRAIT::CHAR_PROPS_WRITE;
     characteristicMetadata.char_props.read = READ_TRAIT::CHAR_PROPS_READ;
     characteristicMetadata.char_props.notify = NOTIFY_TRAIT_T::CHAR_PROPS_NOTIFY;
-    characteristicMetadata.p_cccd_md = &clientCharConfMetadata;
+
+    if (NOTIFY_TRAIT_T::CHAR_PROPS_NOTIFY != 0) {
+      //TODO: Reconsider if this shouldn't be NOTIFY_TRAIT code
+      ble_gatts_attr_md_t clientCharConfMetadata{};
+      //this must be readable & writable always (at least it looks like this in tests)
+      BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharConfMetadata.read_perm);
+      BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharConfMetadata.write_perm);
+      clientCharConfMetadata.vloc = BLE_GATTS_VLOC_STACK;
+      characteristicMetadata.p_cccd_md = &clientCharConfMetadata;
+    }
 
     err_code = sd_ble_gatts_characteristic_add(service.getHandle(),
                                        &characteristicMetadata,
