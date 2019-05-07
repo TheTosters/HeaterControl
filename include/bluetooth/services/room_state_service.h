@@ -17,16 +17,18 @@ static constexpr ble_uuid128_t ROOM_STATE_UUID_BASE {
 template<typename Stack>
 class RoomStateService : public GattService<ROOM_STATE_UUID_BASE, 0xABCD, Stack
   ,TemperatureCharacteristic> {
+
   public:
+    explicit RoomStateService() {
+      this->connHandlerDelegate = [this](uint16_t connHandle){
+        std::apply([this, connHandle](auto&&... args) {
+                ((args.setConnectionHandle(connHandle)), ...);
+            }, this->characteristics);
+      };
+    }
+
     void collectServicesUids(ServicesUidsVect& collection) {
       ble_uuid_t data{this->uuid.uuid, BLE_UUID_TYPE_VENDOR_BEGIN};
       collection.emplace_back(data);
-    }
-
-  protected:
-    void setConnectionHandle(uint16_t connHandle) {
-      std::apply([this, connHandle](auto&&... args) {
-                    ((args.setConnectionHandle(connHandle)), ...);
-                }, this->characteristics);
     }
 };

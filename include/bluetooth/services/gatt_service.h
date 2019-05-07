@@ -8,6 +8,7 @@ extern "C" {
 }
 #include <vector>
 #include <tuple>
+#include <functional>
 #include <stdint.h>
 
 using ServicesUidsVect = std::vector<ble_uuid_t>;
@@ -16,6 +17,7 @@ template<const ble_uuid128_t& UUID_BASE, uint16_t serviceUid, typename Stack,
 typename...CharacteristicTypes>
 class GattService {
 public:
+  using SetConnectionHandleDelegate = std::function<void(uint16_t handle)>;
   explicit GattService() = default;
 
   void enable(Stack& stack) {
@@ -50,12 +52,16 @@ public:
       case BLE_GAP_EVT_CONNECTED:
         NRF_LOG_ERROR("--> BLE_GAP_EVT_CONNECTED, handle: %d",
             event->evt.gap_evt.conn_handle);
-        this->setConnectionHandle(event->evt.gap_evt.conn_handle);
+        if (connHandlerDelegate) {
+          connHandlerDelegate(event->evt.gap_evt.conn_handle);
+        }
         break;
 
       case BLE_GAP_EVT_DISCONNECTED:
         NRF_LOG_ERROR("--> BLE_GAP_EVT_DISCONNECTED");
-        this->setConnectionHandle(BLE_CONN_HANDLE_INVALID);
+        if (connHandlerDelegate) {
+          connHandlerDelegate(BLE_CONN_HANDLE_INVALID);
+        }
         break;
 
       default:
@@ -75,8 +81,5 @@ protected:
   uint16_t handle {};
   ble_uuid_t uuid {serviceUid, 0};
   std::tuple<CharacteristicTypes...> characteristics;
-
-  void setConnectionHandle(uint16_t connHandle) {
-    //by default we ignore it, derived class can handle it differently
-  }
+  SetConnectionHandleDelegate connHandlerDelegate;
 };
