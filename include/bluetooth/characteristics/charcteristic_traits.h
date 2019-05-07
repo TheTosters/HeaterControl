@@ -12,7 +12,8 @@ template <typename ValueType>
 class CharNoNotify {
 public:
   static constexpr int CHAR_PROPS_NOTIFY = 0;
-  void btNotify() {
+  void btNotify(uint16_t connHandle, uint16_t valueHandle,
+      const ValueType& value) {
     //Just empty
   }
 };
@@ -21,18 +22,19 @@ template <typename ValueType>
 class CharValChangeNotify {
 public:
   static constexpr int CHAR_PROPS_NOTIFY = 1;
-  void btNotify() {
-    if (this->service.getConnectionHandle() != BLE_CONN_HANDLE_INVALID) {
-      uint16_t len = sizeof(this->value);
+  void btNotify(uint16_t connHandle, uint16_t valueHandle,
+      const ValueType& value) {
+    if (connHandle != BLE_CONN_HANDLE_INVALID) {
+      uint16_t len = sizeof(ValueType);
       ble_gatts_hvx_params_t hvx_params{};
 
-      hvx_params.handle = this->handles.value_handle;
+      hvx_params.handle = valueHandle;
       hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
       hvx_params.offset = 0;
       hvx_params.p_len  = &len;
-      hvx_params.p_data = reinterpret_cast<const uint8_t*>(&this->value);
+      hvx_params.p_data = reinterpret_cast<const uint8_t*>(&value);
 
-      sd_ble_gatts_hvx(this->service.getConnectionHandle(), &hvx_params);
+      sd_ble_gatts_hvx(connHandle, &hvx_params);
     }
   }
 };

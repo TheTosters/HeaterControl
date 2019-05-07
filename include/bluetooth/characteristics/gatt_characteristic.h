@@ -26,7 +26,16 @@ private:
 public:
   void setValue(const ValueType& newValue) {
     value = newValue;
-    this->btNotify();
+    if (handles.value_handle != 0) {
+      ble_gatts_value_t updateValueStruct {
+        sizeof(ValueType), 0, reinterpret_cast<uint8_t*>(&value)
+      };
+      ret_code_t err_code = sd_ble_gatts_value_set(connectionHandle,
+          handles.value_handle, &updateValueStruct);
+      NRF_LOG_ERROR("setValue: %d", err_code);
+      APP_ERROR_CHECK(err_code);
+    }
+    this->btNotify(connectionHandle, handles.value_handle, value);
   }
 
   template<typename Service>

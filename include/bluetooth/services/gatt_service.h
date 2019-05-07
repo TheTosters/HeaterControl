@@ -66,6 +66,10 @@ public:
   ble_uuid128_t* getBaseUid() { return &baseUid; }
   uint16_t getHandle() { return handle; }
 
+  template<typename T>
+  T& getCharacteristic() {
+    return std::get<T>(characteristics);
+  }
 protected:
   ble_uuid128_t baseUid {UUID_BASE};
   uint16_t handle {};
