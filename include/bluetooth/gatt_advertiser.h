@@ -15,20 +15,22 @@ public:
   GattAdvertiser operator=(const GattAdvertiser&) = delete;
 
   void enable(Stack& stack) {
-    NRF_LOG_ERROR("== enable-0");
+    NRF_LOG_DEBUG("Advert enabled");
     servicesUids.clear();
-    NRF_LOG_ERROR("== enable-1");
     stack.collectServicesUids(GattAdvertiser::servicesUids);
 
     configure();
-    NRF_LOG_ERROR("== enable-2");
+    startAdv();
+  }
+
+  void startAdv() {
     ret_code_t err_code = ble_advertising_start(&advertisingInstance,
         BLE_ADV_MODE_FAST);
-    NRF_LOG_ERROR("== enable:%d", err_code);
     APP_ERROR_CHECK(err_code);
   }
 
   void disable(Stack& stack) {
+    NRF_LOG_DEBUG("Advert disabled");
     sd_ble_gap_adv_stop(advertisingInstance.adv_handle);
   }
 
@@ -56,6 +58,7 @@ private:
         break;
 
       default:
+        NRF_LOG_INFO("Adv event: %d", ble_adv_evt);
         break;
     }
   }
@@ -80,7 +83,6 @@ private:
 
     ble_advertising_conn_cfg_tag_set(&advertisingInstance,
         BluetoothController::APP_BLE_CONN_CFG_TAG);
-    NRF_LOG_INFO("adv configure-");
 //    NRF_SDH_BLE_OBSERVER(advertisingInstanceBleObs,
 //                         BLE_ADV_BLE_OBSERVER_PRIO,
 //                         ble_advertising_on_ble_evt,
