@@ -65,6 +65,14 @@ uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
   }
 }
 
+void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
+  NRF_BREAKPOINT_COND;
+}
+
+void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name) {
+  NRF_BREAKPOINT_COND;
+}
+
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();

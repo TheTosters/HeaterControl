@@ -27,15 +27,17 @@ extern "C" {
 template <template <typename> class... Services>
 class GattStack :
     public CustomStack<GAPSubComp,
-                       QueuedWritesSubComp,
-                       ConnParamsCgfComp,
-                       PeerMgrSubComp> {
+                       //QueuedWritesSubComp,
+                       ConnParamsCgfComp
+                       //PeerMgrSubComp
+                       > {
 
 private:
   using GattStackType = CustomStack<GAPSubComp,
-      QueuedWritesSubComp,
-      ConnParamsCgfComp,
-      PeerMgrSubComp>;
+      //QueuedWritesSubComp,
+      ConnParamsCgfComp
+      //PeerMgrSubComp
+      >;
 
 public:
   using ServicesCol = std::tuple<Services<GattStack<Services...>>...>;
@@ -48,6 +50,9 @@ public:
       std::apply([event](auto&&... args) {
                       ((args.onBtleEvent(event)), ...);
                   }, services);
+      if (event->header.evt_id == BLE_GAP_EVT_DISCONNECTED) {
+        this->advertiser.startAdv();
+      }
     });
   }
 
