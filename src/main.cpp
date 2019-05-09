@@ -18,7 +18,6 @@ extern "C" {
 #include "buttons.h"
 #include "display.h"
 #include "sensors/sensor_factory.h"
-#include "bluetooth/btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
@@ -31,9 +30,7 @@ extern "C" {
 #include "schedule/weekScheduleBuilder.h"
 #include "heating_model.h"
 #include "types/hardware_pin.h"
-#include "bluetooth/gatt_stack.h"
-#include "bluetooth/services/gatt_service.h"
-#include "bluetooth/services/room_state_service.h"
+#include "bluetooth/bluetooth_mode_selector.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -83,9 +80,13 @@ int main( int argc, const char* argv[] ) {
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
   EventsDispatcher<10,
-    ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr> dispatcher;
+    ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr,
+    BluetoothModeSelector::Event> dispatcher;
   Display display{i2cBridge};
   OnBoardSensor sensors = instantiateSensor(i2cBridge);
+
+  BluetoothModeSelector btSelector{sensors};
+  btSelector.setMode(BluetoothModeSelector::Mode::BROADCAST);
 
   Buttons buttons;
   Calendar calendar;

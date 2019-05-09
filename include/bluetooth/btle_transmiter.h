@@ -33,7 +33,7 @@ private:
   static constexpr unsigned int ADV_INTERVAL = APP_TIMER_TICKS(9 * 1000);
 
   //small values might lead to not visible broadcast
-  static constexpr unsigned int ADV_COUNT = 12;
+  static constexpr unsigned int ADV_COUNT = 32;
 
   const OnBoardSensor& sensors;
   AdvMeasurements_t measurementsPackage;

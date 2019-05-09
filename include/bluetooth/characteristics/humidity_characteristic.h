@@ -9,7 +9,7 @@ extern "C" {
 
 //0x2A6F -> org.bluetooth.characteristic.humidity
 class HumidityCharacteristic : public GattCharacteristic<
-    0x2A6F,
+    BTOrgCharType<0x2A6F>,
     uint16_t,
     CharValChangeNotify,
     CharReadable<PropSecureNone>> {
@@ -17,6 +17,6 @@ class HumidityCharacteristic : public GattCharacteristic<
 public:
   void setValue(const RelativeHumidity& newValue) {
     int tmp = static_cast<int>(newValue);
-    GattCharacteristic::setValue(static_cast<uint16_t>(tmp));
+    GattCharacteristic::setValue(static_cast<uint16_t>(100 * tmp));
   }
 };
