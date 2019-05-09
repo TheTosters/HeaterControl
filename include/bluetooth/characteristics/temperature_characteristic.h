@@ -10,7 +10,7 @@ extern "C" {
 //0x2A1F -> Temperature Celsius org.bluetooth.characteristic.temperature_celsius
 //0x2A6E -> Temperature org.bluetooth.characteristic.temperature
 class TemperatureCharacteristic : public GattCharacteristic<
-    0x2A6E,
+    BTOrgCharType<0x2A6E>,
     int16_t,
     CharValChangeNotify,
     CharReadable<PropSecureNone>> {

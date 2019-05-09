@@ -92,8 +92,8 @@ public:
     }
   }
 
-  ble_uuid128_t* getBaseUid() { return &this->baseUid; }
-  uint16_t getHandle() { return handle; }
+  ble_uuid128_t* getBaseUid() const { return &this->baseUid; }
+  uint16_t getHandle() const { return handle; }
 
   template<typename T>
   T& getCharacteristic() {

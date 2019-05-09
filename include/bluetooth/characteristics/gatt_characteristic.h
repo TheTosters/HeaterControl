@@ -12,12 +12,36 @@ extern "C" {
 //https://devzone.nordicsemi.com/tutorials/b/bluetooth-low-energy/posts/ble-characteristics-a-beginners-tutorial
 //https://github.com/NordicPlayground/nrf5-ble-tutorial-characteristic/blob/master/our_service.c
 
-template<uint16_t charUID,
+template<uint16_t charUid>
+class BTOrgCharType {
+public:
+  static constexpr uint16_t charUID {charUid};
+  template<typename Service>
+  void processUidWithSoftDevice(const Service& service, ble_uuid_t& uuid) {
+    uuid.type = BLE_UUID_TYPE_BLE;
+  }
+};
+
+template<uint16_t charUid>
+class CustomCharType {
+public:
+  static constexpr uint16_t charUID {charUid};
+
+  template<typename Service>
+  void processUidWithSoftDevice(const Service& service, ble_uuid_t& uuid) {
+    ret_code_t err_code = sd_ble_uuid_vs_add(service.getBaseUid(), &uuid.type);
+    APP_ERROR_CHECK(err_code);
+  }
+};
+
+
+template<typename CharBaseType,
          typename ValueType,
          template <typename> class NOTIFY_TRAIT = CharNoNotify,
          typename READ_TRAIT = CharNoRead,
          typename WRITE_TRAIT = CharNoWrite>
 class GattCharacteristic :
+    public CharBaseType,
     public NOTIFY_TRAIT<ValueType> {
 
 private:
@@ -26,9 +50,10 @@ private:
 public:
   template<typename Service>
   void addToStack(Service& service) {
-    ret_code_t err_code = sd_ble_uuid_vs_add(service.getBaseUid(), &uuid.type);
-    APP_ERROR_CHECK(err_code);
-
+    //TODO: This method probably can be gratly simplified by using
+    //SDK function characteristic_add
+    this->processUidWithSoftDevice(service, uuid);
+    ret_code_t err_code;
     ble_gatts_attr_md_t attribMetadata{};
     READ_TRAIT::configureAttMeta(attribMetadata);
     WRITE_TRAIT::configureAttMeta(attribMetadata);
@@ -69,7 +94,7 @@ public:
 
 protected:
     uint16_t connectionHandle{BLE_CONN_HANDLE_INVALID};
-    ble_uuid_t uuid {charUID, 0};
+    ble_uuid_t uuid {CharBaseType::charUID, 0};
     ble_gatts_char_handles_t handles {};
     ValueType value {};
 
