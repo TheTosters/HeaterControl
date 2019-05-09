@@ -22,6 +22,7 @@ class RoomStateService : public GattService<BTOrgServiceBase<0x181A>, Stack
   public:
     explicit RoomStateService() {
       this->connHandlerDelegate = [this](uint16_t connHandle){
+        this->connHandle = connHandle;
         std::apply([this, connHandle](auto&&... args) {
                 ((args.setConnectionHandle(connHandle)), ...);
             }, this->characteristics);
@@ -34,4 +35,10 @@ class RoomStateService : public GattService<BTOrgServiceBase<0x181A>, Stack
       ble_uuid_t data{this->uuid.uuid, BLE_UUID_TYPE_BLE};
       collection.emplace_back(data);
     }
+
+    uint16_t getConnectionHandle() {
+      return connHandle;
+    }
+  private:
+    uint16_t connHandle {BLE_CONN_HANDLE_INVALID};
 };

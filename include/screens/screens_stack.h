@@ -4,6 +4,7 @@
 #include "screens/default_screen.h"
 #include "screens/status_screen.h"
 #include "screens/time_setup_screen.h"
+#include "screens/remote_config_screen.h"
 #include "buttons.h"
 #include "events_dispatcher.h"
 #include <variant>
@@ -11,7 +12,8 @@
 #include <algorithm>
 #include <type_traits>
 
-using AnyScreen = std::variant<DefaultScreen, StatusScreen, TimeSetupScreen>;
+using AnyScreen = std::variant<
+    DefaultScreen, StatusScreen, TimeSetupScreen, RemoteConfigScreen>;
 
 class ScreensStack {
 public:

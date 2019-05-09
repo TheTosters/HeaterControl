@@ -24,6 +24,7 @@ extern "C" {
 #include "screens/status_screen.h"
 #include "screens/time_setup_screen.h"
 #include "screens/screens_stack.h"
+#include "screens/remote_config_screen.h"
 #include "observable.h"
 #include "events_dispatcher.h"
 #include "schedule/temperatureScheduler.h"
@@ -116,6 +117,7 @@ int main( int argc, const char* argv[] ) {
 
 //  ScreensStack stack{display};
 //  DefaultScreen& screen = stack.add( DefaultScreen{display} );
+  stack.add( RemoteConfigScreen{display, btSelector});
 
 //  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
 //    screen.setTempAndHum(t, h);
