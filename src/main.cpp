@@ -24,6 +24,7 @@ extern "C" {
 #include "screens/status_screen.h"
 #include "screens/time_setup_screen.h"
 #include "screens/screens_stack.h"
+#include "screens/remote_config_screen.h"
 #include "observable.h"
 #include "events_dispatcher.h"
 #include "temperatureSheduler.h"
@@ -113,6 +114,7 @@ int main( int argc, const char* argv[] ) {
   StatusScreen stScr = stack.add( StatusScreen{display} );
 
   stack.add( TimeSetupScreen{display, calendar});
+  stack.add( RemoteConfigScreen{display, btSelector});
 
   buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
 

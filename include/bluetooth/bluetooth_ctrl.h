@@ -14,6 +14,8 @@ extern "C" {
 #include "observable.h"
 
 #include <inttypes.h>
+#include <string>
+#include <sstream>
 
 #define BTLE_DEBUG 1
 
@@ -80,17 +82,28 @@ public:
 
   static void printMacAddress() {
 #ifdef BTLE_DEBUG
-      constexpr int SERIAL_NUMBER_STRING_SIZE = 12;
-
-      char buff[SERIAL_NUMBER_STRING_SIZE + 1] = {0};
-      // The masking makes the address match the Random Static BLE address.
-      const uint16_t hBytes = (uint16_t)NRF_FICR->DEVICEADDR[1] | 0xC000;
-      const uint32_t lBytes  = NRF_FICR->DEVICEADDR[0];
-      snprintf(buff, SERIAL_NUMBER_STRING_SIZE + 1,
-               "%04" PRIX16 "%08" PRIX32,
-               hBytes, lBytes);
-      NRF_LOG_INFO("MAC ADDR: %s", buff);
+      NRF_LOG_INFO("MAC ADDR: %s", getMacAddress().c_str());
 #endif
+  }
+
+  static std::string getMacAddress() {
+    union {
+      struct __attribute__((packed)) data {
+        uint16_t hBytes;
+        uint32_t lBytes;
+      } dataBuf;
+      uint8_t raw[sizeof(data)];
+    } buffer;
+    buffer.dataBuf.hBytes = (uint16_t)NRF_FICR->DEVICEADDR[1] | 0xC000;
+    buffer.dataBuf.lBytes  = NRF_FICR->DEVICEADDR[0];
+    std::stringstream tmp;
+    tmp << std::hex << static_cast<unsigned int>(buffer.raw[1]);
+    tmp << ':' << std::hex << static_cast<unsigned int>(buffer.raw[0]);
+    tmp << ':' << std::hex << static_cast<unsigned int>(buffer.raw[5]);
+    tmp << ':' << std::hex << static_cast<unsigned int>(buffer.raw[4]);
+    tmp << ':' << std::hex << static_cast<unsigned int>(buffer.raw[3]);
+    tmp << ':' << std::hex << static_cast<unsigned int>(buffer.raw[2]);
+    return tmp.str();
   }
 
 private:

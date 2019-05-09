@@ -27,6 +27,17 @@ public:
     dispatchOnMainThread(event, BluetoothModeSelector::mainThreadExecutor);
   }
 
+  Mode getMode() {
+    return mode;
+  }
+
+  bool isClientConnected() {
+    return mode != Mode::GATT ?
+        false :
+        gattStack.getService<RoomStateService>().getConnectionHandle()
+          != BLE_CONN_HANDLE_INVALID;
+  }
+
 private:
   using GattStackType = GattStack<RoomStateService>;
 
