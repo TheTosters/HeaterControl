@@ -65,14 +65,6 @@ uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
   }
 }
 
-void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
-  NRF_BREAKPOINT_COND;
-}
-
-void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name) {
-  NRF_BREAKPOINT_COND;
-}
-
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
@@ -113,13 +105,11 @@ int main( int argc, const char* argv[] ) {
   gattStack.enable();
   auto& roomServ = gattStack.getService<RoomStateService>();
   auto& tempChar = roomServ.getCharacteristic<TemperatureCharacteristic>();
-  sensors.addObserver([&tempChar](TemperatureC t, RelativeHumidity h) {
-    float fTemp = static_cast<float>(t);
-    uint16_t v = static_cast<int16_t>(10 * fTemp);
-    NRF_LOG_ERROR("Temp: %d", v);
-    tempChar.setValue(v);
+  auto& humChar = roomServ.getCharacteristic<HumidityCharacteristic>();
+  sensors.addObserver([&tempChar, &humChar](TemperatureC t, RelativeHumidity h) {
+    tempChar.setValue(t);
+    humChar.setValue(h);
   });
-
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );
