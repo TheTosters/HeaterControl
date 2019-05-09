@@ -24,19 +24,6 @@ private:
   using NOTIFY_TRAIT_T = NOTIFY_TRAIT<ValueType>;
 
 public:
-  void setValue(const ValueType& newValue) {
-    value = newValue;
-    if (handles.value_handle != 0) {
-      ble_gatts_value_t updateValueStruct {
-        sizeof(ValueType), 0, reinterpret_cast<uint8_t*>(&value)
-      };
-      ret_code_t err_code = sd_ble_gatts_value_set(connectionHandle,
-          handles.value_handle, &updateValueStruct);
-      APP_ERROR_CHECK(err_code);
-    }
-    this->btNotify(connectionHandle, handles.value_handle, value);
-  }
-
   template<typename Service>
   void addToStack(Service& service) {
     ret_code_t err_code = sd_ble_uuid_vs_add(service.getBaseUid(), &uuid.type);
@@ -85,4 +72,17 @@ protected:
     ble_uuid_t uuid {charUID, 0};
     ble_gatts_char_handles_t handles {};
     ValueType value {};
+
+    void setValue(const ValueType& newValue) {
+      value = newValue;
+      if (handles.value_handle != 0) {
+        ble_gatts_value_t updateValueStruct {
+          sizeof(ValueType), 0, reinterpret_cast<uint8_t*>(&value)
+        };
+        ret_code_t err_code = sd_ble_gatts_value_set(connectionHandle,
+            handles.value_handle, &updateValueStruct);
+        APP_ERROR_CHECK(err_code);
+      }
+      this->btNotify(connectionHandle, handles.value_handle, value);
+    }
 };
