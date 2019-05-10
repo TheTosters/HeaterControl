@@ -22,7 +22,7 @@ public:
 
   explicit BluetoothModeSelector(OnBoardSensor& sensors)
   : btleTransmiter{sensors} {
-
+    sensorBridge.linkToSensors(sensors);
   }
 
   void setMode(Mode mode) {
@@ -49,8 +49,6 @@ private:
 
   class SensorToGattBridge {
   public:
-    bool enabled {false};
-
     explicit SensorToGattBridge(GattStackType& gattStack) :
       roomServ( gattStack.getService<EnvironmentalSensingService>() ),
       tempChar( roomServ.getCharacteristic<TemperatureCharacteristic>() ),
@@ -63,12 +61,25 @@ private:
         onSensorValueChange(t, h);
       });
     }
+
+    void setEnabled(bool b) {
+      enabled = b;
+      if (enabled) {
+        tempChar.setValue(lastTemp);
+        humChar.setValue(lastHum);
+      }
+    }
   private:
+    bool enabled {false};
+    TemperatureC lastTemp {0.0f};
+    RelativeHumidity lastHum {0};
     EnvironmentalSensingService<GattStackType>& roomServ;
     TemperatureCharacteristic& tempChar;
     HumidityCharacteristic& humChar;
 
     void onSensorValueChange(TemperatureC t, RelativeHumidity h) {
+      lastTemp = t;
+      lastHum = h;
       if (enabled) {
         tempChar.setValue(t);
         humChar.setValue(h);
@@ -100,7 +111,7 @@ private:
 
       case Mode::GATT:
         gattStack.enable();
-        sensorBridge.enabled = true;
+        sensorBridge.setEnabled(true);
         break;
 
       default:
@@ -112,11 +123,12 @@ private:
   void disableCurrent() {
     switch(mode) {
       case Mode::BROADCAST:
+
         btleTransmiter.disable();
         break;
 
       case Mode::GATT:
-        sensorBridge.enabled = false;
+        sensorBridge.setEnabled(false);
         gattStack.disable();
         break;
 
