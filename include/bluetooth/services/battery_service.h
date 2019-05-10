@@ -23,7 +23,6 @@ class BatteryService : public GattService<
   public:
     explicit BatteryService() {
       this->connHandlerDelegate = [this](uint16_t connHandle){
-        this->connHandle = connHandle;
         std::apply([this, connHandle](auto&&... args) {
                 ((args.setConnectionHandle(connHandle)), ...);
             }, this->characteristics);
@@ -35,10 +34,4 @@ class BatteryService : public GattService<
       ble_uuid_t data{this->uuid.uuid, BLE_UUID_TYPE_BLE};
       collection.emplace_back(data);
     }
-
-    uint16_t getConnectionHandle() {
-      return connHandle;
-    }
-  private:
-    uint16_t connHandle {BLE_CONN_HANDLE_INVALID};
 };

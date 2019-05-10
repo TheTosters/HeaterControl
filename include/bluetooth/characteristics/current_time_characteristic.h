@@ -16,6 +16,6 @@ class CurrentTimeCharacteristic : public GattCharacteristic<
 public:
   //TODO: implement org.bluetooth.characteristic.exact_time_256
   void setValue(const uint8_t& newValue) {
-    GattCharacteristic::setValue( std::clamp(newValue, 0, 100) );
+    GattCharacteristic::setValue( newValue );
   }
 };

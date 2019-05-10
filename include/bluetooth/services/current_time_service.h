@@ -1,21 +1,20 @@
 #pragma once
 
 #include "bluetooth/services/gatt_service.h"
-#include "bluetooth/characteristics/temperature_characteristic.h"
-#include "bluetooth/characteristics/humidity_characteristic.h"
+#include "bluetooth/characteristics/current_time_characteristic.h"
 #include <tuple>
 #include <stdint.h>
 
+//Current Time Service  org.bluetooth.service.current_time  0x1805
 template<typename Stack>
-class EnvironmentalSensingService : public GattService<
-  BTOrgServiceBase<0x181A>,
+class CurrentTimeService : public GattService<
+  BTOrgServiceBase<0x1805>,
   Stack,
-  TemperatureCharacteristic, HumidityCharacteristic> {
+  CurrentTimeCharacteristic> {
 
   public:
-    explicit EnvironmentalSensingService() {
+    explicit CurrentTimeService() {
       this->connHandlerDelegate = [this](uint16_t connHandle){
-        this->connHandle = connHandle;
         std::apply([this, connHandle](auto&&... args) {
                 ((args.setConnectionHandle(connHandle)), ...);
             }, this->characteristics);
@@ -26,10 +25,4 @@ class EnvironmentalSensingService : public GattService<
       ble_uuid_t data{this->uuid.uuid, BLE_UUID_TYPE_BLE};
       collection.emplace_back(data);
     }
-
-    uint16_t getConnectionHandle() {
-      return connHandle;
-    }
-  private:
-    uint16_t connHandle {BLE_CONN_HANDLE_INVALID};
 };

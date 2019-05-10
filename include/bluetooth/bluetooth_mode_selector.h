@@ -5,6 +5,9 @@
 #include "bluetooth/gatt_stack.h"
 #include "bluetooth/services/gatt_service.h"
 #include "bluetooth/services/environmental_sensing_service.h"
+#include "bluetooth/services/battery_service.h"
+#include "bluetooth/services/current_time_service.h"
+#include "bluetooth/services/device_information_service.h"
 #include "events_dispatcher.h"
 
 class BluetoothModeSelector {
@@ -39,7 +42,10 @@ public:
   }
 
 private:
-  using GattStackType = GattStack<EnvironmentalSensingService>;
+  using GattStackType = GattStack<EnvironmentalSensingService,
+                                  DeviceInformationService,
+                                  BatteryService,
+                                  CurrentTimeService>;
 
   class SensorToGattBridge {
   public:

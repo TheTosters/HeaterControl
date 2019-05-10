@@ -7,7 +7,7 @@
 #include <algorithm>
 
 //0x2A21 -> org.bluetooth.characteristic.measurement_interval
-class BatteryLevelCharacteristic : public GattCharacteristic<
+class MeasurementIntervalCharacteristic : public GattCharacteristic<
     BTOrgCharType<0x2A21>,
     uint16_t,
     CharValChangeNotify,
@@ -15,6 +15,7 @@ class BatteryLevelCharacteristic : public GattCharacteristic<
 
 public:
   void setValue(const uint16_t& newValue) {
-    GattCharacteristic::setValue( std::clamp(newValue, 1, 65535) );
+    GattCharacteristic::setValue( std::clamp(newValue, static_cast<uint16_t>(1),
+        static_cast<uint16_t>(65535)) );
   }
 };
