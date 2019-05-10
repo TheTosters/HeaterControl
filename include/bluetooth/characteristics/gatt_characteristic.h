@@ -34,6 +34,15 @@ public:
   }
 };
 
+template<typename ValueType>
+class CharValueHolder {
+protected:
+  ValueType value {};
+
+  void setValue(const ValueType& newValue) {
+    value = newValue;
+  }
+};
 
 template<typename CharBaseType,
          typename ValueType,
@@ -42,6 +51,7 @@ template<typename CharBaseType,
          typename WRITE_TRAIT = CharNoWrite>
 class GattCharacteristic :
     public CharBaseType,
+    public CharValueHolder<ValueType>,
     public NOTIFY_TRAIT<ValueType> {
 
 private:
@@ -64,7 +74,7 @@ public:
     attribCharValue.p_attr_md = &attribMetadata;
     attribCharValue.max_len = sizeof(ValueType);
     attribCharValue.init_len = sizeof(ValueType);
-    attribCharValue.p_value = reinterpret_cast<uint8_t*>(&value);
+    attribCharValue.p_value = reinterpret_cast<uint8_t*>(&this->value);
 
     ble_gatts_char_md_t characteristicMetadata{};
     characteristicMetadata.char_props.write = WRITE_TRAIT::CHAR_PROPS_WRITE;
@@ -96,18 +106,19 @@ protected:
     uint16_t connectionHandle{BLE_CONN_HANDLE_INVALID};
     ble_uuid_t uuid {CharBaseType::charUID, 0};
     ble_gatts_char_handles_t handles {};
-    ValueType value {};
+    //ValueType value {};
 
     void setValue(const ValueType& newValue) {
-      value = newValue;
+      CharValueHolder<ValueType>::setValue(newValue);
+      //value = newValue;
       if (handles.value_handle != 0) {
         ble_gatts_value_t updateValueStruct {
-          sizeof(ValueType), 0, reinterpret_cast<uint8_t*>(&value)
+          sizeof(ValueType), 0, reinterpret_cast<uint8_t*>(&this->value)
         };
         ret_code_t err_code = sd_ble_gatts_value_set(connectionHandle,
             handles.value_handle, &updateValueStruct);
         APP_ERROR_CHECK(err_code);
       }
-      this->btNotify(connectionHandle, handles.value_handle, value);
+      this->btNotify(connectionHandle, handles.value_handle, this->value);
     }
 };

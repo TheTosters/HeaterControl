@@ -25,6 +25,7 @@ public:
   }
 
   void disable() {
+    advertiser.stop();
     stopTimer();
   }
 

@@ -58,6 +58,15 @@ public:
     return transmitting;
   }
 
+  void stop() {
+    if (transmitting) {
+      //don't care about error, it should be already stopped, called just in case
+      sd_ble_gap_adv_stop(advHandle);
+
+      BluetoothController::getInstance().releaseBluetooth(btLock);
+      transmitting = false;
+    }
+  }
 private:
   /** Parameters to be passed to the stack when starting advertising. */
   ble_gap_adv_params_t advParams;
@@ -82,11 +91,7 @@ private:
   void finalizeAdvertiser() {
     doneCallback = nullptr;
 
-    //don't care about error, it should be already stopped, called just in case
-    sd_ble_gap_adv_stop(advHandle);
-
-    BluetoothController::getInstance().releaseBluetooth(btLock);
-    transmitting = false;
+    stop();
   }
 
   void initAdvertising(int advCount, AdvMeasurements_t& data) {
