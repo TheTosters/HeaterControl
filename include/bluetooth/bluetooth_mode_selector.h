@@ -4,7 +4,7 @@
 #include "bluetooth/btle_transmiter.h"
 #include "bluetooth/gatt_stack.h"
 #include "bluetooth/services/gatt_service.h"
-#include "bluetooth/services/room_state_service.h"
+#include "bluetooth/services/environmental_sensing_service.h"
 #include "events_dispatcher.h"
 
 class BluetoothModeSelector {
@@ -34,19 +34,19 @@ public:
   bool isClientConnected() {
     return mode != Mode::GATT ?
         false :
-        gattStack.getService<RoomStateService>().getConnectionHandle()
+        gattStack.getService<EnvironmentalSensingService>().getConnectionHandle()
           != BLE_CONN_HANDLE_INVALID;
   }
 
 private:
-  using GattStackType = GattStack<RoomStateService>;
+  using GattStackType = GattStack<EnvironmentalSensingService>;
 
   class SensorToGattBridge {
   public:
     bool enabled {false};
 
     explicit SensorToGattBridge(GattStackType& gattStack) :
-      roomServ( gattStack.getService<RoomStateService>() ),
+      roomServ( gattStack.getService<EnvironmentalSensingService>() ),
       tempChar( roomServ.getCharacteristic<TemperatureCharacteristic>() ),
       humChar( roomServ.getCharacteristic<HumidityCharacteristic>() )
     {
@@ -58,7 +58,7 @@ private:
       });
     }
   private:
-    RoomStateService<GattStackType>& roomServ;
+    EnvironmentalSensingService<GattStackType>& roomServ;
     TemperatureCharacteristic& tempChar;
     HumidityCharacteristic& humChar;
 
