@@ -8,31 +8,29 @@ extern "C" {
 #include "bluetooth/characteristics/security_polices.h"
 #include <stdint.h>
 
-template <typename ValueType>
 class CharNoNotify {
 public:
   static constexpr int CHAR_PROPS_NOTIFY = 0;
   void btNotify(uint16_t connHandle, uint16_t valueHandle,
-      const ValueType& value) {
+      const ble_gatts_value_t& value) {
     //Just empty
   }
 };
 
-template <typename ValueType>
 class CharValChangeNotify {
 public:
   static constexpr int CHAR_PROPS_NOTIFY = 1;
   void btNotify(uint16_t connHandle, uint16_t valueHandle,
-      const ValueType& value) {
+      const ble_gatts_value_t& value) {
     if (connHandle != BLE_CONN_HANDLE_INVALID) {
-      uint16_t len = sizeof(ValueType);
+      uint16_t len = value.len;
       ble_gatts_hvx_params_t hvx_params{};
 
       hvx_params.handle = valueHandle;
       hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
-      hvx_params.offset = 0;
+      hvx_params.offset = value.offset;
       hvx_params.p_len  = &len;
-      hvx_params.p_data = reinterpret_cast<const uint8_t*>(&value);
+      hvx_params.p_data = value.p_value;
 
       sd_ble_gatts_hvx(connHandle, &hvx_params);
     }

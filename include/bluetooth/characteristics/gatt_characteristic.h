@@ -28,6 +28,7 @@ public:
   static constexpr uint16_t charUID {charUid};
 
   template<typename Service>
+
   void processUidWithSoftDevice(const Service& service, ble_uuid_t& uuid) {
     ret_code_t err_code = sd_ble_uuid_vs_add(service.getBaseUid(), &uuid.type);
     APP_ERROR_CHECK(err_code);
@@ -42,20 +43,29 @@ protected:
   void setValue(const ValueType& newValue) {
     value = newValue;
   }
+
+  uint8_t* rawValuePtr() {
+    return reinterpret_cast<uint8_t*>(&value);
+  }
+
+  const uint16_t maxValueLen() const {
+    return sizeof(ValueType);
+  }
+
+  const uint16_t valueLen() const {
+    return sizeof(ValueType);
+  }
 };
 
 template<typename CharBaseType,
          typename ValueType,
-         template <typename> class NOTIFY_TRAIT = CharNoNotify,
+         typename NOTIFY_TRAIT = CharNoNotify,
          typename READ_TRAIT = CharNoRead,
          typename WRITE_TRAIT = CharNoWrite>
 class GattCharacteristic :
     public CharBaseType,
     public CharValueHolder<ValueType>,
-    public NOTIFY_TRAIT<ValueType> {
-
-private:
-  using NOTIFY_TRAIT_T = NOTIFY_TRAIT<ValueType>;
+    public NOTIFY_TRAIT {
 
 public:
   template<typename Service>
@@ -72,16 +82,16 @@ public:
     ble_gatts_attr_t attribCharValue{};
     attribCharValue.p_uuid = &uuid;
     attribCharValue.p_attr_md = &attribMetadata;
-    attribCharValue.max_len = sizeof(ValueType);
-    attribCharValue.init_len = sizeof(ValueType);
-    attribCharValue.p_value = reinterpret_cast<uint8_t*>(&this->value);
+    attribCharValue.max_len = this->maxValueLen();
+    attribCharValue.init_len = this->valueLen();
+    attribCharValue.p_value = this->rawValuePtr();
 
     ble_gatts_char_md_t characteristicMetadata{};
     characteristicMetadata.char_props.write = WRITE_TRAIT::CHAR_PROPS_WRITE;
     characteristicMetadata.char_props.read = READ_TRAIT::CHAR_PROPS_READ;
-    characteristicMetadata.char_props.notify = NOTIFY_TRAIT_T::CHAR_PROPS_NOTIFY;
+    characteristicMetadata.char_props.notify = NOTIFY_TRAIT::CHAR_PROPS_NOTIFY;
 
-    if (NOTIFY_TRAIT_T::CHAR_PROPS_NOTIFY != 0) {
+    if (NOTIFY_TRAIT::CHAR_PROPS_NOTIFY != 0) {
       //TODO: Reconsider if this shouldn't be NOTIFY_TRAIT code
       ble_gatts_attr_md_t clientCharConfMetadata{};
       //this must be readable & writable always (at least it looks like this in tests)
@@ -106,19 +116,18 @@ protected:
     uint16_t connectionHandle{BLE_CONN_HANDLE_INVALID};
     ble_uuid_t uuid {CharBaseType::charUID, 0};
     ble_gatts_char_handles_t handles {};
-    //ValueType value {};
 
     void setValue(const ValueType& newValue) {
       CharValueHolder<ValueType>::setValue(newValue);
-      //value = newValue;
       if (handles.value_handle != 0) {
         ble_gatts_value_t updateValueStruct {
-          sizeof(ValueType), 0, reinterpret_cast<uint8_t*>(&this->value)
+          this->valueLen(), 0, this->rawValuePtr()
         };
         ret_code_t err_code = sd_ble_gatts_value_set(connectionHandle,
             handles.value_handle, &updateValueStruct);
         APP_ERROR_CHECK(err_code);
+
+        this->btNotify(connectionHandle, handles.value_handle, updateValueStruct);
       }
-      this->btNotify(connectionHandle, handles.value_handle, this->value);
     }
 };
