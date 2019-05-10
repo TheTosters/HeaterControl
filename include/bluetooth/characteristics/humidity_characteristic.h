@@ -1,7 +1,5 @@
 #pragma once
 
-extern "C" {
-}
 #include "bluetooth/characteristics/gatt_characteristic.h"
 #include "bluetooth/services/gatt_service.h"
 #include "types/unit.h"
