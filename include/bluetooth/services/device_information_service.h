@@ -2,6 +2,7 @@
 
 #include "bluetooth/services/gatt_service.h"
 #include "bluetooth/characteristics/measurement_interval_characteristic.h"
+#include "bluetooth/characteristics/device_name_characteristic.h"
 #include <tuple>
 #include <stdint.h>
 
@@ -10,7 +11,7 @@ template<typename Stack>
 class DeviceInformationService : public GattService<
   BTOrgServiceBase<0x180A>,
   Stack,
-  MeasurementIntervalCharacteristic> {
+  DeviceNameCharacteristic, MeasurementIntervalCharacteristic> {
 
   public:
     explicit DeviceInformationService() {

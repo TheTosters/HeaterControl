@@ -13,7 +13,8 @@ class TemperatureCharacteristic : public GattCharacteristic<
     BTOrgCharType<0x2A6E>,
     int16_t,
     CharValChangeNotify,
-    CharReadable<PropSecureNone>> {
+    CharReadable<PropSecureNone>,
+    CharWritable<PropSecureNone>> {
 
 public:
   void setValue(const TemperatureC& newValue) {
