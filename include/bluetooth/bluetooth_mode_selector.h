@@ -43,7 +43,7 @@ public:
 
 private:
   using GattStackType = GattStack<EnvironmentalSensingService,
-                                  DeviceInformationService,
+                                  //DeviceInformationService,
                                   BatteryService,
                                   CurrentTimeService>;
 

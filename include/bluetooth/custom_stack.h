@@ -20,6 +20,13 @@ public:
     std::apply([](auto&&... args) {
             ((args.enable()), ...);
         }, subComponents);
+
+    for(int t = 0; t < 12; t++) {
+      ble_uuid_t p_uuid;
+      int e = sd_ble_gatts_attr_get(t, &p_uuid, nullptr);
+      NRF_LOG_ERROR("Att for handle: %x, success = %d, uuid=%x, type=%d", t, e,
+          p_uuid.uuid, p_uuid.type);
+    }
   }
 
   void disable() {

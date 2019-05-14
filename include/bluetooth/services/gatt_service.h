@@ -62,6 +62,7 @@ public:
     std::apply([this](auto&&... args) {
                     ((args.addToStack(*this)), ...);
                 }, this->characteristics);
+
   }
 
   void disable(Stack& stack) {
@@ -73,18 +74,25 @@ public:
   void onBtleEvent(ble_evt_t const* event) {
     switch (event->header.evt_id) {
       case BLE_GAP_EVT_CONNECTED:
-        NRF_LOG_DEBUG("--> BLE_GAP_EVT_CONNECTED, handle: %d",
-            event->evt.gap_evt.conn_handle);
         if (connHandlerDelegate) {
           connHandlerDelegate(event->evt.gap_evt.conn_handle);
         }
         break;
 
       case BLE_GAP_EVT_DISCONNECTED:
-        NRF_LOG_DEBUG("--> BLE_GAP_EVT_DISCONNECTED");
         if (connHandlerDelegate) {
           connHandlerDelegate(BLE_CONN_HANDLE_INVALID);
         }
+        break;
+
+      case BLE_GATTS_EVT_WRITE:
+        NRF_LOG_ERROR("Write event, handle:%x, len:%d, offset:%d",
+            event->evt.gatts_evt.params.write.handle,
+            event->evt.gatts_evt.params.write.len,
+            event->evt.gatts_evt.params.write.offset);
+        std::apply([this, event](auto&&... args) {
+                            ((onWrite(args, event)), ...);
+                        }, this->characteristics);
         break;
 
       default:
@@ -105,4 +113,11 @@ protected:
   //ble_uuid_t uuid {serviceUid, 0};
   std::tuple<CharacteristicTypes...> characteristics;
   SetConnectionHandleDelegate connHandlerDelegate;
+
+  template<typename T>
+  void onWrite(T& characteristic, ble_evt_t const* event) {
+    if (characteristic.getHandle() == event->evt.gatts_evt.params.write.handle) {
+      characteristic.refreshFromSoftDevice();
+    }
+  }
 };

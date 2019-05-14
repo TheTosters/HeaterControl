@@ -4,17 +4,18 @@
 #include "bluetooth/services/gatt_service.h"
 #include "types/unit.h"
 #include <stdint.h>
+#include <string>
 
-//0x2A6F -> org.bluetooth.characteristic.humidity
-class HumidityCharacteristic : public GattCharacteristic<
-    BTOrgCharType<0x2A6F>,
-    uint16_t,
+//0x2A00 -> org.bluetooth.characteristic.gap.device_name
+class DeviceNameCharacteristic : public GattCharacteristic<
+    BTOrgCharType<0x2A00>,
+    std::string,
     CharValChangeNotify,
-    CharReadable<PropSecureNone>> {
+    CharReadable<PropSecureNone>,
+    CharWritable<PropSecureNone>> {
 
 public:
-  void setValue(const RelativeHumidity& newValue) {
-    int tmp = static_cast<int>(newValue);
-    GattCharacteristic::setValue(static_cast<uint16_t>(100 * tmp));
+  void setValue(const std::string& newValue) {
+    GattCharacteristic::setValue(newValue);
   }
 };

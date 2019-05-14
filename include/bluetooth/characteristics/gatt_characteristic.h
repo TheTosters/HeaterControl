@@ -8,6 +8,7 @@ extern "C" {
 #include "bluetooth/characteristics/security_polices.h"
 #include "bluetooth/characteristics/charcteristic_traits.h"
 #include <stdint.h>
+#include <string>
 
 //https://devzone.nordicsemi.com/tutorials/b/bluetooth-low-energy/posts/ble-characteristics-a-beginners-tutorial
 //https://github.com/NordicPlayground/nrf5-ble-tutorial-characteristic/blob/master/our_service.c
@@ -48,12 +49,64 @@ protected:
     return reinterpret_cast<uint8_t*>(&value);
   }
 
+  void setRawValue(const ble_gatts_value_t& valueStruct) {
+    if (valueStruct.len == maxValueLen() && valueStruct.offset == 0) {
+      value = *reinterpret_cast<ValueType*>(valueStruct.p_value);
+
+    } else {
+      NRF_LOG_ERROR("Unsupported write, len:%d, expected:%d, offset:%d",
+          valueStruct.len, maxValueLen(), valueStruct.offset);
+    }
+  }
+
   const uint16_t maxValueLen() const {
     return sizeof(ValueType);
   }
 
   const uint16_t valueLen() const {
     return sizeof(ValueType);
+  }
+
+  void setMaxValueLen(uint16_t size) {
+    APP_ERROR_CHECK(NRF_ERROR_NOT_SUPPORTED);
+  }
+};
+
+template<>
+class CharValueHolder<std::string> {
+protected:
+  std::string value {};
+  uint16_t maxLen {20};
+
+  void setValue(const std::string& newValue) {
+    value = newValue;
+  }
+
+  void setRawValue(const ble_gatts_value_t& valueStruct) {
+    if (valueStruct.offset == 0) {
+      value = std::string(reinterpret_cast<const char*>(valueStruct.p_value),
+        valueStruct.len);
+    } else {
+      NRF_LOG_ERROR("Unsupported write(String), len:%d, expected:%d, offset:%d",
+                valueStruct.len, maxValueLen(), valueStruct.offset);
+    }
+  }
+
+  uint8_t* rawValuePtr() {
+    const uint8_t* tmp = reinterpret_cast<const uint8_t*>(value.c_str());
+    return const_cast<uint8_t*>(tmp);
+  }
+
+  const uint16_t maxValueLen() const {
+    return maxLen;
+  }
+
+  const uint16_t valueLen() const {
+    return value.length() > maxLen ? maxLen : value.length();
+  }
+
+  void setMaxValueLen(uint16_t size) {
+    maxLen = size;
   }
 };
 
@@ -112,10 +165,37 @@ public:
     connectionHandle = handle;
   }
 
+  void setMaxLen(int size) {
+    CharValueHolder<ValueType>::setMaxValueLen(size);
+  }
+
+  void refreshFromSoftDevice() {
+    if (handles.value_handle != 0) {
+      uint16_t buffSize = CharValueHolder<ValueType>::maxValueLen();
+      uint8_t buff[buffSize + 1];
+      ble_gatts_value_t valueStruct{
+        buffSize, 0, &buff[0]
+      };
+      ret_code_t err_code = sd_ble_gatts_value_get(connectionHandle,
+          handles.value_handle, &valueStruct);
+      if (err_code == NRF_SUCCESS) {
+        CharValueHolder<ValueType>::setRawValue(valueStruct);
+      }
+    }
+  }
+
+  uint16_t getHandle() const {
+    return handles.value_handle;
+  }
+
 protected:
     uint16_t connectionHandle{BLE_CONN_HANDLE_INVALID};
     ble_uuid_t uuid {CharBaseType::charUID, 0};
     ble_gatts_char_handles_t handles {};
+
+    const ValueType getValue() {
+      return this->value;
+    }
 
     void setValue(const ValueType& newValue) {
       CharValueHolder<ValueType>::setValue(newValue);

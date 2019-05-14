@@ -138,6 +138,7 @@ private:
   }
 
   static void bleEventHandler(ble_evt_t const * p_ble_evt, void* p_context) {
+    NRF_LOG_ERROR("Event: %d", p_ble_evt->header.evt_id);
     BluetoothController::getInstance().inHandlerContext = true;
     BluetoothController::getInstance().notify(p_ble_evt);
     BluetoothController::getInstance().inHandlerContext = false;
