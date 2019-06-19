@@ -87,24 +87,26 @@ int main( int argc, const char* argv[] ) {
   Calendar calendar;
   TemperatureSheduler tempScheduler;
   HeatingModel heatingModel{tempScheduler};
-  sensors.addObserver([&heatingModel](TemperatureC t, RelativeHumidity h) {
+  sensors.addObserver([&heatingModel](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
     heatingModel.setTempAndHum(t, h);
   });
   calendar.addObserver([&heatingModel](DecodedTime t) {
     heatingModel.setTime(t);
   });
 
-//  BtleTransmiter btleTransmiter{sensors};
-//  btleTransmiter.enable();
-//  BluetoothController::getInstance();
-  GattStack<GattService> gattStack{"PioPio"};
-  gattStack.enable();
+  BluetoothController::getInstance();
+  BtleTransmiter btleTransmiter{sensors};
+  btleTransmiter.enable();
+
+//  GattStack<GattService> gattStack{"PioPio"};
+//  gattStack.enable();
 
   ScreensStack stack{display};
   DefaultScreen& screen = stack.add( DefaultScreen{display} );
 
-  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h) {
+  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
     screen.setTempAndHum(t, h);
+    //TODO: Add battery to screen?
   });
   calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
   heatingModel.addObserver(
@@ -127,6 +129,7 @@ int main( int argc, const char* argv[] ) {
 
 //  sensors.addObserver([](float t, int h){
 //  NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
+  NRF_LOG_INFO("Loop\n");
 
   while (true) {
     if(compareMillis(myTimeStamp, millis()) > 1000) {

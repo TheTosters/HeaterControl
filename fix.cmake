@@ -95,5 +95,6 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${NRF5_SDK_PATH}/components/libraries/fstorage/nrf_fstorage_sd.c
   ${NRF5_SDK_PATH}/components/ble/peer_manager/peer_id.c
   ${NRF5_SDK_PATH}/components/ble/peer_manager/pm_buffer.c
+  ${NRF5_SDK_PATH}/modules/nrfx/drivers/src/nrfx_saadc.c
 )
 

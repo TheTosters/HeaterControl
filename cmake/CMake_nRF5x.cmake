@@ -38,7 +38,7 @@ macro(nRF5x_setup)
         set(CMAKE_CXX_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-c++")
         set(CMAKE_ASM_COMPILER "${ARM_NONE_EABI_TOOLCHAIN_PATH}/bin/arm-none-eabi-gcc")
         message(STATUS "Host: Linux (Unix)")
-        
+
     elseif(CMAKE_HOST_WIN32)
         # configure cmake to use the arm-none-eabi-gcc for windows
         set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
@@ -48,7 +48,7 @@ macro(nRF5x_setup)
     else()
         message( FATAL_ERROR "Cross-compilation on your platform is not supported by this cmake toolchain" )
     endif()
-    
+
     include_directories(
         "${NRF5_SDK_PATH}/components/softdevice/common/softdevice_handler"
         "${NRF5_SDK_PATH}/modules/nrfx"
@@ -88,7 +88,7 @@ macro(nRF5x_setup)
     set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
     set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
     set(CMAKE_ASM_FLAGS "-MP -MD -std=c99 -x assembler-with-cpp -DNRF52840_XXAA -DBOARD_PCA10056")
-    set(CMAKE_EXE_LINKER_FLAGS "-mthumb -mabi=aapcs -std=gnu++98 -std=c99 -L ${NRF5_SDK_PATH}/components/toolchain/gcc -L ${NRF5_SDK_PATH}/modules/nrfx/mdk -T${NRF5_LINKER_SCRIPT} ${CPU_FLAGS} -Wl,--gc-sections --specs=nano.specs -lc -lnosys -lm")
+    set(CMAKE_EXE_LINKER_FLAGS "-mthumb -mabi=aapcs -L ${NRF5_SDK_PATH}/components/toolchain/gcc -L ${NRF5_SDK_PATH}/modules/nrfx/mdk -T${NRF5_LINKER_SCRIPT} ${CPU_FLAGS} -Wl,--gc-sections --specs=nano.specs -lc -lnosys -lm")
     # note: we must override the default cmake linker flags so that CMAKE_C_FLAGS are not added implicitly
     set(CMAKE_C_LINK_EXECUTABLE "${CMAKE_C_COMPILER} <LINK_FLAGS> <OBJECTS> -o <TARGET>")
     set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_C_COMPILER} <LINK_FLAGS> <OBJECTS> -lstdc++ -o <TARGET>")

@@ -9,26 +9,24 @@ extern "C" {
 }
 
 #include "timer_owner.h"
-#include "bridges/i2c_bridge.h"
-#include "bridges/one_wire.h"
-#include "ds18b20.h"
 #include "observable.h"
 #include "types/unit.h"
-#include "sht30.h"
+#include "battery_sensor.h"
 
 #include <stdint.h>
 #include <math.h>
 #include <string>
 
 template<typename MainSensor, typename Bridge>
-class Sensors : TimerOwner, public Observable<TemperatureC, RelativeHumidity> {
+class Sensors : TimerOwner, public Observable<TemperatureC, RelativeHumidity, BatteryPrc> {
 public:
   TemperatureC temperature;
   RelativeHumidity humidity;
+  BatteryPrc battery;
 
   Sensors(Bridge& bridge)
   : TimerOwner(false, Sensors::timerHandler), state(WAIT),
-    temperature(0), humidity(0), mainSensor(bridge) {
+    temperature(0), humidity(0), battery(0), mainSensor(bridge) {
 
     startTimer(CONFIGURE_DELAY);
   }
@@ -55,21 +53,25 @@ private:
   State state;
   TemperatureC lastTemp{0};
   RelativeHumidity lastHum{0};
+  BatteryPrc lastBattery{0};
   MainSensor mainSensor;
+  BatterySensor batterySensor;
 
   void collectMeasurement() {
     temperature = mainSensor.getTemperature();
     humidity = mainSensor.getRelHumidity();
+    battery = batterySensor.getBatteryPrc();
     checkForNotification();
   }
 
   void checkForNotification() {
     ensureMainThread();
     if ( (lastTemp != temperature) or
-         (lastHum != humidity)) {
+         (lastHum != humidity) or (lastBattery != battery)) {
       lastTemp = temperature;
       lastHum = humidity;
-      notify(temperature, humidity);
+      lastBattery = battery;
+      notify(temperature, humidity, battery);
     }
   }
 
@@ -79,11 +81,13 @@ private:
       default:
       case WAIT:
         self->state = CONFIGURING;
+        self->batterySensor.configure();
         self->mainSensor.configure();
         self->startTimer(CONFIGURE_DELAY);
         break;
 
       case CONFIGURING:
+        self->batterySensor.requestMeasurements();
         self->mainSensor.requestMeasurements();
         self->state = MEASURING;
         self->startTimer(MEASURING_DELAY);

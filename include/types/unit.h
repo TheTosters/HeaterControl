@@ -84,3 +84,4 @@ public:
 
 using TemperatureC = unit<float, struct TemperatureC_tag>;
 using RelativeHumidity = unit<int, struct RelativeHumidity_tag>;
+using BatteryPrc = unit<int, struct BatteryPrc_tag>;

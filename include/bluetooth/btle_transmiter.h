@@ -45,7 +45,8 @@ private:
         static_cast<int16_t>(static_cast<float>(sensors.temperature * 10));
     measurementsPackage.humidity =
         static_cast<int16_t>(static_cast<int>(sensors.humidity));
-    measurementsPackage.battery = 0;  //TODO: Future
+    measurementsPackage.battery =
+        static_cast<int16_t>(static_cast<int>(sensors.battery));
     measurementsPackage.localTime = 0; //TODO: Future
   }
 

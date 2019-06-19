@@ -13,7 +13,8 @@
 
 #define CONFIG_DS18B20_PIN  NRF_GPIO_PIN_MAP(0, 1)
 
-#define BOARD_SENSOR  BoardSensor::SHT30
+//#define BOARD_SENSOR  BoardSensor::SHT30
+#define BOARD_SENSOR BoardSensor::DS18B20
 
 //Used by BSP module for easy buttons
 #define BUTTONS_NUMBER 3
