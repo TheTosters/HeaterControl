@@ -21,7 +21,12 @@ private:
 
     WeekTime(std::chrono::seconds weekTime) : weekTime(weekTime) {};
 public:
-    WeekTime(WeekDay weekDay, std::chrono::hours hours, std::chrono::minutes minutes) :
+    WeekTime(WeekTime&&) = default;
+    WeekTime(const WeekTime&) = default;
+    WeekTime& operator=(const WeekTime &rhs) = default;
+    WeekTime& operator=(WeekTime &&) = default;
+
+    WeekTime(const WeekDay weekDay, std::chrono::hours hours, std::chrono::minutes minutes) :
         weekTime(stdChronoDays(static_cast<int>(weekDay)) + hours + minutes) {}
 
     WeekTime operator +(const WeekTime& rhs) const noexcept {

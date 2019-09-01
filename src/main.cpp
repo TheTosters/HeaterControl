@@ -27,7 +27,8 @@ extern "C" {
 #include "screens/screens_stack.h"
 #include "observable.h"
 #include "events_dispatcher.h"
-#include "temperatureSheduler.h"
+#include "schedule/temperatureScheduler.h"
+#include "schedule/weekScheduleBuilder.h"
 #include "heating_model.h"
 #include "types/hardware_pin.h"
 #include "bluetooth/gatt_stack.h"
@@ -85,45 +86,47 @@ int main( int argc, const char* argv[] ) {
 
   Buttons buttons;
   Calendar calendar;
-  TemperatureSheduler tempScheduler;
+  TemperatureScheduler tempScheduler;
   HeatingModel heatingModel{tempScheduler};
   sensors.addObserver([&heatingModel](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
     heatingModel.setTempAndHum(t, h);
   });
+  /*
   calendar.addObserver([&heatingModel](DecodedTime t) {
     heatingModel.setTime(t);
   });
-
+*/
   BluetoothController::getInstance();
+  /*
   BtleTransmiter btleTransmiter{sensors};
   btleTransmiter.enable();
+*/
+  GattStack<GattService> gattStack{"PioPio"};
+  gattStack.enable();
 
-//  GattStack<GattService> gattStack{"PioPio"};
-//  gattStack.enable();
+//  ScreensStack stack{display};
+//  DefaultScreen& screen = stack.add( DefaultScreen{display} );
 
-  ScreensStack stack{display};
-  DefaultScreen& screen = stack.add( DefaultScreen{display} );
+//  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
+//    screen.setTempAndHum(t, h);
+//    //TODO: Add battery to screen?
+//  });
+//  calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
+//  heatingModel.addObserver(
+//      [&screen](bool h, TemperatureC t, HeatingPlan p) {
+//        screen.setHeatingStatus(h, t, p);
+//  });
 
-  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
-    screen.setTempAndHum(t, h);
-    //TODO: Add battery to screen?
-  });
-  calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
-  heatingModel.addObserver(
-      [&screen](bool h, TemperatureC t, HeatingPlan p) {
-        screen.setHeatingStatus(h, t, p);
-  });
-
-  StatusScreen stScr = stack.add( StatusScreen{display} );
-
-  stack.add( TimeSetupScreen{display, calendar});
-
-  buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
-
-  stack.selectScreen(SelectedScreen::DEFAULT);
-
-  display.sustainOn();
-  stack.render();
+//  StatusScreen stScr = stack.add( StatusScreen{display} );
+//
+//  stack.add( TimeSetupScreen{display, calendar});
+//
+//  buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
+//
+//  stack.selectScreen(SelectedScreen::DEFAULT);
+//
+//  display.sustainOn();
+//  stack.render();
 
   uint32_t myTimeStamp = millis();
 

@@ -26,7 +26,7 @@ struct TemperatureAlias {
     : name(name), temperature(temperature) {}
 };
 
-class TemperatureSheduler {
+class TemperatureScheduler {
 private:
     using PeriodVector = std::vector<TemperaturePeriod>;
     static constexpr TemperatureC DEFAULT_TEMPERAUTRE {18.0f};
@@ -92,10 +92,10 @@ private:
     }
 
 public:
-    TemperatureSheduler() {}
+    TemperatureScheduler() {}
 
-    TemperatureSheduler(const TemperatureSheduler&) = delete;
-    TemperatureSheduler& operator=(const TemperatureSheduler&) = delete;
+    TemperatureScheduler(const TemperatureScheduler&) = delete;
+    TemperatureScheduler& operator=(const TemperatureScheduler&) = delete;
 
     TemperatureC getTemperature(const WeekTime& weekTime) {
         auto weekTimeIterator = findPeriod(weekTime);
@@ -162,6 +162,10 @@ public:
                     });
           }
         }
+    }
+
+    void clearSchedule() {
+      periods.clear();
     }
 
     bool setTemperaturePeriod(const WeekTime& startTime,

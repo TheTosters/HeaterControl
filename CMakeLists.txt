@@ -16,10 +16,12 @@ message(STATUS "Selected board profile: ${CUSTOM_BOARD_INC}")
 
 if (BUILD_TESTS)
 #Tests support
+  message(STATUS "Building tests")
   enable_language(C CXX ASM)
   set(CMAKE_C_STANDARD 99)
   set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_FLAGS "-Og -g3 -fsanitize=address  -static-libasan")
+  set(CMAKE_LD_FLAGS "-fsanitize=address")
   include_directories("include")
 
   configure_file(cmake/gtest-download.cmake.in googletest-download/CMakeLists.txt)

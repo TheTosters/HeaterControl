@@ -1,7 +1,7 @@
 #pragma once
 
 #include "observable.h"
-#include "temperatureSheduler.h"
+#include "schedule/temperatureScheduler.h"
 #include "calendar.h"
 
 enum class HeatingPlan {
@@ -12,7 +12,7 @@ class HeatingModel : public Observable<bool, TemperatureC, HeatingPlan>{
 public:
   HeatingPlan mode{HeatingPlan::SCHEDULE};
 
-  HeatingModel(TemperatureSheduler& tempSch)
+  HeatingModel(TemperatureScheduler& tempSch)
   : temperatureSheduler(tempSch) {
   }
 
@@ -48,7 +48,7 @@ public:
   }
 
 private:
-  TemperatureSheduler& temperatureSheduler;
+  TemperatureScheduler& temperatureSheduler;
   TemperatureC temperature{0};
   DecodedTime time{};
 

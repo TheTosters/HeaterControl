@@ -1,4 +1,4 @@
-#include "temperatureSheduler.h"
+#include "schedule/temperatureScheduler.h"
 #include "decoded_time.h"
 
 #include <gtest/gtest.h>
@@ -13,28 +13,28 @@ namespace{
 constexpr static std::chrono::seconds MINUTE{60};
 }
 
-TEST(temperatureShedulerTest, checkIfDefaultAliasIsCreated) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, checkIfDefaultAliasIsCreated) {
+  TemperatureScheduler sch;
   EXPECT_EQ(1, sch.getTemperatureAliasCount());
 }
 
-TEST(temperatureShedulerTest, checkIfRemoveDefaultAliasIsImpossible) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, checkIfRemoveDefaultAliasIsImpossible) {
+  TemperatureScheduler sch;
   auto alias = sch.getTemperatureAlias(0);
   sch.removeTemperatureAlias(alias.name);
   EXPECT_EQ(1, sch.getTemperatureAliasCount());
 }
 
-TEST(temperatureShedulerTest, addAlias) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, addAlias) {
+  TemperatureScheduler sch;
   sch.addTemperatureAlias("alias-1", TemperatureC(7));
 
   //default, alias-1 => count:2
   EXPECT_EQ(2, sch.getTemperatureAliasCount());
 }
 
-TEST(temperatureShedulerTest, removeAlias) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, removeAlias) {
+  TemperatureScheduler sch;
   const std::string ALIAS_NAME{"alias-1"};
   sch.addTemperatureAlias(ALIAS_NAME, TemperatureC(7));
   sch.removeTemperatureAlias(ALIAS_NAME);
@@ -44,8 +44,8 @@ TEST(temperatureShedulerTest, removeAlias) {
   EXPECT_NE(ALIAS_NAME, al.name);
 }
 
-TEST(temperatureShedulerTest, removePeriodsWhenAliasIsRemoved) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, removePeriodsWhenAliasIsRemoved) {
+  TemperatureScheduler sch;
   const std::string ALIAS_NAME{"alias-1"};
   sch.addTemperatureAlias(ALIAS_NAME, TemperatureC(7));
 
@@ -59,8 +59,8 @@ TEST(temperatureShedulerTest, removePeriodsWhenAliasIsRemoved) {
   EXPECT_EQ(0, sch.getPeriodsCount());
 }
 
-TEST(temperatureShedulerTest, removePeriodsWhenAliasIsRemoved2) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, removePeriodsWhenAliasIsRemoved2) {
+  TemperatureScheduler sch;
   const std::string ALIAS_1_NAME{"alias-1"};
   const std::string ALIAS_2_NAME{"alias-2"};
   sch.addTemperatureAlias(ALIAS_1_NAME, TemperatureC(7));
@@ -84,8 +84,8 @@ TEST(temperatureShedulerTest, removePeriodsWhenAliasIsRemoved2) {
   EXPECT_EQ(1, sch.getPeriodsCount());
 }
 
-TEST(temperatureShedulerTest, iterateAliases) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, iterateAliases) {
+  TemperatureScheduler sch;
 
   const std::string ALIAS_1_NAME{"alias-1"};
   const TemperatureC ALIAS_1_TEMP{7};
@@ -107,8 +107,8 @@ TEST(temperatureShedulerTest, iterateAliases) {
   EXPECT_EQ(ALIAS_2_TEMP, al2.temperature);
 }
 
-TEST(temperatureShedulerTest, updateAlias) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, updateAlias) {
+  TemperatureScheduler sch;
 
   const std::string ALIAS_1_NAME{"alias-1"};
   const TemperatureC ALIAS_1_TEMP{7};
@@ -124,8 +124,8 @@ TEST(temperatureShedulerTest, updateAlias) {
   EXPECT_EQ(ALIAS_2_TEMP, al2.temperature);
 }
 
-TEST(temperatureShedulerTest, updateAliasesInPeriodsWhenAliasIsUpdated) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, updateAliasesInPeriodsWhenAliasIsUpdated) {
+  TemperatureScheduler sch;
   using namespace std::chrono;
   WeekTime start{WeekDay::SUNDAY, hours{12}, minutes{00}};
   WeekTime end{WeekDay::SUNDAY, hours{12}, minutes{40}};
@@ -142,8 +142,8 @@ TEST(temperatureShedulerTest, updateAliasesInPeriodsWhenAliasIsUpdated) {
   EXPECT_EQ(ALIAS_2_NAME, period.temperatureAlias);
 }
 
-TEST(temperatureShedulerTest, removePeriod) {
-  TemperatureSheduler sch;
+TEST(TemperatureSchedulerTest, removePeriod) {
+  TemperatureScheduler sch;
   const std::string ALIAS_1_NAME{"alias-1"};
   const std::string ALIAS_2_NAME{"alias-2"};
   sch.addTemperatureAlias(ALIAS_1_NAME, TemperatureC(7));
@@ -177,7 +177,7 @@ struct TimeRange : public WeekTimeRange {
   : WeekTimeRange(start, end)
   {}
 
-  void validate(TemperatureSheduler& sch, const TemperatureC& temp) {
+  void validate(TemperatureScheduler& sch, const TemperatureC& temp) {
     using namespace std::chrono;
     const std::chrono::seconds delta{60};
     for(WeekTime t = startTime; t < endTime; t = t + delta) {
@@ -193,8 +193,8 @@ struct TimeRange : public WeekTimeRange {
   }
 };
 
-struct temperatureShedulerTestFixture : public testing::Test {
-  TemperatureSheduler sch;
+struct TemperatureSchedulerTestFixture : public testing::Test {
+  TemperatureScheduler sch;
   const std::string ALIAS_1_NAME{"alias-1"};
   const TemperatureC ALIAS_1_TEMP{7};
 
@@ -296,7 +296,7 @@ struct temperatureShedulerTestFixture : public testing::Test {
   }
 };
 
-TEST_F(temperatureShedulerTestFixture, setOverlapingPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setOverlapingPeriod) {
   //situation to test
   // | -- PERIOD 1 --      |        -- PERIOD 2 --|
   // | -- PERIOD 1 -- | -- NEW PER -- | PERIOD 2--|
@@ -330,7 +330,7 @@ TEST_F(temperatureShedulerTestFixture, setOverlapingPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setHeadOverlapingPeriod) {
   //situation to test
   // | PERIOD 1  | <free> |    PERIOD 2        |
   // | PERIOD 1  | <free> | NEW PER | PERIOD 2 |
@@ -364,7 +364,7 @@ TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod2) {
+TEST_F(TemperatureSchedulerTestFixture, setHeadOverlapingPeriod2) {
   //situation to test
   // | PERIOD 1  | <free>      |    PERIOD 2        |
   // | PERIOD 1  | <free> | NEW PER | PERIOD 2 |
@@ -398,7 +398,7 @@ TEST_F(temperatureShedulerTestFixture, setHeadOverlapingPeriod2) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setTailOverlapingPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setTailOverlapingPeriod) {
   //situation to test
   // | PERIOD 1       | <free>      | PERIOD 2 |
   // | PERIOD 1 | NEW PER  | <free> | PERIOD 2 |
@@ -431,7 +431,7 @@ TEST_F(temperatureShedulerTestFixture, setTailOverlapingPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setTailOverlapingPeriod2) {
+TEST_F(TemperatureSchedulerTestFixture, setTailOverlapingPeriod2) {
   //situation to test
   // | PERIOD 1            | <free> | PERIOD 2 |
   // | PERIOD 1 | NEW PER  | <free> | PERIOD 2 |
@@ -464,7 +464,7 @@ TEST_F(temperatureShedulerTestFixture, setTailOverlapingPeriod2) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setTailTouchPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setTailTouchPeriod) {
   //situation to test
   // | PERIOD 1 | <free>            | PERIOD 2 |
   // | PERIOD 1 | NEW PER  | <free> | PERIOD 2 |
@@ -497,7 +497,7 @@ TEST_F(temperatureShedulerTestFixture, setTailTouchPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setHeadTouchPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setHeadTouchPeriod) {
   //situation to test
   // | PERIOD 1 | <free>           | PERIOD 2 |
   // | PERIOD 1 | <free> | NEW PER |PERIOD 2 |
@@ -530,7 +530,7 @@ TEST_F(temperatureShedulerTestFixture, setHeadTouchPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setOverwriteFirstPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setOverwriteFirstPeriod) {
   //situation to test
   // | PERIOD 1 | PERIOD 2 |
   // | NEW PER  | PERIOD 2 |
@@ -561,7 +561,7 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteFirstPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setOverwriteSecondPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setOverwriteSecondPeriod) {
   //situation to test
   // | PERIOD 1 | PERIOD 2 |
   // | NEW PER  | PERIOD 2 |
@@ -592,7 +592,7 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteSecondPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setOverwriteTwoPeriods) {
+TEST_F(TemperatureSchedulerTestFixture, setOverwriteTwoPeriods) {
   //situation to test
   // | PERIOD 1 | PERIOD 2 |
   // | NEW PER             |
@@ -623,7 +623,7 @@ TEST_F(temperatureShedulerTestFixture, setOverwriteTwoPeriods) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setSingleHeadOverlapPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setSingleHeadOverlapPeriod) {
   //situation to test
   // | <free>  | PERIOD 1     |
   // | NEW PER     | PERIOD 1 |
@@ -648,7 +648,7 @@ TEST_F(temperatureShedulerTestFixture, setSingleHeadOverlapPeriod) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setSingleTailOverlapPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setSingleTailOverlapPeriod) {
   //situation to test
   // | PERIOD 1     | <free>        |
   // | PERIOD 1 | NEW PER  | <free> |
@@ -673,7 +673,7 @@ TEST_F(temperatureShedulerTestFixture, setSingleTailOverlapPeriod) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setSplittingPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setSplittingPeriod) {
   //situation to test
   // | PERIOD 1                       |
   // | PERIOD 1 | NEW PER  | PERIOD 1`|
@@ -700,7 +700,7 @@ TEST_F(temperatureShedulerTestFixture, setSplittingPeriod) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setSwallowAndTruncatePeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setSwallowAndTruncatePeriod) {
   //situation to test
   // | PERIOD 1    | <Free> | Period 2 | <Free>  |    PERIOD 3 |
   // | PERIOD 1 |   NEW PERIOD                      | PERIOD 3 |
@@ -737,7 +737,7 @@ TEST_F(temperatureShedulerTestFixture, setSwallowAndTruncatePeriod) {
   printScenarioRanges({P1, P2, P3}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setSwallowPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setSwallowPeriod) {
   //situation to test
   // | PERIOD 1    | <Free>   | Period 2 | <Free>   | PERIOD 3 |
   // | PERIOD 1    | <Free> | NEW PERIOD   | <Free> | PERIOD 3 |
@@ -774,7 +774,7 @@ TEST_F(temperatureShedulerTestFixture, setSwallowPeriod) {
   printScenarioRanges({P1, P2, P3}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setMergeToPeriodTail) {
+TEST_F(TemperatureSchedulerTestFixture, setMergeToPeriodTail) {
   //situation to test
   // | PERIOD 1    |
   // | PERIOD 1           |
@@ -803,7 +803,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodTail) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setMergeToPeriodTail2) {
+TEST_F(TemperatureSchedulerTestFixture, setMergeToPeriodTail2) {
   //situation to test
   // | PERIOD 1    |
   // | PERIOD 1           |
@@ -832,7 +832,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodTail2) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead) {
+TEST_F(TemperatureSchedulerTestFixture, setMergeToPeriodHead) {
   //situation to test
   // |<free>  | PERIOD 1    |
   // | PERIOD 1             |
@@ -861,7 +861,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead2) {
+TEST_F(TemperatureSchedulerTestFixture, setMergeToPeriodHead2) {
   //situation to test
   // |<free>  | PERIOD 1    |
   // | PERIOD 1             |
@@ -890,7 +890,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeToPeriodHead2) {
   printScenarioRanges({P1}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setMergeTwoPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, setMergeTwoPeriod) {
   //situation to test
   // | PERIOD 1 | <free> | PERIOD 1 |
   // | PERIOD 1                     |
@@ -924,7 +924,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeTwoPeriod) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, setMergeTwoPeriod2) {
+TEST_F(TemperatureSchedulerTestFixture, setMergeTwoPeriod2) {
   //situation to test
   // | PERIOD 1 | <free> | PERIOD 1 |
   // | PERIOD 1                     |
@@ -958,7 +958,7 @@ TEST_F(temperatureShedulerTestFixture, setMergeTwoPeriod2) {
   printScenarioRanges({P1, P2}, PNEW);
 }
 
-TEST_F(temperatureShedulerTestFixture, removePeriodsInRange) {
+TEST_F(TemperatureSchedulerTestFixture, removePeriodsInRange) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -993,7 +993,7 @@ TEST_F(temperatureShedulerTestFixture, removePeriodsInRange) {
   printScenarioRanges({P1, P2, P3}, REMOVE_RANGE);
 }
 
-TEST_F(temperatureShedulerTestFixture, splitPeriodByRange) {
+TEST_F(TemperatureSchedulerTestFixture, splitPeriodByRange) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1021,7 +1021,7 @@ TEST_F(temperatureShedulerTestFixture, splitPeriodByRange) {
   printScenarioRanges({P1}, SPLIT_RANGE);
 }
 
-TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod) {
+TEST_F(TemperatureSchedulerTestFixture, checkNoSplitPeriod) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1043,7 +1043,7 @@ TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod) {
   printScenarioRanges({P1}, SPLIT_RANGE);
 }
 
-TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod2) {
+TEST_F(TemperatureSchedulerTestFixture, checkNoSplitPeriod2) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1065,7 +1065,7 @@ TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod2) {
   printScenarioRanges({P1}, SPLIT_RANGE);
 }
 
-TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod3) {
+TEST_F(TemperatureSchedulerTestFixture, checkNoSplitPeriod3) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1087,7 +1087,7 @@ TEST_F(temperatureShedulerTestFixture, checkNoSplitPeriod3) {
   printScenarioRanges({P1}, SPLIT_RANGE);
 }
 
-TEST_F(temperatureShedulerTestFixture, truncatePeriodHead) {
+TEST_F(TemperatureSchedulerTestFixture, truncatePeriodHead) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1105,7 +1105,7 @@ TEST_F(temperatureShedulerTestFixture, truncatePeriodHead) {
   EXPECT_EQ(p1.endTime, P1.endTime);
 }
 
-TEST_F(temperatureShedulerTestFixture, noPeriodToTruncateHead) {
+TEST_F(TemperatureSchedulerTestFixture, noPeriodToTruncateHead) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1123,7 +1123,7 @@ TEST_F(temperatureShedulerTestFixture, noPeriodToTruncateHead) {
   EXPECT_EQ(p1.endTime, P1.endTime);
 }
 
-TEST_F(temperatureShedulerTestFixture, removePeriodDueHeadTruncation) {
+TEST_F(TemperatureSchedulerTestFixture, removePeriodDueHeadTruncation) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1137,7 +1137,7 @@ TEST_F(temperatureShedulerTestFixture, removePeriodDueHeadTruncation) {
   EXPECT_EQ(0, sch.getPeriodsCount());
 }
 
-TEST_F(temperatureShedulerTestFixture, truncatePeriodTail) {
+TEST_F(TemperatureSchedulerTestFixture, truncatePeriodTail) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1155,7 +1155,7 @@ TEST_F(temperatureShedulerTestFixture, truncatePeriodTail) {
   EXPECT_EQ(p1.endTime, END_BEFORE - MINUTE);
 }
 
-TEST_F(temperatureShedulerTestFixture, noPeriodToTruncateTail) {
+TEST_F(TemperatureSchedulerTestFixture, noPeriodToTruncateTail) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1173,7 +1173,7 @@ TEST_F(temperatureShedulerTestFixture, noPeriodToTruncateTail) {
   EXPECT_EQ(p1.endTime, P1.endTime);
 }
 
-TEST_F(temperatureShedulerTestFixture, removePeriodDueTailTruncation) {
+TEST_F(TemperatureSchedulerTestFixture, removePeriodDueTailTruncation) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1187,7 +1187,7 @@ TEST_F(temperatureShedulerTestFixture, removePeriodDueTailTruncation) {
   EXPECT_EQ(0, sch.getPeriodsCount());
 }
 
-TEST_F(temperatureShedulerTestFixture, truncateRange) {
+TEST_F(TemperatureSchedulerTestFixture, truncateRange) {
   using namespace std::chrono;
   TimeRange P1 {
     {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1218,7 +1218,7 @@ TEST_F(temperatureShedulerTestFixture, truncateRange) {
   EXPECT_EQ(p2.endTime, P2.endTime);
 }
 
-TEST_F(temperatureShedulerTestFixture, truncateRangeHeadOverlap) {
+TEST_F(TemperatureSchedulerTestFixture, truncateRangeHeadOverlap) {
   using namespace std::chrono;
     TimeRange P1 {
       {WeekDay::SUNDAY, hours{12}, minutes{00}},
@@ -1240,7 +1240,7 @@ TEST_F(temperatureShedulerTestFixture, truncateRangeHeadOverlap) {
     printScenarioRanges({P1}, RANGE);
 }
 
-TEST_F(temperatureShedulerTestFixture, truncateRangeTailOverlap) {
+TEST_F(TemperatureSchedulerTestFixture, truncateRangeTailOverlap) {
   using namespace std::chrono;
     TimeRange P1 {
       {WeekDay::SUNDAY, hours{12}, minutes{00}},
