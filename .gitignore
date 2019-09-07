@@ -32,3 +32,5 @@ local_env.cmake
 *.exe
 *.out
 *.app
+
+local_env.cmake

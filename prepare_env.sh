@@ -40,7 +40,7 @@ if [ ! -d "${NRJ_PROG}" ]; then
 fi
 
 echo "SET(ARM_NONE_EABI_TOOLCHAIN_PATH \"${GCC}\")" > local_env.cmake
-echo "SET(NRF5_SDK_PATH \"${NRF_SDK}\")" >> local_env.cmake
+echo "SET(SDK_ROOT \"${NRF_SDK}\")" >> local_env.cmake
 echo "SET(NRFJPROG \"${NRJ_PROG}\")" >> local_env.cmake
 
 echo "Setup done Please try building now"
