@@ -7,9 +7,8 @@ extern "C" {
 }
 
 #include "bluetooth/subcomponents/btctrl_sub_comp.h"
-#include "types/single_instance.h"
 
-class QueuedWritesSubComp : public SingleInstance, public BTCtrlSubComp {
+class QueuedWritesSubComp : public BTCtrlSubComp {
 public:
   QueuedWritesSubComp() {
     //Warning: this is compilation time constant macro

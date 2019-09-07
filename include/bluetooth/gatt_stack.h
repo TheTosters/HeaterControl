@@ -10,7 +10,6 @@ extern "C" {
 #include "nrf_log.h"
 }
 
-#include "types/single_instance.h"
 #include "bluetooth/subcomponents/btctrl_sub_comp.h"
 #include "bluetooth/bluetooth_ctrl.h"
 #include "bluetooth/gatt_advertiser.h"
@@ -27,22 +26,41 @@ extern "C" {
 
 template <template <typename> class... Services>
 class GattStack :
-    public SingleInstance,
     public CustomStack<GAPSubComp,
-                       QueuedWritesSubComp,
-                       ConnParamsCgfComp,
-                       PeerMgrSubComp> {
+                       //QueuedWritesSubComp,
+                       ConnParamsCgfComp
+                       //PeerMgrSubComp
+                       > {
+
+private:
+  using GattStackType = CustomStack<GAPSubComp,
+      //QueuedWritesSubComp,
+      ConnParamsCgfComp
+      //PeerMgrSubComp
+      >;
+
 public:
-  GattStack(const std::string& deviceName) : CustomStack() {
+  using ServicesCol = std::tuple<Services<GattStack<Services...>>...>;
+
+  explicit GattStack(const std::string& deviceName) {
     GAPSubComp& gapSub = std::get<GAPSubComp>(subComponents);
     gapSub.deviceName = deviceName;
+
+    BluetoothController::getInstance().addObserver([this](BleEventPtr event){
+      std::apply([event](auto&&... args) {
+                      ((args.onBtleEvent(event)), ...);
+                  }, services);
+      if (event->header.evt_id == BLE_GAP_EVT_DISCONNECTED) {
+        this->advertiser.startAdv();
+      }
+    });
   }
 
   GattStack(const GattStack &) = delete;
   GattStack &operator=(const GattStack &) = delete;
 
   void enable() {
-    CustomStack::enable();
+    GattStackType::enable();
     initGATT();
 
     //Enable services
@@ -59,22 +77,25 @@ public:
            ((args.disable(*this)), ...);
        }, services);
 
-    CustomStack::disable();
+    GattStackType::disable();
   }
 
-private:
-  using ServicesCol = std::tuple<Services<GattStack<Services...>>...>;
+  void collectServicesUids(ServicesUidsVect& collection) {
+    std::apply([&collection](auto&&... args) {
+               ((args.collectServicesUids(collection)), ...);
+           }, services);
+  }
 
+  template<template <typename> class T>
+  T<GattStack>& getService() {
+    return std::get<T<GattStack>>(services);
+  }
+private:
   ServicesCol services;
   GattAdvertiser<GattStack> advertiser;
   static nrf_ble_gatt_t gattInstance;
 
   void initGATT() {
-    //Warning: this is compilation time static macro!
-    NRF_SDH_BLE_OBSERVER(gattInstanceObs,
-                         NRF_BLE_GATT_BLE_OBSERVER_PRIO,
-                         nrf_ble_gatt_on_ble_evt, &gattInstance);
-
     ret_code_t err_code = nrf_ble_gatt_init(&gattInstance, nullptr);
     APP_ERROR_CHECK(err_code);
   }

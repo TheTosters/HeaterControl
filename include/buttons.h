@@ -28,7 +28,6 @@ private:
   }
 
   static void buttonsHandler(bsp_event_t event) {
-    uint32_t err_code;
     switch (event) {
       //PREV button pressed
       case BSP_EVENT_KEY_0:

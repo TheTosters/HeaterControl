@@ -12,6 +12,10 @@ extern "C" {
 
 class GAPSubComp : public BTCtrlSubComp {
 public:
+  GAPSubComp() = default;
+  GAPSubComp(const GAPSubComp&) = delete;
+  GAPSubComp& operator=(const GAPSubComp &) = delete;
+
   std::string deviceName {"TestDev"};
 
   void enable() {

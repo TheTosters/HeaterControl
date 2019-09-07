@@ -4,7 +4,7 @@
 #include <functional>
 
 enum class SelectedScreen {
-  DEFAULT, STATUS, TIME_SETUP
+  DEFAULT, STATUS, TIME_SETUP, REMOTE_CONFIG
 };
 
 //used to observer request to render and update display
