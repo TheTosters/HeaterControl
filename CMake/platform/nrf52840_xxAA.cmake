@@ -3,6 +3,7 @@ set(nrf52840_xxAA_SOURCE_FILES
     "${SDK_ROOT}/modules/nrfx/mdk/system_nrf52840.c")
 
 set(nrf52840_xxAA_INCLUDE_DIRS
+    "${SDK_ROOT}"
     "${SDK_ROOT}/modules/nrfx"
     "${SDK_ROOT}/modules/nrfx/mdk"
     "${SDK_ROOT}/modules/nrfx/hal"

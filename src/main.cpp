@@ -1,9 +1,9 @@
 extern "C" {
-#include "nrf_delay.h"
+#include <components/libraries/delay/nrf_delay.h>
 #include "boards.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log.h"
-#include "nrf_log_default_backends.h"
+#include <components/libraries/log/nrf_log_ctrl.h>
+#include <components/libraries/log/nrf_log.h>
+#include <components/libraries/log/nrf_log_default_backends.h>
 #include "app_error.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
@@ -18,20 +18,21 @@ extern "C" {
 #include "buttons.h"
 #include "display.h"
 #include "sensors/sensor_factory.h"
+#include "bluetooth/btle_transmiter.h"
 #include "calendar.h"
 #include "resources/xbm_icons.h"
 #include "screens/default_screen.h"
 #include "screens/status_screen.h"
 #include "screens/time_setup_screen.h"
 #include "screens/screens_stack.h"
-#include "screens/remote_config_screen.h"
 #include "observable.h"
 #include "events_dispatcher.h"
 #include "schedule/temperatureScheduler.h"
 #include "schedule/weekScheduleBuilder.h"
 #include "heating_model.h"
 #include "types/hardware_pin.h"
-#include "bluetooth/bluetooth_mode_selector.h"
+#include "bluetooth/gatt_stack.h"
+#include "bluetooth/services/gatt_service.h"
 #include <stdint.h>
 
 #define APP_BLE_OBSERVER_PRIO           3
@@ -74,20 +75,14 @@ int main( int argc, const char* argv[] ) {
   initLowFreqClock();
 
   uint32_t err_code = app_timer_init();
-  APP_ERROR_CHECK(err_code);
-
   I2c_Bridge i2cBridge{HardwarePin{CONFIG_SDA_PIN},
     HardwarePin{CONFIG_SCL_PIN}, nullptr};
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
   EventsDispatcher<10,
-    ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr,
-    BluetoothModeSelector::Event> dispatcher;
+    ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr> dispatcher;
   Display display{i2cBridge};
   OnBoardSensor sensors = instantiateSensor(i2cBridge);
-
-  BluetoothModeSelector btSelector{sensors};
-  btSelector.setMode(BluetoothModeSelector::Mode::BROADCAST);
 
   Buttons buttons;
   Calendar calendar;
@@ -104,20 +99,13 @@ int main( int argc, const char* argv[] ) {
   BluetoothController::getInstance();
   /*
   BtleTransmiter btleTransmiter{sensors};
-  using GattStackType = GattStack<RoomStateService>;
-  GattStackType gattStack{"PioPio"};
-  auto& roomServ = gattStack.getService<RoomStateService>();
-  auto& tempChar = roomServ.getCharacteristic<TemperatureCharacteristic>();
-  auto& humChar = roomServ.getCharacteristic<HumidityCharacteristic>();
-  sensors.addObserver([&tempChar, &humChar](TemperatureC t, RelativeHumidity h) {
-    tempChar.setValue(t);
-    humChar.setValue(h);
-  });
+  btleTransmiter.enable();
+*/
+  GattStack<EnvironmentalSensingService> gattStack{"PioPio"};
+  gattStack.enable();
 
 //  ScreensStack stack{display};
 //  DefaultScreen& screen = stack.add( DefaultScreen{display} );
-  stack.add( RemoteConfigScreen{display, btSelector});
-  stack.add( RemoteConfigScreen{display, btSelector});
 
 //  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
 //    screen.setTempAndHum(t, h);

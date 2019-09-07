@@ -57,7 +57,7 @@ private:
     }
 
     void linkToSensors(OnBoardSensor& sensors) {
-      sensors.addObserver([this](TemperatureC t, RelativeHumidity h) {
+      sensors.addObserver([this](TemperatureC t, RelativeHumidity h, BatteryPrc b) {
         onSensorValueChange(t, h);
       });
     }

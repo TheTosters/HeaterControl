@@ -91,7 +91,7 @@ private:
       DayTemplate& templ) {
     WeekTime start{day, std::chrono::hours{0}, std::chrono::minutes{0}};
     std::string& alias = templ.startTempAliast;
-    for(int t = 0; t < templ.size(); t++) {
+    for(size_t t = 0; t < templ.size(); t++) {
       auto& p = templ.getPeriod(t);
       scheduler.setTemperaturePeriod(start, p.timePoint, alias);
       start = p.timePoint;
