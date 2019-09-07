@@ -1,10 +1,11 @@
 #pragma once
 
 extern "C" {
-#include "app_scheduler.h"
-#include "app_error.h"
-#include "app_util_platform.h"
-#include "nrf_log.h"
+#include <components/libraries/scheduler/app_scheduler.h>
+#include <components/libraries/util/app_error.h>
+#include <components/libraries/util/app_util_platform.h>
+#include <components/libraries/log/nrf_log.h>
+#include <integration/nrfx/nrfx_glue.h>
 }
 #include <stdint.h>
 #include <math.h>
@@ -35,10 +36,4 @@ Data* extractDispatchedData(void* pBuf, size_t pBufSize) {
   return reinterpret_cast<Data*>(pBuf);
 }
 
-void ensureMainThread() {
-  bool mainThread = current_int_priority_get() == APP_IRQ_PRIORITY_THREAD;
-  if (not mainThread) {
-    NRF_LOG_ERROR("Expectation for main thread failed");
-  }
-  APP_ERROR_CHECK(mainThread ? NRFX_SUCCESS : NRFX_ERROR_INVALID_STATE);
-}
+void ensureMainThread();

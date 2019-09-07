@@ -16,6 +16,9 @@
 //#define BOARD_SENSOR  BoardSensor::SHT30
 #define BOARD_SENSOR BoardSensor::DS18B20
 
+//#define BOARD_COMMUNICATION CommMode::BT_ADV
+#define BOARD_COMMUNICATION CommMode::BT_GATT
+
 //Used by BSP module for easy buttons
 #define BUTTONS_NUMBER 3
 

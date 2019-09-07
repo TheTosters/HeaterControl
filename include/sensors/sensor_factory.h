@@ -20,7 +20,7 @@ struct FactoryTrait {
   }
 };
 
-//Specialization of factory for DS sensor
+//Specialisation of factory for DS sensor
 template<>
 struct FactoryTrait<BoardSensor::DS18B20> {
   using Ds18b20Sensor = Ds18b20<Res9Bit>;
@@ -33,7 +33,7 @@ struct FactoryTrait<BoardSensor::DS18B20> {
   }
 };
 
-//Specialization of factory for SHT30 sensor
+//Specialisation of factory for SHT30 sensor
 template<>
 struct FactoryTrait<BoardSensor::SHT30> {
   using Sht30Sensor = Sht30<Sht30Mode::Single_HighRep_ClockStretch,
@@ -46,7 +46,4 @@ struct FactoryTrait<BoardSensor::SHT30> {
 };
 
 using OnBoardSensor = FactoryTrait<BOARD_SENSOR>::BoardSensorType;
-
-OnBoardSensor instantiateSensor(I2c_Bridge& bridge) {
-  return FactoryTrait<BOARD_SENSOR>::build(bridge);
-}
+OnBoardSensor& sensors();

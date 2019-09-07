@@ -9,9 +9,11 @@
 #define INCLUDE_SENSORS_BATTERY_SENSOR_H_
 
 extern "C" {
-#include "app_error.h"
-#include "nrfx_saadc.h"
-#include "nrf_drv_saadc.h"
+#include <components/libraries/util/app_error.h>
+#include <components/libraries/log/nrf_log.h>
+#include <components/libraries/util/app_util.h>
+#include <modules/nrfx/drivers/include/nrfx_saadc.h>
+#include <integration/nrfx/legacy/nrf_drv_saadc.h>
 }
 
 #include "types/unit.h"
@@ -66,11 +68,9 @@ private:
 
   static void saadcEventHandler(nrf_drv_saadc_evt_t const* event) {
     if (event->type == NRF_DRV_SAADC_EVT_DONE) {
-      uint8_t percentage_batt_lvl;
-      ret_code_t err_code;
-
       nrf_saadc_value_t adcResult = event->data.done.p_buffer[0];
 
+      ret_code_t err_code;
       err_code = nrf_drv_saadc_buffer_convert(event->data.done.p_buffer, 1);
       APP_ERROR_CHECK(err_code);
 
@@ -86,7 +86,4 @@ private:
     }
   }
 };
-
-BatteryPrc BatterySensor::battery{0};
-unsigned int BatterySensor::adcMv{3000};
 #endif /* INCLUDE_SENSORS_BATTERY_SENSOR_H_ */

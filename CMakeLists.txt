@@ -76,6 +76,10 @@ set(TARGET_INCLUDE_DIRS
 add_executable(${TARGET_NAME}
     "src/main.cpp"
     "src/ssd1306.cpp"
+    "src/sensor_factory.cpp"
+    "src/i2c_bridge.cpp"
+    "src/events_dispatcher.cpp"
+    "src/battery_sensor.cpp"
     ${TARGET_SOURCE_FILES}
     ${EXTRA_SDK_SOURCE_FILES}
 )

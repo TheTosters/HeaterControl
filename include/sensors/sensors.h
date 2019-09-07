@@ -12,6 +12,7 @@ extern "C" {
 #include "observable.h"
 #include "types/unit.h"
 #include "battery_sensor.h"
+#include "events_dispatcher.h"
 
 #include <stdint.h>
 #include <math.h>

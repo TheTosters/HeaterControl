@@ -119,3 +119,5 @@ private:
     APP_ERROR_CHECK(err);
   }
 };
+
+I2c_Bridge& i2cBridge();

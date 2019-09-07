@@ -9,3 +9,6 @@
 #define CONFIG_DS18B20_PIN  NRF_GPIO_PIN_MAP(0,  2)
 
 #define BOARD_SENSOR  BoardSensor::SHT30
+
+//#define BOARD_COMMUNICATION CommMode::BT_ADV
+#define BOARD_COMMUNICATION CommMode::BT_GATT
