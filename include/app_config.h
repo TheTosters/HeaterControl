@@ -37,7 +37,6 @@
 #define NRFX_SAADC_CONFIG_LP_MODE 0
 #define NRFX_SAADC_CONFIG_IRQ_PRIORITY 6
 
-
 #define GPIO_COUNT 2
 //BSP support
 #define BUTTON_ENABLED 1

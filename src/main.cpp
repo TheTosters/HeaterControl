@@ -106,7 +106,6 @@ int main( int argc, const char* argv[] ) {
   BtleTransmiter btleTransmiter{sensors};
   using GattStackType = GattStack<RoomStateService>;
   GattStackType gattStack{"PioPio"};
-  gattStack.enable();
   auto& roomServ = gattStack.getService<RoomStateService>();
   auto& tempChar = roomServ.getCharacteristic<TemperatureCharacteristic>();
   auto& humChar = roomServ.getCharacteristic<HumidityCharacteristic>();
@@ -117,6 +116,7 @@ int main( int argc, const char* argv[] ) {
 
 //  ScreensStack stack{display};
 //  DefaultScreen& screen = stack.add( DefaultScreen{display} );
+  stack.add( RemoteConfigScreen{display, btSelector});
   stack.add( RemoteConfigScreen{display, btSelector});
 
 //  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
