@@ -4,6 +4,7 @@
 #include "bluetooth/btle_transmiter.h"
 #include "bluetooth/gatt_stack.h"
 #include "bluetooth/services/gatt_service.h"
+#include "bluetooth/services/battery_service.h"
 #include "sensors/sensor_factory.h"
 
 enum class CommMode {
@@ -35,18 +36,33 @@ BtleTransmiter* ComFactoryTrait<CommMode::BT_ADV>::btleTransmiter;
 //Specialisation of factory for for Bluetooth GATT
 template<>
 struct ComFactoryTrait<CommMode::BT_GATT> {
-  static GattStack<EnvironmentalSensingService>* gattStack;
+  using GattType = GattStack<EnvironmentalSensingService, BatteryService>;
+  static GattType* gattStack;
 
   static void build() {
-	  BluetoothController::getInstance();
-	  gattStack = new GattStack<EnvironmentalSensingService>{"PioPio"};
+    BluetoothController::getInstance();
+    gattStack = new GattType{"PioPio"};
+
+    sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
+      auto& serv = gattStack->getService<EnvironmentalSensingService>();
+      auto& tempChr = serv.getCharacteristic<TemperatureCharacteristic>();
+      tempChr.setValue(t);
+
+      auto& humChr = serv.getCharacteristic<HumidityCharacteristic>();
+      humChr.setValue(h);
+
+      auto& servB = gattStack->getService<BatteryService>();
+      auto& batChr = servB.getCharacteristic<BatteryLevelCharacteristic>();
+      batChr.setValue(b);
+    });
+
   }
 
   static void start() {
-	  gattStack->enable();
+    gattStack->enable();
   }
 };
 
-GattStack<EnvironmentalSensingService>* ComFactoryTrait<CommMode::BT_GATT>::gattStack;
+ComFactoryTrait<CommMode::BT_GATT>::GattType* ComFactoryTrait<CommMode::BT_GATT>::gattStack;
 
 using Communication = ComFactoryTrait<BOARD_COMMUNICATION>;

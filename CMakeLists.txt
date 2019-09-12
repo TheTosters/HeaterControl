@@ -5,14 +5,14 @@ set(PROJECT_NAME "HeaterControl")
 set(PLATFORM "nrf52840_xxAA" CACHE STRING "Choose the target platform to build for.")
 
 # Uncomment and set custom board name if needed
-set(CUSTOM_BOARD_INC "dev_board")
+set(CUSTOM_BOARD_INC "production_board")
 
 # Set a default build type: "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
 set(default_build_type "Debug") 
 
 option(BUILD_HOST "Build for host (unit test build)" OFF)
 
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 if (NOT CMAKE_VERSION VERSION_LESS 3.9)
     # Allow user to enable CMAKE_INTERPROCEDURAL_OPTIMIZATION (LTO) if supported for the toolchain.
     # This is supported from CMake version 9 and later.

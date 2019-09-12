@@ -47,6 +47,8 @@ set(cortex-m4f_DEFINES
     -mfloat-abi=hard
     -mfpu=fpv4-sp-d16)
 
+set(CMAKE_EXE_LINKER_FLAGS  "-Wl,--gc-sections --specs=nosys.specs")
+
 function (set_target_link_options target_name linker_file)
     set(link_flags
         ${${ARCH}_DEFINES}

@@ -14,8 +14,9 @@ class BatteryLevelCharacteristic : public GattCharacteristic<
     CharReadable<PropSecureNone>> {
 
 public:
-  void setValue(uint8_t newValue) {
-    GattCharacteristic::setValue( std::clamp(newValue, static_cast<uint8_t>(0),
-        static_cast<uint8_t>(100)) );
+  void setValue(BatteryPrc newValue) {
+    int lvl = static_cast<int>(newValue);
+    GattCharacteristic::setValue( std::clamp(lvl, static_cast<int>(0),
+        static_cast<int>(100)) );
   }
 };

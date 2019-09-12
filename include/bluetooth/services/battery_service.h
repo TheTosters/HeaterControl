@@ -16,6 +16,7 @@ extern "C" {
 
 template<typename Stack>
 class BatteryService : public GattService<
+  //CustomServiceBase<ROOM_STATE_UUID_BASE, 0x180F>,
   BTOrgServiceBase<0x180F>,
   Stack,
   BatteryLevelCharacteristic> {

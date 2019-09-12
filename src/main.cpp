@@ -76,8 +76,6 @@ int main( int argc, const char* argv[] ) {
   initLowFreqClock();
 
   uint32_t err_code = app_timer_init();
-  //-- I2c_Bridge i2cBridge{HardwarePin{CONFIG_SDA_PIN},
-  //--  HardwarePin{CONFIG_SCL_PIN}, nullptr};
   //All data types which are used by classes which uses dispatching into main
   //thread should be placed here!
   EventsDispatcher<10,
@@ -98,6 +96,8 @@ int main( int argc, const char* argv[] ) {
 */
 
   Communication::build();
+  Communication::start();
+
 
 //  ScreensStack stack{display};
 //  DefaultScreen& screen = stack.add( DefaultScreen{display} );
@@ -125,8 +125,9 @@ int main( int argc, const char* argv[] ) {
 
   uint32_t myTimeStamp = millis();
 
-//  sensors.addObserver([](float t, int h){
-//  NRF_LOG_INFO("Temp: %d; Hum: %d\n", static_cast<int>(t*100), h);});
+  sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
+    NRF_LOG_INFO("Temp: %s; Hum: %s\n", t.toString().c_str(), h.toString().c_str() );
+  });
   NRF_LOG_INFO("Loop\n");
 
   while (true) {
