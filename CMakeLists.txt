@@ -80,6 +80,10 @@ add_executable(${TARGET_NAME}
     "src/i2c_bridge.cpp"
     "src/events_dispatcher.cpp"
     "src/battery_sensor.cpp"
+    "src/buttons.cpp"
+    "src/screen_submodule.cpp"
+    "src/calendar.cpp"
+    "src/communication.cpp"
     ${TARGET_SOURCE_FILES}
     ${EXTRA_SDK_SOURCE_FILES}
 )

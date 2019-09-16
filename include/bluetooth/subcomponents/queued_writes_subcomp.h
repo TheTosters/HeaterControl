@@ -39,5 +39,3 @@ private:
     APP_ERROR_CHECK(err_code);
   }
 };
-
-nrf_ble_qwr_t QueuedWritesSubComp::qwrInstance;

@@ -39,6 +39,8 @@ extern "C" {
 #define APP_BLE_OBSERVER_PRIO           3
 #define APP_BLE_CONN_CFG_TAG            1
 
+extern void setupScreens();
+
 void powerManagementInit() {
   ret_code_t err_code;
   err_code = nrf_pwr_mgmt_init();
@@ -80,10 +82,7 @@ int main( int argc, const char* argv[] ) {
   //thread should be placed here!
   EventsDispatcher<10,
     ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr> dispatcher;
-  Display display{i2cBridge()};
 
-  Buttons buttons;
-  Calendar calendar;
   TemperatureScheduler tempScheduler;
   HeatingModel heatingModel{tempScheduler};
   sensors().addObserver([&heatingModel](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
@@ -98,30 +97,7 @@ int main( int argc, const char* argv[] ) {
   Communication::build();
   Communication::start();
 
-
-//  ScreensStack stack{display};
-//  DefaultScreen& screen = stack.add( DefaultScreen{display} );
-
-//  sensors.addObserver([&screen](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
-//    screen.setTempAndHum(t, h);
-//    //TODO: Add battery to screen?
-//  });
-//  calendar.addObserver([&screen](DecodedTime t) {screen.setTime(t);});
-//  heatingModel.addObserver(
-//      [&screen](bool h, TemperatureC t, HeatingPlan p) {
-//        screen.setHeatingStatus(h, t, p);
-//  });
-
-//  StatusScreen stScr = stack.add( StatusScreen{display} );
-//
-//  stack.add( TimeSetupScreen{display, calendar});
-//
-//  buttons.addObserver([&stack](ButtonId event) {stack.onButtonEvent(event);});
-//
-//  stack.selectScreen(SelectedScreen::DEFAULT);
-//
-//  display.sustainOn();
-//  stack.render();
+  setupScreens();
 
   uint32_t myTimeStamp = millis();
 
@@ -135,7 +111,6 @@ int main( int argc, const char* argv[] ) {
       myTimeStamp = millis();
       bsp_board_led_invert(0);
     }
-
     dispatcher.process();
     nrf_pwr_mgmt_run();
   }

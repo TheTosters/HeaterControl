@@ -4,27 +4,28 @@
 #include <functional>
 #include "events_dispatcher.h"
 extern "C" {
-#include "bsp.h"
+#include <components/libraries/bsp/bsp.h>
 }
 
 enum class ButtonId{
   PREV, NEXT, OK
 };
 
+class Buttons;
+Buttons& buttons();
+
 class Buttons : public Observable<ButtonId> {
 public:
   Buttons() {
-    Buttons::singletonInstance = this;  //thank you Nordic...
     ret_code_t err_code = bsp_init(BSP_INIT_BUTTONS, Buttons::buttonsHandler);
     APP_ERROR_CHECK(err_code);
   }
 
 private:
-  static Buttons* singletonInstance;
 
   static void mainThreadExecutor(void* p_event_data, uint16_t event_size) {
     ButtonId* btn = extractDispatchedData<ButtonId>(p_event_data, event_size);
-    singletonInstance->notify(*btn);
+    buttons().notify(*btn);
   }
 
   static void buttonsHandler(bsp_event_t event) {
@@ -53,4 +54,3 @@ private:
   }
 
 };
-Buttons* Buttons::singletonInstance;

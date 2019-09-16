@@ -1,6 +1,7 @@
 #pragma once
 
 extern "C" {
+#include "boards.h"
 #include "app_timer.h"
 }
 
@@ -67,3 +68,5 @@ private:
     self->notify( self->getDecodedTime() );
   }
 };
+
+Calendar& calendar();

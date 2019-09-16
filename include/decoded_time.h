@@ -69,7 +69,3 @@ struct DecodedTime {
     return s.str();
   }
 };
-
-const std::vector<std::string> DecodedTime::dayNames {
-  "Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek",
-  "Sobota"};

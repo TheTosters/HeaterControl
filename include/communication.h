@@ -5,6 +5,7 @@
 #include "bluetooth/gatt_stack.h"
 #include "bluetooth/services/gatt_service.h"
 #include "bluetooth/services/battery_service.h"
+#include "bluetooth/services/environmental_sensing_service.h"
 #include "sensors/sensor_factory.h"
 
 enum class CommMode {
@@ -31,7 +32,6 @@ struct ComFactoryTrait<CommMode::BT_ADV> {
 	  btleTransmiter->enable();
   }
 };
-BtleTransmiter* ComFactoryTrait<CommMode::BT_ADV>::btleTransmiter;
 
 //Specialisation of factory for for Bluetooth GATT
 template<>
@@ -62,7 +62,5 @@ struct ComFactoryTrait<CommMode::BT_GATT> {
     gattStack->enable();
   }
 };
-
-ComFactoryTrait<CommMode::BT_GATT>::GattType* ComFactoryTrait<CommMode::BT_GATT>::gattStack;
 
 using Communication = ComFactoryTrait<BOARD_COMMUNICATION>;

@@ -106,3 +106,5 @@ private:
   }
 
 };
+
+Display& display();

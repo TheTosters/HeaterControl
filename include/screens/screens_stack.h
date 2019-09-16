@@ -95,3 +95,5 @@ private:
   ScreensVector screens;
   Display& display;
 };
+
+ScreensStack& screensStack();
