@@ -10,6 +10,7 @@ extern "C" {
 #include <components/libraries/pwr_mgmt/nrf_pwr_mgmt.h>
 #include <components/libraries/bsp/bsp.h>
 #include <components/libraries/timer/app_timer.h>
+#include <components/ble/ble_services/ble_dfu/ble_dfu.h>
 #include <integration/nrfx/legacy/nrf_drv_clock.h>
 #include <config/nrf52840/config/sdk_config.h>
 }
@@ -93,10 +94,18 @@ int main( int argc, const char* argv[] ) {
     heatingModel.setTime(t);
   });
 */
-
+  NRF_LOG_INFO("2");
+    NRF_LOG_FLUSH();
   Communication::build();
   Communication::start();
+  //--- dfu test
+  static ble_dfu_buttonless_init_t dfus_init;
+  err_code = ble_dfu_buttonless_init(&dfus_init);
 
+  NRF_LOG_INFO("DFU ERROR: %d", err_code);
+  NRF_LOG_FLUSH();
+  APP_ERROR_CHECK(err_code);
+  //----^
   setupScreens();
 
   uint32_t myTimeStamp = millis();

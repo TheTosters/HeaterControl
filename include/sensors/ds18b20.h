@@ -12,7 +12,7 @@ extern "C" {
 #include "nrf_log.h"
 }
 
-#define DS_DEBUG 1
+//#define DS_DEBUG 1
 
 enum Ds18b20_Resolution {
   Res9Bit =  0x1F,

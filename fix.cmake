@@ -36,6 +36,14 @@ SET(SDK_SEARCH_DIRECTORIES
   ${SDK_ROOT}/components/libraries/atomic_flags
   ${SDK_ROOT}/components/libraries/atomic_fifo
   ${SDK_ROOT}/components/libraries/fstorage
+  
+  
+  ${SDK_ROOT}/components/libraries/bootloader
+  ${SDK_ROOT}/components/libraries/bootloader/ble_dfu
+  ${SDK_ROOT}/components/libraries/bootloader/dfu
+  ${SDK_ROOT}/components/libraries/svc
+  
+  
 )
 
 SET(EXTRA_SDK_SOURCE_FILES
@@ -96,5 +104,10 @@ SET(EXTRA_SDK_SOURCE_FILES
   ${SDK_ROOT}/components/ble/peer_manager/peer_id.c
   ${SDK_ROOT}/components/ble/peer_manager/pm_buffer.c
   ${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_saadc.c
+  
+  
+  ${SDK_ROOT}/components/ble/ble_services/ble_dfu/ble_dfu.c
+  ${SDK_ROOT}/components/ble/ble_services/ble_dfu/ble_dfu_bonded.c
+  ${SDK_ROOT}/components/ble/ble_services/ble_dfu/ble_dfu_unbonded.c
+  ${SDK_ROOT}/components/libraries/bootloader/dfu/nrf_dfu_svci.c
 )
-
