@@ -47,6 +47,7 @@ ScreensStack& screensStack() {
 }
 
 void setupScreens() {
+#if DISPLAY
   ScreensStack& stack = screensStack();
   DefaultScreen& screen = stack.add( DefaultScreen{display()} );
 
@@ -70,4 +71,5 @@ void setupScreens() {
 
   display().sustainOn();
   stack.render();
+#endif
 }

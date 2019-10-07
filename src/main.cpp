@@ -32,6 +32,7 @@ extern "C" {
 #include "schedule/weekScheduleBuilder.h"
 #include "heating_model.h"
 #include "types/hardware_pin.h"
+#include "rgb_led.h"
 //#include "bluetooth/gatt_stack.h"
 //#include "bluetooth/services/gatt_service.h"
 #include "communication.h"
@@ -74,7 +75,9 @@ int main( int argc, const char* argv[] ) {
   NRF_LOG_DEFAULT_BACKENDS_INIT();
   NRF_LOG_INFO("Start\n");
   NRF_LOG_FLUSH();
+
   bsp_board_init(BSP_INIT_LEDS);
+
   powerManagementInit();
   initLowFreqClock();
 
@@ -94,17 +97,15 @@ int main( int argc, const char* argv[] ) {
     heatingModel.setTime(t);
   });
 */
-  NRF_LOG_INFO("2");
-    NRF_LOG_FLUSH();
   Communication::build();
   Communication::start();
   //--- dfu test
-  static ble_dfu_buttonless_init_t dfus_init;
-  err_code = ble_dfu_buttonless_init(&dfus_init);
-
-  NRF_LOG_INFO("DFU ERROR: %d", err_code);
-  NRF_LOG_FLUSH();
-  APP_ERROR_CHECK(err_code);
+//  static ble_dfu_buttonless_init_t dfus_init;
+//  err_code = ble_dfu_buttonless_init(&dfus_init);
+//
+//  NRF_LOG_INFO("DFU ERROR: %d", err_code);
+//  NRF_LOG_FLUSH();
+//  APP_ERROR_CHECK(err_code);
   //----^
   setupScreens();
 
@@ -115,10 +116,13 @@ int main( int argc, const char* argv[] ) {
   });
   NRF_LOG_INFO("Loop\n");
 
+  RGBLed led{HardwarePin{CONFIG_RGB_R_PIN},
+    HardwarePin{CONFIG_RGB_G_PIN}, HardwarePin{CONFIG_RGB_B_PIN}};
+  led.setColor(RGBLed::Color::YELLOW);
+
   while (true) {
     if(compareMillis(myTimeStamp, millis()) > 1000) {
       myTimeStamp = millis();
-      bsp_board_led_invert(0);
     }
     dispatcher.process();
     nrf_pwr_mgmt_run();

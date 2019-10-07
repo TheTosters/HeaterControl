@@ -5,7 +5,8 @@ set(PROJECT_NAME "HeaterControl")
 set(PLATFORM "nrf52840_xxAA" CACHE STRING "Choose the target platform to build for.")
 
 # Uncomment and set custom board name if needed
-set(CUSTOM_BOARD_INC "production_board")
+#set(CUSTOM_BOARD_INC "production_board")
+set(CUSTOM_BOARD_INC "universal_1_board")
 
 # Set a default build type: "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
 set(default_build_type "Debug") 

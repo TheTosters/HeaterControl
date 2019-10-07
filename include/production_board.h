@@ -24,7 +24,7 @@
 
 #define BUTTON_PREV     NRF_GPIO_PIN_MAP(1, 14)
 #define BUTTON_NEXT     NRF_GPIO_PIN_MAP(1, 15)
-#define BUTTON_OK       NRF_GPIO_PIN_MAP(1, 05)
+#define BUTTON_OK       NRF_GPIO_PIN_MAP(1, 5)
 #define BUTTON_PULL     NRF_GPIO_PIN_PULLUP
 
 #define BUTTONS_ACTIVE_STATE 0
@@ -38,7 +38,7 @@
 // LEDs definitions for PCA10056
 #define LEDS_NUMBER    1
 
-#define LED_1          NRF_GPIO_PIN_MAP(0,13)
+#define LED_1          NRF_GPIO_PIN_MAP(0, 13)
 #define LED_START      LED_1
 #define LED_STOP       LED_1
 

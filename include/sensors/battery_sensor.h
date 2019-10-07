@@ -81,8 +81,8 @@ private:
       constexpr float ETA = 0.9f;
       adcMv = (1.0f - ETA) * battLvlMv + ETA * adcMv;
       battery = BatteryPrc{battery_level_in_percent(adcMv)};
-      NRF_LOG_INFO("Battery %d%%, %dmV, (%dmV)",
-          battery_level_in_percent(adcMv), adcMv, battLvlMv);
+//      NRF_LOG_INFO("Battery %d%%, %dmV, (%dmV)",
+//          battery_level_in_percent(adcMv), adcMv, battLvlMv);
     }
   }
 };
