@@ -70,6 +70,12 @@ uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
   }
 }
 
+void setupMeasureOnButton() {
+  buttons().addObserver([](ButtonId event) {
+    Communication::sendMeasurementsNow();
+  });
+}
+
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
@@ -92,6 +98,11 @@ int main( int argc, const char* argv[] ) {
   sensors().addObserver([&heatingModel](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
     heatingModel.setTempAndHum(t, h);
   });
+
+#if MEASURE_ON_BUTTON_PRESS
+  setupMeasureOnButton();
+#endif
+
   /*
   calendar.addObserver([&heatingModel](DecodedTime t) {
     heatingModel.setTime(t);
@@ -109,8 +120,6 @@ int main( int argc, const char* argv[] ) {
   //----^
   setupScreens();
 
-  uint32_t myTimeStamp = millis();
-
   sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
     NRF_LOG_INFO("Temp: %s; Hum: %s\n", t.toString().c_str(), h.toString().c_str() );
   });
@@ -121,9 +130,6 @@ int main( int argc, const char* argv[] ) {
   led.setColor(RGBLed::Color::YELLOW);
 
   while (true) {
-    if(compareMillis(myTimeStamp, millis()) > 1000) {
-      myTimeStamp = millis();
-    }
     dispatcher.process();
     nrf_pwr_mgmt_run();
   }

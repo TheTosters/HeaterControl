@@ -15,6 +15,9 @@
 
 //#define BOARD_SENSOR  BoardSensor::SHT30
 #define BOARD_SENSOR BoardSensor::DS18B20
+#define MEASURE_INTERVAL_MS   (5 * 60 * 1000)
+#define MEASURE_DELTA_TEMP    (0.5f)
+#define MEASURE_DELTA_HUM     (5)
 
 //#define BOARD_COMMUNICATION CommMode::BT_ADV
 #define BOARD_COMMUNICATION CommMode::BT_GATT

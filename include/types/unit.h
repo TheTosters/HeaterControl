@@ -4,11 +4,26 @@
 #include <stdint.h>
 #include <cstddef>
 #include <string>
+extern "C" {
+#include "boards.h"
+}
 
 template<typename T>
 struct default_trait
 {
     constexpr static T epsilon = 0.2f;
+};
+
+template<typename T>
+struct TemperatureTrait
+{
+    constexpr static T epsilon = MEASURE_DELTA_TEMP;
+};
+
+template<typename T>
+struct HumidityTrait
+{
+    constexpr static T epsilon = MEASURE_DELTA_HUM;
 };
 
 template <typename T, typename Tag, typename Traits = default_trait<T>>
@@ -82,6 +97,6 @@ public:
     }
 };
 
-using TemperatureC = unit<float, struct TemperatureC_tag>;
-using RelativeHumidity = unit<int, struct RelativeHumidity_tag>;
+using TemperatureC = unit<float, struct TemperatureC_tag, TemperatureTrait<float>>;
+using RelativeHumidity = unit<int, struct RelativeHumidity_tag, HumidityTrait<int>>;
 using BatteryPrc = unit<int, struct BatteryPrc_tag>;

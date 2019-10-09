@@ -17,9 +17,21 @@
 //#define BOARD_SENSOR  BoardSensor::SHT30
 #define BOARD_SENSOR BoardSensor::DS18B20
 
+#define MEASURE_INTERVAL_MS   (5 * 60 * 1000)
+#define MEASURE_DELTA_TEMP    (0.5f)
+#define MEASURE_DELTA_HUM     (5)
+
 #define BOARD_COMMUNICATION CommMode::BT_GATT
 
-#define BUTTONS_NUMBER 0
+#define MEASURE_ON_BUTTON_PRESS   1
+
+#define BUTTONS_NUMBER  1
+#define BUTTON_PREV     NRF_GPIO_PIN_MAP(1, 14)
+#define BUTTON_PULL     NRF_GPIO_PIN_PULLUP
+#define BUTTONS_ACTIVE_STATE 0
+#define BUTTONS_LIST   {BUTTON_PREV}
+#define BSP_BUTTON_0   BUTTON_PREV
+
 #define LEDS_NUMBER    0
 #define DISPLAY        1
 

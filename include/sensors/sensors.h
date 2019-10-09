@@ -40,8 +40,7 @@ public:
   }
 private:
   //how often measurements should take place
-  //constexpr unsigned int MEASUREMENT_INTERVAL = APP_TIMER_TICKS(3 * 60 * 1000);
-  static constexpr unsigned int MEASUREMENT_INTERVAL = APP_TIMER_TICKS(3 * 1000);
+  static constexpr unsigned int MEASUREMENT_INTERVAL = APP_TIMER_TICKS(MEASURE_INTERVAL_MS);
   static constexpr unsigned int CONFIGURE_DELAY =
       APP_TIMER_TICKS(MainSensor::CONFIGURE_DELAY_MS);
   static constexpr unsigned int MEASURING_DELAY =
