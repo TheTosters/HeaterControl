@@ -791,9 +791,9 @@ F 3 "~" H 8350 3550 50  0001 C CNN
 $EndComp
 Text Label 7700 3550 0    50   ~ 0
 SWDCLK_EXT
-Text Label 7700 3450 0    50   ~ 0
-SWDIO_EXT
 Text Label 7700 3650 0    50   ~ 0
+SWDIO_EXT
+Text Label 7700 3450 0    50   ~ 0
 SWO_EXT
 Wire Wire Line
 	8150 3650 7700 3650

@@ -4,5 +4,5 @@
   (lib (name BS-3)(type Legacy)(uri ${KIPRJMOD}/BS-3.lib)(options "")(descr ""))
   (lib (name HeaterControl-rescue)(type Legacy)(uri ${KIPRJMOD}/HeaterControl-rescue.lib)(options "")(descr ""))
   (lib (name Tag-Connect)(type Legacy)(uri ${KIPRJMOD}/Tag-Connect.lib)(options "")(descr ""))
-  (lib (name CR2032_BatHolder)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/repository/hardware/universalSensor/CR2032_BatHolder.lib)(options "")(descr ""))
+  (lib (name CR2032_BatHolder)(type Legacy)(uri ${KIPRJMOD}/CR2032_BatHolder.lib)(options "")(descr ""))
 )
