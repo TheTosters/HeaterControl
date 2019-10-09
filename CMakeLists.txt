@@ -86,6 +86,7 @@ add_executable(${TARGET_NAME}
     "src/calendar.cpp"
     "src/communication.cpp"
     "src/rgb_led.cpp"
+    "src/error_handlers.cpp"
     ${TARGET_SOURCE_FILES}
     ${EXTRA_SDK_SOURCE_FILES}
 )

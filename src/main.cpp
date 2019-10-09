@@ -125,6 +125,7 @@ int main( int argc, const char* argv[] ) {
   });
   NRF_LOG_INFO("Loop\n");
 
+  RGBLeds().setColor(RGBLed::Color::GREEN, 3 * 1000);
   while (true) {
     dispatcher.process();
     nrf_pwr_mgmt_run();
