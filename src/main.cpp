@@ -72,6 +72,7 @@ uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
 
 void setupMeasureOnButton() {
   buttons().addObserver([](ButtonId event) {
+    RGBLeds().setColor(RGBLed::Color::GREEN, 1 * 1000);
     Communication::sendMeasurementsNow();
   });
 }
@@ -119,15 +120,10 @@ int main( int argc, const char* argv[] ) {
 //  APP_ERROR_CHECK(err_code);
   //----^
   setupScreens();
-
   sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
     NRF_LOG_INFO("Temp: %s; Hum: %s\n", t.toString().c_str(), h.toString().c_str() );
   });
   NRF_LOG_INFO("Loop\n");
-
-  RGBLed led{HardwarePin{CONFIG_RGB_R_PIN},
-    HardwarePin{CONFIG_RGB_G_PIN}, HardwarePin{CONFIG_RGB_B_PIN}};
-  led.setColor(RGBLed::Color::YELLOW);
 
   while (true) {
     dispatcher.process();

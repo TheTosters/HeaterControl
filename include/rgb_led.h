@@ -33,14 +33,16 @@ extern "C" {
 }
 #include <stdint.h>
 #include "types/hardware_pin.h"
+#include "timer_owner.h"
 
-class RGBLed {
+class RGBLed : TimerOwner {
 public:
     enum class Color {
       NONE, RED, GREEN, BLUE, YELLOW, WHITE, CYAN
     };
 
     RGBLed(HardwarePin r, HardwarePin g, HardwarePin b) :
+      TimerOwner(false, RGBLed::timerHandler),
       rPin(r), gPin(g), bPin(b)
     {
       pinUp(rPin);
@@ -48,7 +50,13 @@ public:
       pinUp(bPin);
     }
 
+    void setColor(const Color& col, const unsigned int timeoutMs) {
+      setColor(col);
+      startTimer(timeoutMs);
+    }
+
     void setColor(const Color& col) {
+      stopTimer();
       pinUp(rPin);
       pinUp(gPin);
       pinUp(bPin);
@@ -85,6 +93,10 @@ private:
     HardwarePin gPin;
     HardwarePin bPin;
 
+    static void timerHandler(void* selfPtr) {
+      static_cast<RGBLed*>(selfPtr)->setColor(Color::NONE);
+    }
+
     void pinUp(const HardwarePin& pin) {
       nrf_gpio_cfg(
                     pin.get(),
@@ -106,4 +118,5 @@ private:
         }
 };
 
+RGBLed& RGBLeds();
 #endif /* rgb_led_hpp */
