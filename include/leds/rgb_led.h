@@ -34,13 +34,10 @@ extern "C" {
 #include <stdint.h>
 #include "types/hardware_pin.h"
 #include "timer_owner.h"
+#include "leds/led_color.h"
 
 class RGBLed : TimerOwner {
 public:
-    enum class Color {
-      NONE, RED, GREEN, BLUE, YELLOW, WHITE, CYAN
-    };
-
     RGBLed(HardwarePin r, HardwarePin g, HardwarePin b) :
       TimerOwner(false, RGBLed::timerHandler),
       rPin(r), gPin(g), bPin(b)
@@ -50,41 +47,41 @@ public:
       pinUp(bPin);
     }
 
-    void setColor(const Color& col, const unsigned int timeoutMs) {
+    void setColor(const LedColor& col, const unsigned int timeoutMs) {
       setColor(col);
       startTimer(timeoutMs);
     }
 
-    void setColor(const Color& col) {
+    void setColor(const LedColor& col) {
       stopTimer();
       pinUp(rPin);
       pinUp(gPin);
       pinUp(bPin);
       switch(col) {
-        case Color::RED:
+        case LedColor::RED:
           pinDown(rPin);
           break;
-        case Color::GREEN:
+        case LedColor::GREEN:
           pinDown(gPin);
           break;
-        case Color::BLUE:
+        case LedColor::BLUE:
           pinDown(bPin);
           break;
-        case Color::YELLOW:
+        case LedColor::YELLOW:
           pinDown(rPin);
           pinDown(gPin);
           break;
-        case Color::CYAN:
+        case LedColor::CYAN:
           pinDown(bPin);
           pinDown(gPin);
           break;
-        case Color::WHITE:
+        case LedColor::WHITE:
           pinDown(rPin);
           pinDown(gPin);
           pinDown(bPin);
           break;
         default:
-        case Color::NONE:
+        case LedColor::NONE:
           break;
       }
     }
@@ -94,7 +91,7 @@ private:
     HardwarePin bPin;
 
     static void timerHandler(void* selfPtr) {
-      static_cast<RGBLed*>(selfPtr)->setColor(Color::NONE);
+      static_cast<RGBLed*>(selfPtr)->setColor(LedColor::NONE);
     }
 
     void pinUp(const HardwarePin& pin) {
@@ -117,6 +114,4 @@ private:
                         NRF_GPIO_PIN_NOSENSE);
         }
 };
-
-RGBLed& RGBLeds();
 #endif /* rgb_led_hpp */

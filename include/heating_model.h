@@ -8,6 +8,19 @@ enum class HeatingPlan {
   SCHEDULE, PRESELECTED
 };
 
+/* How to bind things...
+ *
+  TemperatureScheduler tempScheduler;
+  HeatingModel heatingModel{tempScheduler};
+  sensors().addObserver([&heatingModel](TemperatureC t, RelativeHumidity h, BatteryPrc  b) {
+    heatingModel.setTempAndHum(t, h);
+  });
+    calendar.addObserver([&heatingModel](DecodedTime t) {
+    heatingModel.setTime(t);
+  });
+
+ */
+
 class HeatingModel : public Observable<bool, TemperatureC, HeatingPlan>{
 public:
   HeatingPlan mode{HeatingPlan::SCHEDULE};

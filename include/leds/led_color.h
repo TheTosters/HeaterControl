@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 Bartłomiej Żarnowski
+Copyright (c) 2018 Bartłomiej Żarnowski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,17 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-buttons.cpp
-Created on: Sep 16, 2019
+leds.h
+Created on: Oct 13, 2019
     Author: Bartłomiej Żarnowski (Toster)
 */
-extern "C" {
-#include <components/boards/boards.h>
-}
-#include "types/hardware_pin.h"
-#include "leds/led_factory.h"
+#ifndef led_color_hpp
+#define led_color_hpp
 
-OnBoardRGBLed& RGBLeds() {
-  static OnBoardRGBLed* inst = new OnBoardRGBLed{ LedFactoryTrait<BOARD_RGB_LED>::build() };
-  return *inst;
-}
+enum class LedColor {
+    NONE, RED, GREEN, BLUE, YELLOW, WHITE, CYAN
+};
+
+#endif /* led_color_hpp */

@@ -29,7 +29,7 @@ extern "C" {
 #include "app_error.h"
 #include <modules/nrfx/hal/nrf_power.h>
 }
-#include "rgb_led.h"
+#include "leds/led_factory.h"
 
 namespace {
   uint32_t millis()
@@ -48,7 +48,7 @@ namespace {
   }
 
   void finalErrorNotification() {
-    RGBLeds().setColor(RGBLed::Color::RED, 3 * 1000);
+    RGBLeds().setColor(LedColor::RED, 3 * 1000);
     uint32_t now = millis();
     while( compareMillis(now, millis()) < 4 * 1000) {
     }

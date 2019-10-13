@@ -90,4 +90,16 @@ struct ComFactoryTrait<CommMode::BT_GATT> {
     }
 };
 
+/**
+ This code should be added when play with DFU after GATT stack start!
+   //--- dfu test
+//  static ble_dfu_buttonless_init_t dfus_init;
+//  err_code = ble_dfu_buttonless_init(&dfus_init);
+//
+//  NRF_LOG_INFO("DFU ERROR: %d", err_code);
+//  NRF_LOG_FLUSH();
+//  APP_ERROR_CHECK(err_code);
+  //----^
+ */
+
 using Communication = ComFactoryTrait<BOARD_COMMUNICATION>;

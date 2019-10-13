@@ -26,15 +26,16 @@
 #define MEASURE_ON_BUTTON_PRESS   1
 
 #define BUTTONS_NUMBER  1
-#define BUTTON_PREV     NRF_GPIO_PIN_MAP(1, 14)
+#define BUTTON_PREV     NRF_GPIO_PIN_MAP(0, 6)
 #define BUTTON_PULL     NRF_GPIO_PIN_PULLUP
 #define BUTTONS_ACTIVE_STATE 0
 #define BUTTONS_LIST   {BUTTON_PREV}
 #define BSP_BUTTON_0   BUTTON_PREV
 
-#define LEDS_NUMBER    0
-#define DISPLAY        1
+#define LEDS_NUMBER    0  //BSP LEDS not RGB!
+#define DISPLAY        0
 
+#define BOARD_RGB_LED         RGBLedType::FULL_3PIN_RGB
 #define CONFIG_RGB_R_PIN      NRF_GPIO_PIN_MAP(1, 14)
 #define CONFIG_RGB_G_PIN      NRF_GPIO_PIN_MAP(1, 15)
 #define CONFIG_RGB_B_PIN      NRF_GPIO_PIN_MAP(1, 5)

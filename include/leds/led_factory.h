@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 Bartłomiej Żarnowski
+Copyright (c) 2018 Bartłomiej Żarnowski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,17 +21,59 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-buttons.cpp
-Created on: Sep 16, 2019
+led_factory.h
+Created on: Oct 13, 2019
     Author: Bartłomiej Żarnowski (Toster)
 */
+#ifndef led_factory_hpp
+#define led_factory_hpp
+
 extern "C" {
 #include <components/boards/boards.h>
 }
 #include "types/hardware_pin.h"
-#include "leds/led_factory.h"
+#include "rgb_led.h"
+#include "rgb_led_emulation.h"
 
-OnBoardRGBLed& RGBLeds() {
-  static OnBoardRGBLed* inst = new OnBoardRGBLed{ LedFactoryTrait<BOARD_RGB_LED>::build() };
-  return *inst;
-}
+enum class RGBLedType {
+  NONE, FULL_3PIN_RGB, ONE_LED_EMULATION
+};
+
+template<RGBLedType ledType>
+struct LedFactoryTrait {
+  using LedType = void;
+  static LedType build() {
+  }
+};
+
+template<>
+struct LedFactoryTrait<RGBLedType::NONE> {
+  using LedType = void;
+  static LedType build() {
+  }
+};
+
+//Specialisation of factory for Full RGB common catode
+template<>
+struct LedFactoryTrait<RGBLedType::FULL_3PIN_RGB> {
+  using LedType = RGBLed;
+
+    static LedType build() {
+      return LedType { HardwarePin { CONFIG_RGB_R_PIN }, HardwarePin { CONFIG_RGB_G_PIN },
+        HardwarePin {CONFIG_RGB_B_PIN } };
+    }
+};
+
+//Specialisation of factory for emulation of RGB led
+template<>
+struct LedFactoryTrait<RGBLedType::ONE_LED_EMULATION> {
+  using LedType = RGBLedEmul;
+    static LedType build() {
+      return LedType{ HardwarePin { CONFIG_RGB_R_PIN } };
+    }
+};
+
+using OnBoardRGBLed = LedFactoryTrait<BOARD_RGB_LED>::LedType;
+OnBoardRGBLed& RGBLeds();
+
+#endif /* led_factory_hpp */
