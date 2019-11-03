@@ -1,0 +1,9 @@
+(fp_lib_table
+  (lib (name SHT30-DIS-B)(type Legacy)(uri ${KIPRJMOD}/SHT30-DIS-B.mod)(options "")(descr ""))
+  (lib (name BS-3)(type Legacy)(uri ${KIPRJMOD}/BS-3.mod)(options "")(descr ""))
+  (lib (name Tag-Connect)(type Legacy)(uri ${KIPRJMOD}/Tag-Connect.mod)(options "")(descr ""))
+  (lib (name CR2032_BatHolder)(type KiCad)(uri ${KIPRJMOD}/CR2032_BatHolder.pretty)(options "")(descr ""))
+  (lib (name LED_RGB)(type KiCad)(uri ${KIPRJMOD}/LED_RGB.pretty)(options "")(descr ""))
+  (lib (name HolyIot)(type KiCad)(uri ${KIPRJMOD}/HolyIot.pretty)(options "")(descr ""))
+  (lib (name Pads)(type KiCad)(uri ${KIPRJMOD}/Pads.pretty)(options "")(descr ""))
+)

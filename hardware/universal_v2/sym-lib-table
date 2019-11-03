@@ -1,0 +1,7 @@
+(sym_lib_table
+  (lib (name SHT30-DIS-B)(type Legacy)(uri ${KIPRJMOD}/SHT30-DIS-B.lib)(options "")(descr ""))
+  (lib (name BS-3)(type Legacy)(uri ${KIPRJMOD}/BS-3.lib)(options "")(descr ""))
+  (lib (name Tag-Connect)(type Legacy)(uri ${KIPRJMOD}/Tag-Connect.lib)(options "")(descr ""))
+  (lib (name CR2032_BatHolder)(type Legacy)(uri ${KIPRJMOD}/CR2032_BatHolder.lib)(options "")(descr ""))
+  (lib (name HolyIot)(type Legacy)(uri /Users/Zarnowski/Desktop/WORK/IoT/HeaterControl/repository/hardware/universal_v2/HolyIot.lib)(options "")(descr ""))
+)
