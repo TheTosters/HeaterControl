@@ -1,4 +1,4 @@
-update=śro, 9 paź 2019, 07:27:29
+update=pon, 4 lis 2019, 08:57:17
 version=1
 last_client=kicad
 [general]
@@ -25,7 +25,7 @@ ERC_TestSimilarLabels=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=HeaterControl.net
+LastNetListRead=Universal_v2.net
 CopperLayerCount=2
 BoardThickness=1.6
 AllowMicroVias=0
