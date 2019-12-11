@@ -5,4 +5,5 @@
   (lib (name CR2032_BatHolder)(type KiCad)(uri ${KIPRJMOD}/CR2032_BatHolder.pretty)(options "")(descr ""))
   (lib (name HolyIot)(type KiCad)(uri ${KIPRJMOD}/HolyIot.pretty)(options "")(descr ""))
   (lib (name Pads)(type KiCad)(uri ${KIPRJMOD}/Pads.pretty)(options "")(descr ""))
+  (lib (name Everlight)(type KiCad)(uri ${KIPRJMOD}/Everlight.pretty)(options "")(descr ""))
 )
