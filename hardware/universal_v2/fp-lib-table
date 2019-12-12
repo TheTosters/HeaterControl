@@ -6,4 +6,5 @@
   (lib (name HolyIot)(type KiCad)(uri ${KIPRJMOD}/HolyIot.pretty)(options "")(descr ""))
   (lib (name Pads)(type KiCad)(uri ${KIPRJMOD}/Pads.pretty)(options "")(descr ""))
   (lib (name Everlight)(type KiCad)(uri ${KIPRJMOD}/Everlight.pretty)(options "")(descr ""))
+  (lib (name Laird)(type KiCad)(uri ${KIPRJMOD}/Laird.pretty)(options "")(descr ""))
 )

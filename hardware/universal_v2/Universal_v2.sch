@@ -3,7 +3,7 @@ EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 1
+Sheet 1 2
 Title ""
 Date ""
 Rev ""
@@ -663,4 +663,10 @@ Wire Wire Line
 Connection ~ 4950 1575
 Wire Wire Line
 	4950 1025 4950 1375
+$Sheet
+S 5300 3600 2875 1950
+U 5DF39E1A
+F0 "Laird" 50
+F1 "Laird_schematic.sch" 50
+$EndSheet
 $EndSCHEMATC
