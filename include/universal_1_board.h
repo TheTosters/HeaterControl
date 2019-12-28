@@ -41,7 +41,8 @@
 #define CONFIG_SDA_PIN      NRF_GPIO_PIN_MAP(0, 26)
 #define CONFIG_SCL_PIN      NRF_GPIO_PIN_MAP(0, 27)
 
-#define MEASURE_INTERVAL_MS   (5 * 60 * 1000)
+//#define MEASURE_INTERVAL_MS   (5 * 60 * 1000)
+#define MEASURE_INTERVAL_MS   (1 * 1000)
 #define MEASURE_DELTA_TEMP    (0.5f)
 #define MEASURE_DELTA_HUM     (5)
 

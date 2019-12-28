@@ -69,10 +69,12 @@ struct ComFactoryTrait<CommMode::BT_GATT> {
         auto& batChr = servB.getCharacteristic<BatteryLevelCharacteristic>();
         batChr.setValue(b);
       });
+
       NRF_LOG_INFO("Config BT as GATT");
     }
 
     static void sendMeasurementsNow() {
+      NRF_LOG_INFO("GATT: Sending measurements");
       const OnBoardSensor& sensor = sensors();
 
       auto& serv = gattStack->getService<EnvironmentalSensingService>();

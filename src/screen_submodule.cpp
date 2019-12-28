@@ -71,5 +71,8 @@ void setupScreens() {
 
   display().sustainOn();
   stack.render();
+  NRF_LOG_INFO("ENABLE: Display support");
+#else
+  NRF_LOG_INFO("DISABLE: Display support");
 #endif
 }

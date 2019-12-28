@@ -77,18 +77,29 @@ void setupMeasureOnButton() {
     RGBLeds().setColor(LedColor::GREEN, 1 * 1000);
     Communication::sendMeasurementsNow();
   });
-  NRF_LOG_INFO("Configured Measure on Button press");
+  NRF_LOG_INFO("ENABLE: Measure on Button press");
+#else
+  NRF_LOG_INFO("DISABLE: Measure on Button press");
 #endif
+}
+
+void pinsFix() {
+  //in this hardware following pins are bridged and need to be set as a high impedance
+  //P0.27 & P0.7
+  //P0.26 & P0.6
+  nrf_gpio_cfg_input(NRF_GPIO_PIN_MAP(0, 6), NRF_GPIO_PIN_NOPULL);
+  nrf_gpio_cfg_input(NRF_GPIO_PIN_MAP(0, 7), NRF_GPIO_PIN_NOPULL);
+  NRF_LOG_INFO("ENABLE: Pins P0.06 & P0.07 as high impedance");
 }
 
 int main( int argc, const char* argv[] ) {
   NRF_LOG_INIT(NULL);
   NRF_LOG_DEFAULT_BACKENDS_INIT();
-  NRF_LOG_INFO("Start\n");
+  NRF_LOG_INFO("Start");
   NRF_LOG_FLUSH();
 
   bsp_board_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS);
-
+  pinsFix();
   powerManagementInit();
   initLowFreqClock();
 
@@ -104,17 +115,21 @@ int main( int argc, const char* argv[] ) {
 
   Communication::build();
   Communication::start();
+  NRF_LOG_FLUSH();
 
   setupScreens();
   setupMeasureOnButton();
 
 #ifdef DEBUG_BUILD
   sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
-    NRF_LOG_INFO("Temp: %s; Hum: %s\n", t.toString().c_str(), h.toString().c_str() );
+    NRF_LOG_WARNING("Temp: %s; Hum: %s, Batt: %s\n",
+        t.toString().c_str(), h.toString().c_str(), b.toString().c_str() );
   });
+  NRF_LOG_INFO("ENABLE: Debug sensors dump");
 #endif
 
-  NRF_LOG_INFO("Entering main loop\n");
+  NRF_LOG_INFO("Config done, entering main loop");
+  NRF_LOG_FLUSH();
 
   RGBLeds().setColor(LedColor::GREEN, 3 * 1000);
   while (true) {
