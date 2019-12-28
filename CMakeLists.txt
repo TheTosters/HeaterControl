@@ -1,24 +1,25 @@
-set(PROJECT_NAME "HeaterControl")
-
-# Choose platform: "nrf52832_xxAA", "nrf52840_xxAA", "nrf52810_xxAA", "nrf51422_xxAC"
-# BUILD_HOST override it if enabled
-set(PLATFORM "nrf52840_xxAA" CACHE STRING "Choose the target platform to build for.")
-
-# Uncomment and set custom board name if needed
-#set(CUSTOM_BOARD_INC "production_board")
-set(CUSTOM_BOARD_INC "universal_1_board")
-
-# Set a default build type: "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
-set(default_build_type "Debug") 
-
-option(BUILD_HOST "Build for host (unit test build)" OFF)
-
 cmake_minimum_required(VERSION 3.5)
 if (NOT CMAKE_VERSION VERSION_LESS 3.9)
     # Allow user to enable CMAKE_INTERPROCEDURAL_OPTIMIZATION (LTO) if supported for the toolchain.
     # This is supported from CMake version 9 and later.
     cmake_policy(SET CMP0069 NEW)
 endif ()
+
+set(PROJECT_NAME "HeaterControl")
+
+# Choose platform: "nrf52832_xxAA", "nrf52840_xxAA", "nrf52810_xxAA", "nrf51422_xxAC"
+# BUILD_HOST override it if enabled
+set(PLATFORM "nrf52840_xxAA" CACHE STRING "Choose the target platform to build for.")
+
+# disable from CCMake some variables as not desirable to be changed
+mark_as_advanced(FORCE PLATFORM)
+mark_as_advanced(FORCE SOFTDEVICE)
+mark_as_advanced(FORCE BOARD)
+
+# Set a default build type: "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
+set(default_build_type "Debug") 
+
+option(BUILD_HOST "Build for host (unit test build)" OFF)
 
 if (NOT BUILD_HOST)
     set(CMAKE_SYSTEM_NAME "Generic")
@@ -28,6 +29,9 @@ endif (NOT BUILD_HOST)
 project(${PROJECT_NAME} LANGUAGES NONE)
 
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/CMake")
+
+include("${CMAKE_CONFIG_DIR}/Firmware_variants.cmake")
+configureFirmwareBuild()
 
 include("local_env.cmake")
 include("fix.cmake")
@@ -124,5 +128,6 @@ message(STATUS "Arch: ${${PLATFORM}_ARCH}")
 message(STATUS "Platform: ${PLATFORM}")
 message(STATUS "SDK: ${SDK_ROOT}")
 message(STATUS "SoftDevice: ${SOFTDEVICE}")
-message(STATUS "Board: ${BOARD}")
+message(STATUS "Firmware variant: ${FIRMWARE_VARIANT}")
+message(STATUS "Board: ${BOARD}/${CUSTOM_BOARD_INC}")
 message(STATUS "-----------------------------------")
