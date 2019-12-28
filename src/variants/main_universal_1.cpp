@@ -102,16 +102,17 @@ int main( int argc, const char* argv[] ) {
   EventsDispatcher<10,
     ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr> dispatcher;
 
-  setupMeasureOnButton();
-
   Communication::build();
   Communication::start();
 
   setupScreens();
+  setupMeasureOnButton();
 
+#ifdef DEBUG_BUILD
   sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
     NRF_LOG_INFO("Temp: %s; Hum: %s\n", t.toString().c_str(), h.toString().c_str() );
   });
+#endif
 
   NRF_LOG_INFO("Entering main loop\n");
 

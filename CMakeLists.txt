@@ -19,6 +19,10 @@ mark_as_advanced(FORCE BOARD)
 # Set a default build type: "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
 set(default_build_type "Debug") 
 
+if(default_build_type STREQUAL "Debug")
+add_compile_definitions(DEBUG_BUILD)
+endif()
+
 option(BUILD_HOST "Build for host (unit test build)" OFF)
 
 if (NOT BUILD_HOST)
