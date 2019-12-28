@@ -35,6 +35,7 @@ struct ComFactoryTrait<CommMode::BT_ADV> {
       sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc b) {
         btleTransmiter->transmitNow();
       });
+      NRF_LOG_INFO("Config BT as advertiser");
     }
 
     static void start() {
@@ -68,6 +69,7 @@ struct ComFactoryTrait<CommMode::BT_GATT> {
         auto& batChr = servB.getCharacteristic<BatteryLevelCharacteristic>();
         batChr.setValue(b);
       });
+      NRF_LOG_INFO("Config BT as GATT");
     }
 
     static void sendMeasurementsNow() {

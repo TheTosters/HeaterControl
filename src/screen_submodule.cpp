@@ -47,7 +47,7 @@ ScreensStack& screensStack() {
 }
 
 void setupScreens() {
-#if DISPLAY
+#if defined(DISPLAY) && DISPLAY == 1
   ScreensStack& stack = screensStack();
   DefaultScreen& screen = stack.add( DefaultScreen{display()} );
 

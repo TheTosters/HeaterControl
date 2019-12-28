@@ -72,10 +72,13 @@ uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
 }
 
 void setupMeasureOnButton() {
+#if defined(MEASURE_ON_BUTTON_PRESS) && MEASURE_ON_BUTTON_PRESS == 1
   buttons().addObserver([](ButtonId event) {
     RGBLeds().setColor(LedColor::GREEN, 1 * 1000);
     Communication::sendMeasurementsNow();
   });
+  NRF_LOG_INFO("Configured Measure on Button press");
+#endif
 }
 
 int main( int argc, const char* argv[] ) {
@@ -84,14 +87,14 @@ int main( int argc, const char* argv[] ) {
   NRF_LOG_INFO("Start\n");
   NRF_LOG_FLUSH();
 
-  bsp_board_init(BSP_INIT_LEDS);
+  bsp_board_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS);
 
   powerManagementInit();
   initLowFreqClock();
 
   ret_code_t err = app_timer_init();
   APP_ERROR_CHECK(err);
-  setupMeasureOnButton();
+
   RGBLeds().setColor(LedColor::NONE, 3*1000);
 
   //All data types which are used by classes which uses dispatching into main
@@ -99,16 +102,12 @@ int main( int argc, const char* argv[] ) {
   EventsDispatcher<10,
     ButtonId, app_timer_event_t, BtleTransmiter*, BleEventPtr> dispatcher;
 
-#if MEASURE_ON_BUTTON_PRESS
   setupMeasureOnButton();
-#endif
 
   Communication::build();
   Communication::start();
 
-#if DISPLAY
   setupScreens();
-#endif
 
   sensors().addObserver([](TemperatureC t, RelativeHumidity h, BatteryPrc  b){
     NRF_LOG_INFO("Temp: %s; Hum: %s\n", t.toString().c_str(), h.toString().c_str() );

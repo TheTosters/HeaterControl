@@ -34,6 +34,7 @@ extern "C" {
 #include "types/hardware_pin.h"
 #include "rgb_led.h"
 #include "rgb_led_emulation.h"
+#include "rgb_led_none.h"
 
 enum class RGBLedType {
   NONE, FULL_3PIN_RGB, ONE_LED_EMULATION
@@ -48,8 +49,9 @@ struct LedFactoryTrait {
 
 template<>
 struct LedFactoryTrait<RGBLedType::NONE> {
-  using LedType = void;
+  using LedType = NoRGBLed;
   static LedType build() {
+    return LedType{};
   }
 };
 
