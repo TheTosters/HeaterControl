@@ -27,16 +27,16 @@ extern "C" {
 template <template <typename> class... Services>
 class GattStack :
     public CustomStack<GAPSubComp,
-                       //QueuedWritesSubComp,
-                       ConnParamsCgfComp
-                       //PeerMgrSubComp
+                       QueuedWritesSubComp,
+                       ConnParamsCgfComp,
+                       PeerMgrSubComp
                        > {
 
 private:
   using GattStackType = CustomStack<GAPSubComp,
-      //QueuedWritesSubComp,
-      ConnParamsCgfComp
-      //PeerMgrSubComp
+      QueuedWritesSubComp,
+      ConnParamsCgfComp,
+      PeerMgrSubComp
       >;
 
 public:

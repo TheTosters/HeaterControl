@@ -1,41 +1,59 @@
 #pragma once
 
-//This is custom board done for this project, following things are on it:
-// * An RGB LED
-// * No user buttons
-// * SHT30 Sensor
-// * No display
-// * GATT based measurements
+//This is custom board done for this project, it refers to PCB: hardware/universalSensor
 
-//-----------------
-// This are pins configuration for various code parts
+//This things need to be set from CMAKE or compiler options
+#ifndef BOARD_SENSOR
+  #error "BOARD_SENSOR macro need to be set!"
+#endif
+
+#ifndef BOARD_COMMUNICATION
+  #error "BOARD_COMMUNICATION macro need to be set!"
+#endif
+
+#ifndef BOARD_RGB_LED
+  #warning "BOARD_RGB_LED  macro should be set, falback to NONE"
+  #define BOARD_RGB_LED   RGBLedType::NONE
+#endif
+
+#ifndef MEASURE_ON_BUTTON_PRESS
+  #warning "MEASURE_ON_BUTTON_PRESS is not set by build system, falback to 0"
+  #define MEASURE_ON_BUTTON_PRESS   1
+#endif
+
+#ifndef BUTTONS_NUMBER
+  #warning "BUTTONS_NUMBER is not set by build system, falback to 1"
+  #define BUTTONS_NUMBER  1
+#endif
+
+#ifndef LEDS_NUMBER
+  #warning "LEDS_NUMBER is not set by build system, falback to 0"
+  #define LEDS_NUMBER    0  //BSP LEDS not RGB!
+#endif
+
+#ifndef DISPLAY
+  #warning "DISPLAY is not set by build system, falback to 0"
+  #define DISPLAY        0
+#endif
+
 
 //I2C
 #define CONFIG_SDA_PIN      NRF_GPIO_PIN_MAP(0, 26)
 #define CONFIG_SCL_PIN      NRF_GPIO_PIN_MAP(0, 27)
 
-//#define BOARD_SENSOR  BoardSensor::SHT30
-#define BOARD_SENSOR BoardSensor::DS18B20
-
-#define MEASURE_INTERVAL_MS   (5 * 60 * 1000)
+//#define MEASURE_INTERVAL_MS   (5 * 60 * 1000)
+#define MEASURE_INTERVAL_MS   (1 * 1000)
 #define MEASURE_DELTA_TEMP    (0.5f)
 #define MEASURE_DELTA_HUM     (5)
 
-#define BOARD_COMMUNICATION CommMode::BT_GATT
-
-#define MEASURE_ON_BUTTON_PRESS   1
-
-#define BUTTONS_NUMBER  1
+//BSP buttons
 #define BUTTON_PREV     NRF_GPIO_PIN_MAP(0, 6)
 #define BUTTON_PULL     NRF_GPIO_PIN_PULLUP
 #define BUTTONS_ACTIVE_STATE 0
 #define BUTTONS_LIST   {BUTTON_PREV}
 #define BSP_BUTTON_0   BUTTON_PREV
 
-#define LEDS_NUMBER    0  //BSP LEDS not RGB!
-#define DISPLAY        0
-
-#define BOARD_RGB_LED         RGBLedType::FULL_3PIN_RGB
+//RGB led config (Not BSP led)
 #define CONFIG_RGB_R_PIN      NRF_GPIO_PIN_MAP(1, 14)
 #define CONFIG_RGB_G_PIN      NRF_GPIO_PIN_MAP(1, 15)
 #define CONFIG_RGB_B_PIN      NRF_GPIO_PIN_MAP(1, 5)
